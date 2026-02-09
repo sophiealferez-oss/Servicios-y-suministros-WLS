@@ -1,74 +1,88 @@
-# Landing Page - Alquiler de Maquinaria Pesada
+# Servicios y Suministros WLS - Landing Page
 
-Landing page profesional para empresa de alquiler de maquinaria pesada, diseñada para mostrar equipos de construcción, minería y obras civiles.
+Landing page profesional para Servicios y Suministros WLS, empresa dedicada al alquiler de maquinaria pesada con 30 años de experiencia en Acacías, Meta, Colombia.
 
-## Características
+## Descripción del Proyecto
 
-- Diseño completamente responsivo
-- Secciones de categorías de maquinaria
-- Galería de equipos destacados
-- Formulario de contacto funcional
-- Animaciones y efectos interactivos
-- Navegación suave entre secciones
-- Diseño moderno con colores profesionales
+Esta landing page ha sido diseñada con un enfoque profesional y corporativo para representar adecuadamente la marca Servicios y Suministros WLS. La página incluye todas las secciones necesarias para mostrar los servicios, maquinaria disponible y facilitar el contacto con los clientes potenciales.
 
-## Tecnologías utilizadas
+## Características Principales
+
+- **Diseño Responsivo**: Compatible con dispositivos móviles, tablets y escritorio
+- **Navegación Sticky**: Barra lateral fija que permanece visible al hacer scroll
+- **Animaciones Sutiles**: Efectos de transición y aparición al hacer scroll
+- **Formulario de Contacto**: Con validación básica de campos requeridos
+- **Menú Móvil**: Menú hamburguesa para dispositivos móviles
+- **Botón de WhatsApp Flotante**: Acceso rápido al contacto por WhatsApp
+
+## Estructura de la Página
+
+1. **Hero**: Sección inicial con imagen de fondo impactante y botones de acción
+2. **Sobre Nosotros**: Información sobre la empresa y sus estadísticas clave
+3. **Maquinaria Disponible**: Galería visual de la maquinaria disponible
+4. **Servicios**: Detalle de los servicios ofrecidos en formato de tarjetas
+5. **Contacto**: Formulario de contacto y datos de información
+
+## Tecnologías Utilizadas
 
 - HTML5
 - CSS3 (con Grid y Flexbox)
-- JavaScript ES6+
-- Google Fonts
-- Font Awesome Icons
+- JavaScript ES6 (sin frameworks externos)
+- Google Fonts (fuente Poppins)
 
-## Estructura del proyecto
+## Archivos del Proyecto
 
-```
-├── index.html          # Página principal
-├── styles.css          # Estilos CSS
-├── script.js           # Funcionalidad JavaScript
-└── README.md           # Documentación
-```
+- `index.html`: Estructura principal de la página
+- `styles.css`: Hoja de estilos con comentarios detallados
+- `script.js`: Funcionalidad interactiva (menú móvil, scroll suave, validación de formulario)
+- `README.md`: Documentación del proyecto
 
-## Instalación
+## Instalación y Uso
 
-1. Clona o descarga este repositorio
-2. Abre el archivo `index.html` en tu navegador web
-3. ¡Listo para usar!
+1. Clona o descarga los archivos en tu directorio local
+2. Abre `index.html` en tu navegador web
+3. Personaliza el contenido según tus necesidades
 
 ## Personalización
 
-### Cambiar imágenes
-Reemplaza las imágenes de ejemplo con tus propias imágenes de maquinaria en los elementos `<img>` correspondientes.
+### Cambiar Imágenes
+Reemplaza las imágenes de placeholder con imágenes reales de tu negocio:
+- Imagen de hero: Actualiza la URL en la propiedad `background-image` de la clase `.hero`
+- Imágenes de galería: Reemplaza las URLs en la sección de maquinaria disponible
 
-### Modificar contenido
-Edita el contenido directamente en el archivo `index.html`:
-- Textos, títulos y descripciones
-- Información de contacto
+### Contenido
+Modifica el texto en `index.html` para reflejar la información específica de tu negocio:
+- Textos descriptivos
+- Datos de contacto
 - Tipos de maquinaria
-- Precios
+- Servicios específicos
 
-### Colores y estilos
-Modifica las variables CSS en el archivo `styles.css`:
-```css
-:root {
-    --primary-color: #2c3e50;
-    --secondary-color: #3498db;
-    --accent-color: #e74c3c;
-}
-```
+### Colores y Estilos
+Actualiza las variables de color en `styles.css`:
+- Color primario: `#0066cc`
+- Colores de fondo y texto según la identidad corporativa
 
-## Funcionalidades
+## Validación de Formulario
 
-- **Menú móvil**: El menú se convierte en hamburguesa en dispositivos móviles
-- **Formulario de contacto**: Validación de campos y mensaje de confirmación
-- **Botones de alquiler**: Interacción con alertas de confirmación
-- **Animaciones**: Elementos que aparecen al hacer scroll
-- **Navegación suave**: Desplazamiento suave entre secciones
+El formulario de contacto incluye validación básica:
+- Campos nombre y email son obligatorios
+- Validación de formato de email
+- Mensaje de confirmación al enviar
 
-## Licencia
+## Optimización SEO
 
-Este proyecto es de uso libre. Siéntete libre de modificarlo y usarlo según tus necesidades.
+La página incluye etiquetas meta importantes:
+- Etiqueta title descriptiva
+- Meta description
+- Etiquetas Open Graph para redes sociales
+- Estructura semántica HTML
 
-## Autor
+## Compatibilidad
 
-Desarrollado como ejemplo de landing page para alquiler de maquinaria pesada.
+- Chrome, Firefox, Safari, Edge (versiones modernas)
+- Dispositivos móviles y tablets
+- Accesibilidad básica implementada
+
+## Licencias
+
+Este código es de uso libre y puede ser modificado según las necesidades del proyecto.

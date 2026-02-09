@@ -3,182 +3,199 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RentaMaq - Alquiler de Maquinaria Pesada</title>
+    <title>Servicios y Suministros WLS - Alquiler de Maquinaria Pesada</title>
+    <meta name="description" content="Empresa líder en alquiler de maquinaria pesada con 30 años de experiencia en Acacías, Meta. Ofrecemos excavadoras, retroexcavadoras, motoniveladoras y más.">
     <link rel="stylesheet" href="styles.css">
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <!-- Header -->
-    <header>
-        <nav class="navbar">
-            <div class="logo">
-                <h2><i class="fas fa-hard-hat"></i> Renta<span>Maq</span></h2>
-            </div>
-            <ul class="nav-links">
-                <li><a href="#inicio">Inicio</a></li>
-                <li><a href="#maquinaria">Maquinaria</a></li>
-                <li><a href="#servicios">Servicios</a></li>
-                <li><a href="#contacto">Contacto</a></li>
-            </ul>
-            <div class="mobile-menu">
-                <span></span>
-                <span></span>
-                <span></span>
-            </div>
-        </nav>
-    </header>
-
-    <!-- Hero Section -->
-    <section id="inicio" class="hero">
-        <div class="hero-content">
-            <h1>Alquiler de Maquinaria Pesada Profesional</h1>
-            <p>Equipos de alta calidad para tus proyectos de construcción, minería y obras civiles</p>
-            <button class="cta-btn">Ver Catálogo</button>
+    <!-- Sidebar Navigation -->
+    <nav class="sidebar-nav">
+        <div class="logo-container">
+            <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAiIGhlaWdodD0iNTAiIHZpZXdCb3g9IjAgMCAxMDAgNTAiPjxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iNTAiIGZpbGw9IiMwMDY2Y2MiLz48dGV4dCB4PSI1MCIgeT0iMzAiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxOCIgZmlsbD0id2hpdGUiIHRleHQtYW5jaG9yPSJtaWRkbGUiPldMUzwvdGV4dD48L3N2Zz4=" alt="Servicios y Suministros WLS" class="logo">
         </div>
-    </section>
+        <ul class="nav-links">
+            <li><a href="#hero">Inicio</a></li>
+            <li><a href="#about">Sobre Nosotros</a></li>
+            <li><a href="#machinery">Maquinaria</a></li>
+            <li><a href="#services">Servicios</a></li>
+            <li><a href="#contact">Contacto</a></li>
+        </ul>
+    </nav>
 
-    <!-- Equipment Categories -->
-    <section id="maquinaria" class="equipment">
-        <div class="container">
-            <h2>Nuestra Maquinaria</h2>
-            <div class="categories">
-                <div class="category-card">
-                    <i class="fas fa-excavator"></i>
-                    <h3>Excavadoras</h3>
-                    <p>Desde compactas hasta de gran tamaño para cualquier proyecto</p>
-                </div>
-                <div class="category-card">
-                    <i class="fas fa-truck-pickup"></i>
-                    <h3>Volquetas</h3>
-                    <p>Transporte de materiales con capacidad variable</p>
-                </div>
-                <div class="category-card">
-                    <i class="fas fa-bulldozer"></i>
-                    <h3>Topadoras</h3>
-                    <p>Para nivelación y movimiento de tierras</p>
-                </div>
-                <div class="category-card">
-                    <i class="fas fa-crane"></i>
-                    <h3>Grúas</h3>
-                    <p>Elevación y movimiento de cargas pesadas</p>
+    <!-- Main Content -->
+    <main>
+        <!-- Hero Section -->
+        <section id="hero" class="hero">
+            <div class="overlay"></div>
+            <div class="hero-content">
+                <h1>Servicios y Suministros WLS</h1>
+                <p>Alquiler de maquinaria pesada con 30 años de experiencia en Acacías, Meta</p>
+                <div class="cta-buttons">
+                    <a href="#contact" class="btn btn-primary">Solicitar Cotización</a>
+                    <a href="#machinery" class="btn btn-secondary">Ver Catálogo</a>
                 </div>
             </div>
-        </div>
-    </section>
+        </section>
 
-    <!-- Featured Equipment -->
-    <section class="featured">
-        <div class="container">
-            <h2>Maquinaria Destacada</h2>
-            <div class="equipment-grid">
-                <div class="equipment-item">
-                    <img src="https://placehold.co/300x200/4a90e2/ffffff?text=Excavadora+30T" alt="Excavadora 30T">
-                    <h3>Excavadora 30 Toneladas</h3>
-                    <p>Potente excavadora para trabajos pesados</p>
-                    <div class="price">$2,500/día</div>
-                    <button class="rent-btn">Alquilar Ahora</button>
-                </div>
-                <div class="equipment-item">
-                    <img src="https://placehold.co/300x200/e74c3c/ffffff?text=Volqueta+15M3" alt="Volqueta 15M3">
-                    <h3>Volqueta 15 M3</h3>
-                    <p>Capacidad para transporte de materiales</p>
-                    <div class="price">$1,800/día</div>
-                    <button class="rent-btn">Alquilar Ahora</button>
-                </div>
-                <div class="equipment-item">
-                    <img src="https://placehold.co/300x200/2ecc71/ffffff?text=Topadora+D6" alt="Topadora D6">
-                    <h3>Topadora D6</h3>
-                    <p>Ideal para nivelación y movimiento de tierras</p>
-                    <div class="price">$3,200/día</div>
-                    <button class="rent-btn">Alquilar Ahora</button>
-                </div>
-                <div class="equipment-item">
-                    <img src="https://placehold.co/300x200/f39c12/ffffff?text=Grúa+50T" alt="Grúa 50T">
-                    <h3>Grúa 50 Toneladas</h3>
-                    <p>Para levantamiento de cargas pesadas</p>
-                    <div class="price">$4,500/día</div>
-                    <button class="rent-btn">Alquilar Ahora</button>
+        <!-- About Us Section -->
+        <section id="about" class="about-us">
+            <div class="container">
+                <h2>Quiénes Somos</h2>
+                <p>Somos una empresa con 30 años de experiencia en el sector de la construcción y movimientos de tierra. Nuestro compromiso es ofrecer soluciones integrales con maquinaria de alta calidad y personal certificado.</p>
+                
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">📅</div>
+                        <h3>30+</h3>
+                        <p>Años de Experiencia</p>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">🚜</div>
+                        <h3>50+</h3>
+                        <p>Equipos Disponibles</p>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">📍</div>
+                        <h3>Meta</h3>
+                        <p>Cobertura Departamental</p>
+                    </div>
                 </div>
             </div>
-        </div>
-    </section>
+        </section>
 
-    <!-- Services -->
-    <section id="servicios" class="services">
-        <div class="container">
-            <h2>Nuestros Servicios</h2>
-            <div class="services-grid">
-                <div class="service-card">
-                    <i class="fas fa-calendar-alt"></i>
-                    <h3>Alquiler por Días</h3>
-                    <p>Flexibilidad para proyectos de corta duración</p>
-                </div>
-                <div class="service-card">
-                    <i class="fas fa-tools"></i>
-                    <h3>Mantenimiento Incluido</h3>
-                    <p>Equipo en óptimas condiciones garantizado</p>
-                </div>
-                <div class="service-card">
-                    <i class="fas fa-shipping-fast"></i>
-                    <h3>Entrega en Obra</h3>
-                    <p>Llevamos la maquinaria directamente al lugar del trabajo</p>
-                </div>
-                <div class="service-card">
-                    <i class="fas fa-user-tie"></i>
-                    <h3>Operarios Certificados</h3>
-                    <p>Profesionales experimentados disponibles</p>
+        <!-- Machinery Available Section -->
+        <section id="machinery" class="machinery-available">
+            <div class="container">
+                <h2>Maquinaria Disponible</h2>
+                <div class="gallery-grid">
+                    <div class="gallery-item">
+                        <img src="https://placehold.co/300x200/0066cc/ffffff?text=Retroexcavadora" alt="Retroexcavadora">
+                        <h3>Retroexcavadora</h3>
+                    </div>
+                    <div class="gallery-item">
+                        <img src="https://placehold.co/300x200/0066cc/ffffff?text=Excavadora" alt="Excavadora">
+                        <h3>Excavadora</h3>
+                    </div>
+                    <div class="gallery-item">
+                        <img src="https://placehold.co/300x200/0066cc/ffffff?text=Vibrocompactador" alt="Vibrocompactador">
+                        <h3>Vibrocompactador</h3>
+                    </div>
+                    <div class="gallery-item">
+                        <img src="https://placehold.co/300x200/0066cc/ffffff?text=Motoniveladora" alt="Motoniveladora">
+                        <h3>Motoniveladora</h3>
+                    </div>
                 </div>
             </div>
-        </div>
-    </section>
+        </section>
 
-    <!-- Contact Section -->
-    <section id="contacto" class="contact">
-        <div class="container">
-            <h2>Contacto</h2>
-            <div class="contact-container">
-                <div class="contact-info">
-                    <h3>¿Necesitas maquinaria?</h3>
-                    <p>Contáctanos para obtener más información o solicitar un presupuesto personalizado</p>
-                    <div class="contact-details">
-                        <div class="detail">
-                            <i class="fas fa-phone"></i>
-                            <span>+56 9 1234 5678</span>
+        <!-- Services Section -->
+        <section id="services" class="services">
+            <div class="container">
+                <h2>Nuestros Servicios</h2>
+                <div class="services-grid">
+                    <div class="service-card">
+                        <div class="service-icon">🏗️</div>
+                        <h3>Atención y Supervisión de Obras Civiles</h3>
+                        <p>Ofrecemos supervisión técnica especializada en proyectos de infraestructura civil con nuestro equipo de ingenieros certificados.</p>
+                    </div>
+                    <div class="service-card">
+                        <div class="service-icon">🌊</div>
+                        <h3>Suministro de Material de Río</h3>
+                        <p>Suministramos arena, grava y otros materiales de río de alta calidad para proyectos de construcción.</p>
+                    </div>
+                    <div class="service-card">
+                        <div class="service-icon">🗺️</div>
+                        <h3>Topografía y Movimiento de Tierras</h3>
+                        <p>Realizamos levantamientos topográficos y trabajos de movimiento de tierras con precisión y eficiencia.</p>
+                    </div>
+                    <div class="service-card">
+                        <div class="service-icon">🚜</div>
+                        <h3>Alquiler de Maquinaria Amarilla</h3>
+                        <p>Contamos con una amplia flota de maquinaria amarilla para todo tipo de construcción vial y estructural.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Contact Section -->
+        <section id="contact" class="contact">
+            <div class="container">
+                <h2>Contacto</h2>
+                <div class="contact-grid">
+                    <div class="contact-form">
+                        <form id="contactForm">
+                            <div class="form-group">
+                                <label for="name">Nombre *</label>
+                                <input type="text" id="name" name="name" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="email">Email *</label>
+                                <input type="email" id="email" name="email" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="phone">Teléfono</label>
+                                <input type="tel" id="phone" name="phone">
+                            </div>
+                            <div class="form-group">
+                                <label for="machine">Tipo de Maquinaria</label>
+                                <select id="machine" name="machine">
+                                    <option value="">Seleccione una opción</option>
+                                    <option value="retroexcavadora">Retroexcavadora</option>
+                                    <option value="excavadora">Excavadora</option>
+                                    <option value="vibrocompactador">Vibrocompactador</option>
+                                    <option value="motoniveladora">Motoniveladora</option>
+                                    <option value="otros">Otros</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="message">Mensaje</label>
+                                <textarea id="message" name="message" rows="4"></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Enviar</button>
+                        </form>
+                    </div>
+                    <div class="contact-info">
+                        <div class="info-item">
+                            <span class="icon">📞</span>
+                            <div>
+                                <h4>Teléfono</h4>
+                                <p>+57 312 345 6789</p>
+                            </div>
                         </div>
-                        <div class="detail">
-                            <i class="fas fa-envelope"></i>
-                            <span>info@rentamaq.cl</span>
+                        <div class="info-item">
+                            <span class="icon">✉️</span>
+                            <div>
+                                <h4>Email</h4>
+                                <p>info@serviciosysuministroswls.com</p>
+                            </div>
                         </div>
-                        <div class="detail">
-                            <i class="fas fa-map-marker-alt"></i>
-                            <span>Av. Industrial 1234, Santiago</span>
+                        <div class="info-item">
+                            <span class="icon">📍</span>
+                            <div>
+                                <h4>Dirección</h4>
+                                <p>Acacías, Meta, Colombia</p>
+                            </div>
+                        </div>
+                        <div class="info-item">
+                            <span class="icon">🕒</span>
+                            <div>
+                                <h4>Horario de Atención</h4>
+                                <p>Lunes a Viernes: 8:00 AM - 6:00 PM<br>Sábados: 8:00 AM - 12:00 PM</p>
+                            </div>
                         </div>
                     </div>
                 </div>
-                <form class="contact-form" id="rentalForm">
-                    <input type="text" placeholder="Nombre" required>
-                    <input type="email" placeholder="Email" required>
-                    <select id="equipmentType">
-                        <option value="">Tipo de Maquinaria</option>
-                        <option value="excavadora">Excavadora</option>
-                        <option value="volqueta">Volqueta</option>
-                        <option value="topadora">Topadora</option>
-                        <option value="grua">Grúa</option>
-                    </select>
-                    <textarea placeholder="Mensaje" rows="4" required></textarea>
-                    <button type="submit">Enviar Solicitud</button>
-                </form>
             </div>
-        </div>
-    </section>
+        </section>
+    </main>
 
-    <!-- Footer -->
-    <footer>
-        <div class="container">
-            <p>&copy; 2026 RentaMaq. Todos los derechos reservados.</p>
-        </div>
-    </footer>
+    <!-- Floating WhatsApp Button -->
+    <a href="https://wa.me/573123456789" class="whatsapp-btn" target="_blank" aria-label="Contacto por WhatsApp">
+        <span>💬</span>
+    </a>
 
     <script src="script.js"></script>
 </body>

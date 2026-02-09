@@ -1,108 +1,134 @@
-// Toggle mobile menu
-const mobileMenu = document.querySelector('.mobile-menu');
-const navLinks = document.querySelector('.nav-links');
+/*
+ * JavaScript for Servicios y Suministros WLS Landing Page
+ * Implements hamburger menu, smooth scrolling, and form validation
+ */
 
-mobileMenu.addEventListener('click', () => {
-    navLinks.classList.toggle('active');
-});
+// DOM Elements
+const hamburger = document.querySelector('.hamburger');
+const sidebarNav = document.querySelector('.sidebar-nav');
+const navLinks = document.querySelectorAll('.nav-links a');
+const contactForm = document.getElementById('contactForm');
+
+// Toggle mobile menu
+function toggleMobileMenu() {
+    sidebarNav.classList.toggle('active');
+}
 
 // Close mobile menu when clicking on a link
-document.querySelectorAll('.nav-links a').forEach(link => {
-    link.addEventListener('click', () => {
-        navLinks.classList.remove('active');
-    });
-});
-
-// Smooth scrolling for navigation links
-document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-    anchor.addEventListener('click', function(e) {
-        e.preventDefault();
-        
-        const targetId = this.getAttribute('href');
-        if(targetId === '#') return;
-        
-        const targetElement = document.querySelector(targetId);
-        if(targetElement) {
-            window.scrollTo({
-                top: targetElement.offsetTop - 70,
-                behavior: 'smooth'
-            });
-        }
-    });
-});
-
-// Form submission
-const rentalForm = document.getElementById('rentalForm');
-if(rentalForm) {
-    rentalForm.addEventListener('submit', function(e) {
-        e.preventDefault();
-        
-        // Get form values
-        const name = this.querySelector('input[type="text"]').value;
-        const email = this.querySelector('input[type="email"]').value;
-        const equipmentType = this.querySelector('#equipmentType').value;
-        const message = this.querySelector('textarea').value;
-        
-        // Simple validation
-        if(name && email && equipmentType && message) {
-            // In a real application, you would send this data to a server
-            alert(`¡Gracias ${name}! Tu solicitud de alquiler para ${equipmentType} ha sido recibida. Te contactaremos pronto.`);
-            
-            // Reset form
-            this.reset();
-        } else {
-            alert('Por favor completa todos los campos obligatorios.');
-        }
-    });
+function closeMobileMenu() {
+    sidebarNav.classList.remove('active');
 }
 
-// Add to cart functionality for rental buttons
-const rentButtons = document.querySelectorAll('.rent-btn');
-rentButtons.forEach(button => {
-    button.addEventListener('click', function() {
-        const equipmentName = this.closest('.equipment-item').querySelector('h3').textContent;
-        alert(`¡${equipmentName} agregado a tu solicitud de alquiler!`);
-    });
-});
+// Smooth scrolling for anchor links
+function smoothScrollTo(targetId) {
+    const targetElement = document.getElementById(targetId);
+    if (targetElement) {
+        window.scrollTo({
+            top: targetElement.offsetTop - 80, // Account for fixed header
+            behavior: 'smooth'
+        });
+    }
+}
 
-// Animation on scroll
-function animateOnScroll() {
-    const elements = document.querySelectorAll('.category-card, .equipment-item, .service-card');
+// Handle form submission
+function handleFormSubmit(event) {
+    event.preventDefault();
     
-    elements.forEach(element => {
-        const elementPosition = element.getBoundingClientRect().top;
-        const screenPosition = window.innerHeight / 1.3;
+    // Get form values
+    const name = document.getElementById('name').value.trim();
+    const email = document.getElementById('email').value.trim();
+    const phone = document.getElementById('phone').value.trim();
+    const machine = document.getElementById('machine').value;
+    const message = document.getElementById('message').value.trim();
+    
+    // Basic validation
+    if (!name || !email) {
+        alert('Por favor completa los campos obligatorios (nombre y email)');
+        return;
+    }
+    
+    // Email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+        alert('Por favor ingresa un email válido');
+        return;
+    }
+    
+    // If validation passes, show success message
+    alert('¡Gracias por tu mensaje! Pronto nos pondremos en contacto contigo.');
+    
+    // Reset form
+    contactForm.reset();
+}
+
+// Intersection Observer for fade-in animations
+function setupIntersectionObserver() {
+    const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    };
+    
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('appear');
+            }
+        });
+    }, observerOptions);
+    
+    // Observe elements with fade-in class
+    document.querySelectorAll('.fade-in').forEach(el => {
+        observer.observe(el);
+    });
+}
+
+// Initialize the application
+function initApp() {
+    // Add event listener for hamburger menu
+    if (hamburger) {
+        hamburger.addEventListener('click', toggleMobileMenu);
+    }
+    
+    // Add event listeners for navigation links
+    navLinks.forEach(link => {
+        link.addEventListener('click', (e) => {
+            e.preventDefault();
+            const targetId = link.getAttribute('href').substring(1);
+            smoothScrollTo(targetId);
+            closeMobileMenu(); // Close menu after clicking
+        });
+    });
+    
+    // Add event listener for form submission
+    if (contactForm) {
+        contactForm.addEventListener('submit', handleFormSubmit);
+    }
+    
+    // Setup intersection observer for animations
+    setupIntersectionObserver();
+    
+    // Add active class to navigation based on scroll position
+    window.addEventListener('scroll', () => {
+        const sections = document.querySelectorAll('section');
+        const scrollPos = window.scrollY + 100; // Adjust offset as needed
         
-        if(elementPosition < screenPosition) {
-            element.style.opacity = '1';
-            element.style.transform = 'translateY(0)';
-        }
+        sections.forEach(section => {
+            const sectionTop = section.offsetTop;
+            const sectionHeight = section.offsetHeight;
+            const sectionId = section.getAttribute('id');
+            
+            if (scrollPos >= sectionTop && scrollPos < sectionTop + sectionHeight) {
+                // Remove active class from all links
+                navLinks.forEach(link => {
+                    link.classList.remove('active');
+                    if (link.getAttribute('href') === `#${sectionId}`) {
+                        link.classList.add('active');
+                    }
+                });
+            }
+        });
     });
 }
 
-// Set initial state for animated elements
-document.querySelectorAll('.category-card, .equipment-item, .service-card').forEach(el => {
-    el.style.opacity = '0';
-    el.style.transform = 'translateY(20px)';
-    el.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
-});
-
-// Listen for scroll event to trigger animations
-window.addEventListener('scroll', animateOnScroll);
-
-// Initialize animations on load
-window.addEventListener('load', animateOnScroll);
-
-// CTA button scroll to equipment section
-const ctaBtn = document.querySelector('.cta-btn');
-if(ctaBtn) {
-    ctaBtn.addEventListener('click', () => {
-        const equipmentSection = document.getElementById('maquinaria');
-        if(equipmentSection) {
-            window.scrollTo({
-                top: equipmentSection.offsetTop - 70,
-                behavior: 'smooth'
-            });
-        }
-    });
-}
+// Initialize app when DOM is loaded
+document.addEventListener('DOMContentLoaded', initApp);
