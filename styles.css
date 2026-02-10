@@ -38,16 +38,18 @@ body {
     transition: transform 0.3s ease;
 }
 
-.logo-container {
-    padding: 20px;
-    text-align: center;
-    border-bottom: 1px solid #eee;
-}
+    .logo-container {
+    position: fixed;        
+    top: 10px;
+    left: 10px;
+    z-index: 1000;
+    }
 
-.logo {
-    max-width: 100%;
+    .logo-container img {
+    width: 90px;
     height: auto;
-}
+    }
+
 
 .nav-links {
     list-style: none;
