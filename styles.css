@@ -40,13 +40,13 @@ body {
 
     .logo-container {
     position: fixed;        
-    top: 35px;
-    left: 80px;
+    top: 10px;
+    left: 50px;
     z-index: 1000;
     }
 
     .logo-container img {
-    width: 90px;
+    width: 140px;
     height: auto;
     }
 
@@ -88,7 +88,7 @@ main {
 /* Hero Section Styles */
 .hero {
     height: 100vh;
-    background-image: url('https://placehold.co/1920x1080/0066cc/ffffff?text=Maquinaria+en+Accion');
+    background-image: url('fondo/fondo.png');
     background-size: cover;
     background-position: center;
     position: relative;
