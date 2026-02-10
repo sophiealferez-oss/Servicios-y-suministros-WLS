@@ -10,10 +10,6 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
-    <div class="logo-container">
-     <img src="img/logo.png" alt="Logo" class="logo">
-    </div>
-
 <body>
     <!-- Sidebar Navigation -->
     <nav class="sidebar-nav">
@@ -72,24 +68,38 @@
                 <h2>Maquinaria Disponible</h2>
                 <div class="gallery-grid">
                     <div class="gallery-item">
-                        <img src="https://placehold.co/300x200/0066cc/ffffff?text=Retroexcavadora" alt="Retroexcavadora">
+                        <img src="imagenes_maquinaria/retroexcavadora.jpg" alt="Retroexcavadora">
                         <h3>Retroexcavadora</h3>
                     </div>
                     <div class="gallery-item">
-                        <img src="https://placehold.co/300x200/0066cc/ffffff?text=Excavadora" alt="Excavadora">
+                        <img src="imagenes_maquinaria/excavadora.jpg" alt="Excavadora">
                         <h3>Excavadora</h3>
                     </div>
                     <div class="gallery-item">
-                        <img src="https://placehold.co/300x200/0066cc/ffffff?text=Vibrocompactador" alt="Vibrocompactador">
+                        <img src="imagenes_maquinaria/vibrocompactador.jpg" alt="Vibrocompactador">
                         <h3>Vibrocompactador</h3>
                     </div>
                     <div class="gallery-item">
-                        <img src="https://placehold.co/300x200/0066cc/ffffff?text=Motoniveladora" alt="Motoniveladora">
+                        <img src="imagenes_maquinaria/motoniveladora.jpg" alt="Motoniveladora">
                         <h3>Motoniveladora</h3>
                     </div>
                 </div>
             </div>
         </section>
+
+        <!-- Machine Detail Modals -->
+        <div id="machineModal" class="modal-overlay">
+            <div class="modal-content">
+                <span class="close-modal">&times;</span>
+                <div class="modal-body">
+                    <img id="modalImage" src="" alt="Imagen de la máquina">
+                    <div class="modal-text">
+                        <h2 id="modalTitle">Detalles de la Máquina</h2>
+                        <ul id="modalFeatures"></ul>
+                    </div>
+                </div>
+            </div>
+        </div>
 
         <!-- Services Section -->
         <section id="services" class="services">

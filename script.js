@@ -1,6 +1,6 @@
 /*
  * JavaScript for Servicios y Suministros WLS Landing Page
- * Implements hamburger menu, smooth scrolling, and form validation
+ * Implements hamburger menu, smooth scrolling, form validation, and machine details
  */
 
 // DOM Elements
@@ -8,6 +8,12 @@ const hamburger = document.querySelector('.hamburger');
 const sidebarNav = document.querySelector('.sidebar-nav');
 const navLinks = document.querySelectorAll('.nav-links a');
 const contactForm = document.getElementById('contactForm');
+const galleryItems = document.querySelectorAll('.gallery-item');
+const modal = document.getElementById('machineModal');
+const closeModal = document.querySelector('.close-modal');
+const modalImage = document.getElementById('modalImage');
+const modalTitle = document.getElementById('modalTitle');
+const modalFeatures = document.getElementById('modalFeatures');
 
 // Toggle mobile menu
 function toggleMobileMenu() {
@@ -82,13 +88,89 @@ function setupIntersectionObserver() {
     });
 }
 
+// Machine data
+const machineData = {
+    'Retroexcavadora': {
+        title: 'Retroexcavadora Caterpillar 430',
+        features: [
+            'Caterpillar 430 (mediana)',
+            'Equipo versátil',
+            'Excavación y cargue',
+            'Potente y confiable',
+            'Ideal para proyectos medianos'
+        ],
+        image: 'imagenes_maquinaria/retroexcavadora.jpg'
+    },
+    'Excavadora': {
+        title: 'Excavadora',
+        features: [
+            'Alto rendimiento',
+            'Ideal para movimiento de tierra',
+            'Potente y precisa',
+            'Apta para obras cíviles y proyectos de gran escala'
+        ],
+        image: 'imagenes_maquinaria/excavadora.jpg'
+    },
+    'Vibrocompactador': {
+        title: 'Vibrocompactador',
+        features: [
+            'Equipos de 6,7,8,10 y 12 toneladas',
+            'Excelente compactación de suelos y asfalto',
+            'Alta eficiencia y estabilidad',
+            'Ideal para vías, rellenos y plataformas'
+        ],
+        image: 'imagenes_maquinaria/vibrocompactador.jpg'
+    },
+    'Motoniveladora': {
+        title: 'Motoniveladora',
+        features: [
+            'Precisión en nivelación',
+            'Ideal para acabados finos',
+            'Eficiente en movimiento de tierras',
+            'Perfecta para mantenimiento vial'
+        ],
+        image: 'imagenes_maquinaria/motoniveladora.jpg'
+    }
+};
+
+// Show machine details modal
+function showMachineDetails(machineName) {
+    const machine = machineData[machineName];
+    
+    if (machine) {
+        modalTitle.textContent = machine.title;
+        
+        // Clear previous features
+        modalFeatures.innerHTML = '';
+        
+        // Add new features
+        machine.features.forEach(feature => {
+            const li = document.createElement('li');
+            li.textContent = feature;
+            modalFeatures.appendChild(li);
+        });
+        
+        modalImage.src = machine.image;
+        modalImage.alt = machine.title;
+        
+        modal.style.display = 'block';
+        document.body.style.overflow = 'hidden'; // Prevent scrolling when modal is open
+    }
+}
+
+// Close modal
+function closeMachineModal() {
+    modal.style.display = 'none';
+    document.body.style.overflow = 'auto'; // Re-enable scrolling
+}
+
 // Initialize the application
 function initApp() {
     // Add event listener for hamburger menu
     if (hamburger) {
         hamburger.addEventListener('click', toggleMobileMenu);
     }
-    
+
     // Add event listeners for navigation links
     navLinks.forEach(link => {
         link.addEventListener('click', (e) => {
@@ -98,25 +180,43 @@ function initApp() {
             closeMobileMenu(); // Close menu after clicking
         });
     });
+
+    // Add event listeners for gallery items
+    galleryItems.forEach(item => {
+        item.addEventListener('click', () => {
+            const machineName = item.querySelector('h3').textContent;
+            showMachineDetails(machineName);
+        });
+    });
+
+    // Add event listener for closing modal
+    closeModal.addEventListener('click', closeMachineModal);
     
+    // Close modal when clicking outside the content
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+            closeMachineModal();
+        }
+    });
+
     // Add event listener for form submission
     if (contactForm) {
         contactForm.addEventListener('submit', handleFormSubmit);
     }
-    
+
     // Setup intersection observer for animations
     setupIntersectionObserver();
-    
+
     // Add active class to navigation based on scroll position
     window.addEventListener('scroll', () => {
         const sections = document.querySelectorAll('section');
         const scrollPos = window.scrollY + 100; // Adjust offset as needed
-        
+
         sections.forEach(section => {
             const sectionTop = section.offsetTop;
             const sectionHeight = section.offsetHeight;
             const sectionId = section.getAttribute('id');
-            
+
             if (scrollPos >= sectionTop && scrollPos < sectionTop + sectionHeight) {
                 // Remove active class from all links
                 navLinks.forEach(link => {
