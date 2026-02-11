@@ -37,34 +37,65 @@ function smoothScrollTo(targetId) {
 }
 
 // Handle form submission
-function handleFormSubmit(event) {
+async function handleFormSubmit(event) {
     event.preventDefault();
-    
+
     // Get form values
     const name = document.getElementById('name').value.trim();
     const email = document.getElementById('email').value.trim();
     const phone = document.getElementById('phone').value.trim();
     const machine = document.getElementById('machine').value;
     const message = document.getElementById('message').value.trim();
-    
+
     // Basic validation
     if (!name || !email) {
         alert('Por favor completa los campos obligatorios (nombre y email)');
         return;
     }
-    
+
     // Email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
         alert('Por favor ingresa un email válido');
         return;
     }
-    
-    // If validation passes, show success message
-    alert('¡Gracias por tu mensaje! Pronto nos pondremos en contacto contigo.');
-    
-    // Reset form
-    contactForm.reset();
+
+    // Show loading message
+    const submitButton = contactForm.querySelector('button[type="submit"]');
+    const originalButtonText = submitButton.textContent;
+    submitButton.textContent = 'Enviando...';
+    submitButton.disabled = true;
+
+    try {
+        // Submit the form to Formspree
+        const formData = new FormData(contactForm);
+        const response = await fetch(contactForm.action, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'Accept': 'application/json'
+            }
+        });
+
+        if (response.ok) {
+            // Success
+            alert('¡Gracias por tu mensaje! Pronto nos pondremos en contacto contigo.');
+            contactForm.reset();
+        } else {
+            // Error
+            const result = await response.json();
+            console.error('Form submission error:', result);
+            alert('Hubo un error al enviar tu mensaje. Por favor intenta de nuevo.');
+        }
+    } catch (error) {
+        // Network error
+        console.error('Network error:', error);
+        alert('Hubo un problema de conexión. Por favor intenta de nuevo.');
+    } finally {
+        // Restore button state
+        submitButton.textContent = originalButtonText;
+        submitButton.disabled = false;
+    }
 }
 
 // Intersection Observer for fade-in animations
@@ -199,6 +230,10 @@ function initApp() {
         }
     });
 
+    // Add event listener for form submission
+    if (contactForm) {
+        contactForm.addEventListener('submit', handleFormSubmit);
+    }
 
     // Setup intersection observer for animations
     setupIntersectionObserver();
