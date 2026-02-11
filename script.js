@@ -3,6 +3,20 @@
  * Implements hamburger menu, smooth scrolling, form validation, and machine details
  */
 
+// EmailJS Configuration
+// Para que esta funcionalidad funcione, tienes dos opciones:
+// OPCIÓN 1 (recomendada para frontend): 
+// 1. Obtén tu Public Key de EmailJS (no la API Key) y reemplaza 'YOUR_PUBLIC_KEY'
+// 2. Conecta tu proveedor de correo y crea el template 'template_wls_contact'
+
+// OPCIÓN 2 (si solo tienes API Key):
+// 1. Usa el método sendForm con tu API Key (ver comentario en handleFormSubmit)
+
+// Si usas la Public Key (método recomendado para frontend):
+(function() {
+    emailjs.init("MXUf6SrJdCruo3eHu"); // Tu Public Key real de EmailJS
+})();
+
 // DOM Elements
 const hamburger = document.querySelector('.hamburger');
 const sidebarNav = document.querySelector('.sidebar-nav');
@@ -52,10 +66,28 @@ async function handleFormSubmit(event) {
         return;
     }
 
+    // Additional validation for name (minimum length)
+    if (name.length < 2) {
+        alert('Por favor ingresa un nombre válido (mínimo 2 caracteres)');
+        return;
+    }
+
     // Email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
         alert('Por favor ingresa un email válido');
+        return;
+    }
+
+    // Phone validation (if provided)
+    if (phone && !/^[0-9+\-\s()]{7,15}$/.test(phone)) {
+        alert('Por favor ingresa un número de teléfono válido');
+        return;
+    }
+
+    // Message validation (optional but with minimum length if provided)
+    if (message && message.length < 10) {
+        alert('Por favor ingresa un mensaje más detallado (mínimo 10 caracteres)');
         return;
     }
 
@@ -66,30 +98,46 @@ async function handleFormSubmit(event) {
     submitButton.disabled = true;
 
     try {
-        // Submit the form to Formspree
-        const formData = new FormData(contactForm);
-        const response = await fetch(contactForm.action, {
-            method: 'POST',
-            body: formData,
-            headers: {
-                'Accept': 'application/json'
-            }
-        });
+        // Prepare template parameters
+        const templateParams = {
+            from_name: name,
+            from_email: email,
+            from_phone: phone,
+            machine_type: machine,
+            message: message,
+            to_email: 'serviciosysuministroswls@gmail.com' // Dirección de destino
+        };
 
-        if (response.ok) {
+        // Send email via EmailJS
+        // Si tienes la Public Key (recomendado):
+        const response = await emailjs.send(
+            'template_wls_contact', // Service ID - Tu ID de servicio real de EmailJS
+            'template_wls_contact', // Template ID - debes crear este template en EmailJS
+            templateParams
+        );
+        
+        // ALTERNATIVA: Si solo tienes la API Key (requiere backend o proxy):
+        // Descomenta este bloque y comenta el bloque anterior si usas API Key directamente
+        /*
+        const response = await emailjs.sendForm(
+            'your_service_id', // Service ID
+            'template_wls_contact', // Template ID
+            '#contactForm', // Selector del formulario
+            'YOUR_API_KEY' // Tu API Key aquí
+        );
+        */
+
+        if (response.status === 200) {
             // Success
             alert('¡Gracias por tu mensaje! Pronto nos pondremos en contacto contigo.');
             contactForm.reset();
         } else {
-            // Error
-            const result = await response.json();
-            console.error('Form submission error:', result);
-            alert('Hubo un error al enviar tu mensaje. Por favor intenta de nuevo.');
+            throw new Error(`EmailJS error: ${response.status}`);
         }
     } catch (error) {
-        // Network error
-        console.error('Network error:', error);
-        alert('Hubo un problema de conexión. Por favor intenta de nuevo.');
+        // Error handling
+        console.error('Email sending error:', error);
+        alert('Hubo un error al enviar tu mensaje. Por favor intenta de nuevo.');
     } finally {
         // Restore button state
         submitButton.textContent = originalButtonText;
