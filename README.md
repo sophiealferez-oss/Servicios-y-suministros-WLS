@@ -83,6 +83,22 @@ La página incluye etiquetas meta importantes:
 - Dispositivos móviles y tablets
 - Accesibilidad básica implementada
 
+## Configuración de EmailJS
+
+Para que el formulario de contacto funcione correctamente, debes configurar EmailJS siguiendo estos pasos:
+
+1. Crea una cuenta en [https://www.emailjs.com/](https://www.emailjs.com/)
+2. Conecta tu proveedor de correo (Gmail, Outlook, etc.)
+3. Crea un template con ID `template_wls_contact` con los siguientes campos:
+   - `from_name` - Nombre del cliente
+   - `from_email` - Email del cliente
+   - `from_phone` - Teléfono del cliente
+   - `machine_type` - Tipo de maquinaria solicitada
+   - `message` - Mensaje del cliente
+   - `to_email` - Email de destino (opcional)
+
+4. Actualiza tu Service ID en el archivo `script.js` si es diferente de "gmail"
+
 ## Licencias
 
 Este código es de uso libre y puede ser modificado según las necesidades del proyecto.

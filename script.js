@@ -108,13 +108,19 @@ async function handleFormSubmit(event) {
             to_email: 'serviciosysuministroswls@gmail.com' // Dirección de destino
         };
 
+        // Debug: Log the template parameters to console
+        console.log('Sending email with parameters:', templateParams);
+
         // Send email via EmailJS
         // Si tienes la Public Key (recomendado):
+        // IMPORTANTE: Verifica que el Service ID sea correcto en tu dashboard de EmailJS
         const response = await emailjs.send(
-            'template_wls_contact', // Service ID - Tu ID de servicio real de EmailJS
+            'service_x3ze2tv', // Service ID - ReEMPLAZA CON EL ID REAL DE TU SERVICIO DE CORREO EN EMAILJS
             'template_wls_contact', // Template ID - debes crear este template en EmailJS
             templateParams
         );
+
+        console.log('EmailJS response:', response); // Debug: Log the response
         
         // ALTERNATIVA: Si solo tienes la API Key (requiere backend o proxy):
         // Descomenta este bloque y comenta el bloque anterior si usas API Key directamente
@@ -137,7 +143,12 @@ async function handleFormSubmit(event) {
     } catch (error) {
         // Error handling
         console.error('Email sending error:', error);
-        alert('Hubo un error al enviar tu mensaje. Por favor intenta de nuevo.');
+        console.error('Error details:', {
+            message: error.message,
+            status: error.status,
+            statusText: error.statusText
+        }); // More detailed error logging
+        alert('Hubo un error al enviar tu mensaje. Por favor intenta de nuevo. Revisa la consola para más detalles.');
     } finally {
         // Restore button state
         submitButton.textContent = originalButtonText;
