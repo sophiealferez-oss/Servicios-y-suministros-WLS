@@ -36,7 +36,6 @@ function smoothScrollTo(targetId) {
     }
 }
 
-// Handle form submission
 async function handleFormSubmit(event) {
     event.preventDefault();
 
@@ -104,7 +103,7 @@ function setupIntersectionObserver() {
         threshold: 0.1,
         rootMargin: '0px 0px -50px 0px'
     };
-    
+
     const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
@@ -112,7 +111,7 @@ function setupIntersectionObserver() {
             }
         });
     }, observerOptions);
-    
+
     // Observe elements with fade-in class
     document.querySelectorAll('.fade-in').forEach(el => {
         observer.observe(el);
@@ -167,23 +166,23 @@ const machineData = {
 // Show machine details modal
 function showMachineDetails(machineName) {
     const machine = machineData[machineName];
-    
+
     if (machine) {
         modalTitle.textContent = machine.title;
-        
+
         // Clear previous features
         modalFeatures.innerHTML = '';
-        
+
         // Add new features
         machine.features.forEach(feature => {
             const li = document.createElement('li');
             li.textContent = feature;
             modalFeatures.appendChild(li);
         });
-        
+
         modalImage.src = machine.image;
         modalImage.alt = machine.title;
-        
+
         modal.style.display = 'block';
         document.body.style.overflow = 'hidden'; // Prevent scrolling when modal is open
     }
@@ -222,7 +221,7 @@ function initApp() {
 
     // Add event listener for closing modal
     closeModal.addEventListener('click', closeMachineModal);
-    
+
     // Close modal when clicking outside the content
     modal.addEventListener('click', (e) => {
         if (e.target === modal) {
