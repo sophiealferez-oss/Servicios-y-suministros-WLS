@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guía para encontrar Service ID correcto</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        .step {
+            background-color: #f9f9f9;
+            border-left: 4px solid #2196F3;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .highlight {
+            background-color: #fff3cd;
+            border: 1px solid #ffeaa7;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        ul {
+            padding-left: 20px;
+        }
+        li {
+            margin-bottom: 8px;
+        }
+        .code {
+            background-color: #f4f4f4;
+            padding: 5px 10px;
+            border-radius: 3px;
+            display: inline-block;
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Guía para encontrar el Service ID correcto</h1>
+        
+        <div class="step">
+            <h3>Paso 1: Accede a tu dashboard de EmailJS</h3>
+            <p>Ingresa a <a href="https://dashboard.emailjs.com/" target="_blank">https://dashboard.emailjs.com/</a></p>
+        </div>
+        
+        <div class="step">
+            <h3>Paso 2: Ve a la sección de servicios de email</h3>
+            <p>En el menú lateral, haz clic en <span class="code">Email Services</span></p>
+        </div>
+        
+        <div class="step">
+            <h3>Paso 3: Identifica tu servicio de Gmail</h3>
+            <p>Busca el servicio que conectaste con tu cuenta de Gmail</p>
+            <ul>
+                <li>Podría aparecer como "Gmail" o con el nombre de tu email</li>
+                <li>Si tienes varios servicios, identifica cuál es el que apunta a serviciosysuministroswls@gmail.com</li>
+            </ul>
+        </div>
+        
+        <div class="step">
+            <h3>Paso 4: Encuentra el Service ID real</h3>
+            <p>Una vez que hayas encontrado tu servicio de Gmail:</p>
+            <ul>
+                <li>Haz clic en el servicio para abrir sus detalles</li>
+                <li>Busca un campo llamado <span class="code">Service ID</span></li>
+                <li>El Service ID se verá algo como: <span class="code">service_abc123def456ghi</span></li>
+                <li>Copia exactamente ese valor (incluyendo "service_")</li>
+            </ul>
+        </div>
+        
+        <div class="step">
+            <h3>Paso 5: Actualiza tu código</h3>
+            <p>Reemplaza el Service ID en ambos archivos:</p>
+            <ul>
+                <li>En <span class="code">script.js</span>, línea donde dice <span class="code">'service_x3ze2tv'</span></li>
+                <li>En <span class="code">diagnostico_emailjs.html</span>, línea donde dice <span class="code">'service_x3ze2tv'</span></li>
+            </ul>
+        </div>
+        
+        <div class="highlight">
+            <strong>Importante:</strong> El Service ID en tu código DEBE coincidir exactamente con el que aparece en tu dashboard de EmailJS. 
+            Si no coinciden, el envío de correos fallará.
+        </div>
+        
+        <div class="step">
+            <h3>Paso 6: Verifica también el Template ID</h3>
+            <p>Ve a la sección <span class="code">Email Templates</span> y asegúrate que el template <span class="code">template_wls_contact</span> exista y esté aprobado.</p>
+        </div>
+        
+        <p>Después de actualizar los Service IDs con los correctos, vuelve a probar el formulario.</p>
+    </div>
+</body>
+</html>
