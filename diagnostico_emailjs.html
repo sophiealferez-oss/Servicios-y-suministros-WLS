@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diagnóstico EmailJS - Servicios y Suministros WLS</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #0066cc;
+            text-align: center;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #0066cc;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #0052a3;
+        }
+        button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 4px;
+            display: none;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Diagnóstico EmailJS</h1>
+        <p>Esta herramienta te ayudará a verificar la configuración de EmailJS para Servicios y Suministros WLS.</p>
+        
+        <div class="form-group">
+            <label for="serviceId">Service ID:</label>
+            <input type="text" id="serviceId" value="gmail">
+        </div>
+        
+        <div class="form-group">
+            <label for="templateId">Template ID:</label>
+            <input type="text" id="templateId" value="template_wls_contact">
+        </div>
+        
+        <div class="form-group">
+            <label for="publicKey">Public Key:</label>
+            <input type="text" id="publicKey" value="MXUf6SrJdCruo3eHu">
+        </div>
+        
+        <button id="testConfigBtn">Probar Configuración</button>
+        <button id="testEmailBtn">Probar Envío de Correo</button>
+        
+        <div id="result" class="result"></div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <script>
+        // Inicializar EmailJS con la public key
+        const publicKey = 'MXUf6SrJdCruo3eHu';
+        emailjs.init(publicKey);
+
+        document.getElementById('testConfigBtn').addEventListener('click', async function() {
+            const serviceId = document.getElementById('serviceId').value;
+            const templateId = document.getElementById('templateId').value;
+            const resultDiv = document.getElementById('result');
+            
+            resultDiv.style.display = 'block';
+            resultDiv.className = 'result info';
+            resultDiv.innerHTML = '<p>Probando conexión con EmailJS...</p>';
+            
+            try {
+                // Intentar enviar un correo de prueba con datos mínimos
+                const templateParams = {
+                    from_name: 'Prueba de Diagnóstico',
+                    from_email: 'prueba@ejemplo.com',
+                    from_phone: '+1234567890',
+                    machine_type: 'Prueba',
+                    message: 'Este es un mensaje de prueba para verificar la configuración de EmailJS.',
+                    to_email: 'serviciosysuministroswls@gmail.com'
+                };
+                
+                const response = await emailjs.send(
+                    serviceId,
+                    templateId,
+                    templateParams
+                );
+                
+                resultDiv.className = 'result success';
+                resultDiv.innerHTML = `
+                    <h3>✅ Configuración Correcta</h3>
+                    <p><strong>Status:</strong> ${response.status}</p>
+                    <p><strong>Status Text:</strong> ${response.text || 'OK'}</p>
+                    <p><strong>Service ID:</strong> ${serviceId}</p>
+                    <p><strong>Template ID:</strong> ${templateId}</p>
+                    <p>La conexión con EmailJS se realizó correctamente. El formulario debería funcionar siempre que los datos sean válidos.</p>
+                `;
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.innerHTML = `
+                    <h3>❌ Error en la Configuración</h3>
+                    <p><strong>Error:</strong> ${error.message}</p>
+                    <p><strong>Service ID:</strong> ${serviceId}</p>
+                    <p><strong>Template ID:</strong> ${templateId}</p>
+                    <p>Verifica que el Service ID y Template ID sean correctos en tu panel de EmailJS.</p>
+                `;
+            }
+        });
+
+        document.getElementById('testEmailBtn').addEventListener('click', async function() {
+            const serviceId = document.getElementById('serviceId').value;
+            const templateId = document.getElementById('templateId').value;
+            const resultDiv = document.getElementById('result');
+            
+            // Validar que los campos no estén vacíos
+            if (!serviceId || !templateId) {
+                resultDiv.style.display = 'block';
+                resultDiv.className = 'result error';
+                resultDiv.innerHTML = '<p>Por favor completa todos los campos antes de probar.</p>';
+                return;
+            }
+            
+            resultDiv.style.display = 'block';
+            resultDiv.className = 'result info';
+            resultDiv.innerHTML = '<p>Enviando correo de prueba (simulando formulario de contacto)...</p>';
+            
+            try {
+                // Preparar parámetros idénticos a los del formulario real
+                const templateParams = {
+                    from_name: 'Sistema de Diagnóstico',
+                    from_email: 'diagnostico@wls-servicios.com',
+                    from_phone: '+57 320 815 98 17',
+                    machine_type: 'Diagnóstico',
+                    message: 'Este es un correo de prueba enviado desde la herramienta de diagnóstico de Servicios y Suministros WLS. Si recibes este mensaje, significa que la configuración de EmailJS está funcionando correctamente.',
+                    to_email: 'serviciosysuministroswls@gmail.com'
+                };
+                
+                console.log('Enviando correo con parámetros:', templateParams);
+                
+                const response = await emailjs.send(
+                    serviceId,
+                    templateId,
+                    templateParams
+                );
+                
+                console.log('EmailJS response:', response);
+                console.log('Response status:', response.status);
+                console.log('Response text:', response.text);
+                
+                if (response && (response.status === 200 || response.status === 201)) {
+                    resultDiv.className = 'result success';
+                    resultDiv.innerHTML = `
+                        <h3>✅ Correo Enviado Exitosamente</h3>
+                        <p><strong>Status:</strong> ${response.status}</p>
+                        <p><strong>Status Text:</strong> ${response.text || 'OK'}</p>
+                        <p><strong>Service ID:</strong> ${serviceId}</p>
+                        <p><strong>Template ID:</strong> ${templateId}</p>
+                        <p>El correo de prueba fue enviado correctamente. Revisa la bandeja de entrada de serviciosysuministroswls@gmail.com</p>
+                    `;
+                } else {
+                    throw new Error(`EmailJS error: Status ${response.status}`);
+                }
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.innerHTML = `
+                    <h3>❌ Error al Enviar el Correo</h3>
+                    <p><strong>Error:</strong> ${error.message}</p>
+                    <p><strong>Service ID:</strong> ${serviceId}</p>
+                    <p><strong>Template ID:</strong> ${templateId}</p>
+                    <p>Verifica que tu template tenga todos los campos necesarios y que el servicio esté correctamente configurado.</p>
+                `;
+            }
+        });
+    </script>
+</body>
+</html>

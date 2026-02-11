@@ -114,14 +114,18 @@ async function handleFormSubmit(event) {
         // Send email via EmailJS
         // Si tienes la Public Key (recomendado):
         // IMPORTANTE: Verifica que el Service ID sea correcto en tu dashboard de EmailJS
+        console.log('Enviando correo con parámetros:', templateParams); // Debug: Log the parameters
+        
         const response = await emailjs.send(
-            'service_x3ze2tv', // Service ID - ReEMPLAZA CON EL ID REAL DE TU SERVICIO DE CORREO EN EMAILJS
+            'gmail', // Service ID - ReEMPLAZA CON EL ID REAL DE TU SERVICIO DE CORREO EN EMAILJS
             'template_wls_contact', // Template ID - debes crear este template en EmailJS
             templateParams
         );
 
         console.log('EmailJS response:', response); // Debug: Log the response
-        
+        console.log('Response status:', response.status); // Debug: Log status
+        console.log('Response text:', response.text); // Debug: Log response text
+
         // ALTERNATIVA: Si solo tienes la API Key (requiere backend o proxy):
         // Descomenta este bloque y comenta el bloque anterior si usas API Key directamente
         /*
@@ -133,12 +137,16 @@ async function handleFormSubmit(event) {
         );
         */
 
-        if (response.status === 200) {
+        // Verificar respuesta exitosa (EmailJS puede devolver diferentes códigos de éxito)
+        if (response && (response.status === 200 || response.status === 201)) {
             // Success
+            console.log('Correo enviado exitosamente');
             alert('¡Gracias por tu mensaje! Pronto nos pondremos en contacto contigo.');
             contactForm.reset();
         } else {
-            throw new Error(`EmailJS error: ${response.status}`);
+            // Si el status no es 200 o 201, lanzar un error
+            console.error('Error: Código de estado inesperado:', response.status);
+            throw new Error(`EmailJS error: Status ${response.status}`);
         }
     } catch (error) {
         // Error handling
