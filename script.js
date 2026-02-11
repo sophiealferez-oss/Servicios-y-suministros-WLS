@@ -199,10 +199,6 @@ function initApp() {
         }
     });
 
-    // Add event listener for form submission
-    // if (contactForm) {
-//     contactForm.addEventListener('submit', handleFormSubmit);
-// }
 
     // Setup intersection observer for animations
     setupIntersectionObserver();
