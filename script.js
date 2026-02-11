@@ -116,9 +116,27 @@ async function handleFormSubmit(event) {
         // IMPORTANTE: Verifica que el Service ID sea correcto en tu dashboard de EmailJS
         console.log('Enviando correo con parámetros:', templateParams); // Debug: Log the parameters
         
+        // DEBUG: First, let's get the list of available services to identify the correct one
+        // Uncomment the following lines temporarily to see your available services:
+        /*
+        try {
+            const services = await emailjs.init().getServiceID();
+            console.log('Available services:', services);
+        } catch (e) {
+            console.log('Could not retrieve services list:', e);
+        }
+        */
+        
+        // Send email via EmailJS
+        // IMPORTANT: Make sure the Service ID matches your actual service in EmailJS dashboard
+        // To find your correct Service ID:
+        // 1. Log into https://dashboard.emailjs.com/
+        // 2. Go to "Email Services" section
+        // 3. Look for the service you connected (Gmail, Outlook, etc.)
+        // 4. Click on it and look for the "Service ID" field (it might not be simply "gmail")
         const response = await emailjs.send(
-            'gmail', // Service ID - ReEMPLAZA CON EL ID REAL DE TU SERVICIO DE CORREO EN EMAILJS
-            'template_wls_contact', // Template ID - debes crear este template en EmailJS
+            'service_x3ze2tv', // Service ID - REPLACE WITH THE ACTUAL SERVICE ID FROM YOUR EMAILJS DASHBOARD
+            'template_wls_contact', // Template ID - make sure this template exists in your EmailJS dashboard
             templateParams
         );
 
@@ -149,14 +167,38 @@ async function handleFormSubmit(event) {
             throw new Error(`EmailJS error: Status ${response.status}`);
         }
     } catch (error) {
-        // Error handling
+        // Comprehensive error handling
         console.error('Email sending error:', error);
-        console.error('Error details:', {
-            message: error.message,
-            status: error.status,
-            statusText: error.statusText
-        }); // More detailed error logging
-        alert('Hubo un error al enviar tu mensaje. Por favor intenta de nuevo. Revisa la consola para más detalles.');
+        
+        // Check if it's an EmailJS specific error
+        if (error.status) {
+            console.error('EmailJS Error Details:', {
+                status: error.status,
+                text: error.text,
+                message: error.message
+            });
+            
+            // Different alerts based on error type
+            if (error.status === 400) {
+                alert('Error de solicitud: Verifica que todos los campos estén completos y sean válidos. Revisa la consola para más detalles.');
+            } else if (error.status === 401) {
+                alert('Error de autenticación: La clave pública o el servicio no están configurados correctamente. Revisa la consola para más detalles.');
+            } else if (error.status === 404) {
+                alert('Error: El servicio o template no se encontró. Verifica tu Service ID y Template ID en EmailJS. Revisa la consola para más detalles.');
+            } else if (error.status === 500) {
+                alert('Error interno del servidor de EmailJS. Por favor intenta más tarde. Revisa la consola para más detalles.');
+            } else {
+                alert(`Error desconocido (${error.status}): ${error.message}. Revisa la consola para más detalles.`);
+            }
+        } else {
+            // General error (might not be an HTTP error)
+            console.error('General Error Details:', {
+                message: error.message,
+                name: error.name
+            });
+            
+            alert(`Error al enviar el correo: ${error.message}. Revisa la consola para más detalles.`);
+        }
     } finally {
         // Restore button state
         submitButton.textContent = originalButtonText;
@@ -261,6 +303,31 @@ function closeMachineModal() {
     document.body.style.overflow = 'auto'; // Re-enable scrolling
 }
 
+// Function to debug and find available EmailJS services
+async function debugEmailServices() {
+    try {
+        // Wait a bit to ensure emailjs is initialized
+        setTimeout(async () => {
+            try {
+                // Attempt to get service information
+                console.log('EmailJS initialized with public key:', emailjs.getUserID());
+                
+                // Note: EmailJS doesn't expose a direct method to list services
+                // The best way is to check your dashboard at https://dashboard.emailjs.com/
+                console.log('To find your correct Service ID:');
+                console.log('1. Log into https://dashboard.emailjs.com/');
+                console.log('2. Go to "Email Services" section');
+                console.log('3. Look for the service you connected (Gmail, Outlook, etc.)');
+                console.log('4. Click on it and look for the "Service ID" field');
+            } catch (e) {
+                console.log('Could not retrieve service info:', e);
+            }
+        }, 1000);
+    } catch (error) {
+        console.error('Debug function error:', error);
+    }
+}
+
 // Initialize the application
 function initApp() {
     // Add event listener for hamburger menu
@@ -325,6 +392,9 @@ function initApp() {
             }
         });
     });
+    
+    // Debug EmailJS services (remove this in production)
+    debugEmailServices();
 }
 
 // Initialize app when DOM is loaded
