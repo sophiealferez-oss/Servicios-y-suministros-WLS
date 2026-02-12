@@ -32,11 +32,13 @@ const modalFeatures = document.getElementById('modalFeatures');
 // Toggle mobile menu
 function toggleMobileMenu() {
     sidebarNav.classList.toggle('active');
+    hamburger.classList.toggle('active'); // Agregar animación al ícono del menú hamburguesa
 }
 
 // Close mobile menu when clicking on a link
 function closeMobileMenu() {
     sidebarNav.classList.remove('active');
+    hamburger.classList.remove('active'); // Remover animación del ícono del menú hamburguesa
 }
 
 // Smooth scrolling for anchor links

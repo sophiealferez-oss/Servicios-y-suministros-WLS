@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Antes y Después - Servicios y Suministros WLS</title>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        h1 {
+            text-align: center;
+            color: #0066cc;
+            margin-bottom: 40px;
+        }
+        
+        .comparison-section {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .before-after {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .problem, .solution {
+            flex: 1;
+            min-width: 300px;
+            padding: 15px;
+            border-radius: 8px;
+        }
+        
+        .problem {
+            background-color: #ffebee;
+            border-left: 4px solid #f44336;
+        }
+        
+        .solution {
+            background-color: #e8f5e9;
+            border-left: 4px solid #4caf50;
+        }
+        
+        h2 {
+            margin-top: 0;
+            color: #0066cc;
+        }
+        
+        .highlight {
+            background-color: #fff9c4;
+            padding: 2px 5px;
+            border-radius: 3px;
+        }
+        
+        .features-list {
+            list-style-type: none;
+            padding: 0;
+        }
+        
+        .features-list li {
+            padding: 8px 0;
+            position: relative;
+            padding-left: 25px;
+        }
+        
+        .features-list li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #4caf50;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Antes y Después - Mejoras en la Landing Page</h1>
+        
+        <div class="comparison-section">
+            <h2>Problema 1: Barra Lateral en Móviles</h2>
+            
+            <div class="before-after">
+                <div class="problem">
+                    <h3>❌ Antes</h3>
+                    <p>La <span class="highlight">barra lateral no era visible</span> en dispositivos móviles</p>
+                    <p>Los usuarios no podían navegar fácilmente entre las secciones</p>
+                    <p>No había menú hamburguesa para acceder a las opciones de navegación</p>
+                </div>
+                
+                <div class="solution">
+                    <h3>✅ Después</h3>
+                    <p>Se agregó un <span class="highlight">menú hamburguesa</span> que aparece en dispositivos móviles</p>
+                    <p>El menú lateral ahora es <span class="highlight">accesible en todos los dispositivos</span></p>
+                    <p>Se mejoró la experiencia de usuario en móviles con animaciones</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="comparison-section">
+            <h2>Problema 2: Tarjeta de Vibrocompactador</h2>
+            
+            <div class="before-after">
+                <div class="problem">
+                    <h3>❌ Antes</h3>
+                    <p>La tarjeta de <span class="highlight">"vibrocompactador" mostraba una "r" afuera</span></p>
+                    <p>La información no se distribuía correctamente dentro de la tarjeta</p>
+                    <p>El contenido no estaba bien alineado ni centrado</p>
+                </div>
+                
+                <div class="solution">
+                    <h3>✅ Después</h3>
+                    <p>Se corrigió el <span class="highlight">diseño de las tarjetas</span> usando flexbox</p>
+                    <p>La información ahora se <span class="highlight">muestra completamente</span> dentro de la tarjeta</p>
+                    <p>Se mejoró la distribución del contenido en todas las tarjetas</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="comparison-section">
+            <h2>Características Implementadas</h2>
+            <ul class="features-list">
+                <li>Menú hamburguesa con animación suave</li>
+                <li>Funcionalidad de apertura/cierre del menú lateral en móviles</li>
+                <li>Corrección del layout de las tarjetas de maquinaria</li>
+                <li>Mejora de la experiencia de usuario en dispositivos móviles</li>
+                <li>Conservación del diseño original en escritorio</li>
+                <li>Responsive design mejorado</li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>
