@@ -169,13 +169,13 @@
                 logMessage(`- Maquinaria: ${machine}`);
                 logMessage(`- Mensaje: ${message}`);
                 
-                // Prepare template parameters
+                // Prepare template parameters - using new variable names
                 const templateParams = {
-                    from_name: name,
-                    from_email: email,
-                    from_phone: phone,
-                    machine_type: machine,
-                    message: message,
+                    client_name: String(name || ''),
+                    client_email: String(email || ''),
+                    client_phone: String(phone || ''),
+                    machinery_type: String(machine || ''),
+                    client_message: String(message || ''),
                     to_email: 'serviciosysuministroswls@gmail.com' // Dirección de destino
                 };
                 
@@ -187,7 +187,7 @@
                 
                 // IMPORTANT: Update these values with your actual Service ID and Template ID
                 const serviceId = 'service_x3ze2tv'; // Replace with your actual service ID (from your script.js file)
-                const templateId = 'template_wls_contact'; // Replace with your actual template ID
+                const templateId = 'template_wls_contact_new'; // Updated template ID
                 
                 logMessage(`Usando Service ID: ${serviceId}`);
                 logMessage(`Usando Template ID: ${templateId}`);

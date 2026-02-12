@@ -98,13 +98,13 @@ async function handleFormSubmit(event) {
     submitButton.disabled = true;
 
     try {
-        // Prepare template parameters
+        // Prepare template parameters - ensure clean string values
         const templateParams = {
-            from_name: name,
-            from_email: email,
-            from_phone: phone,
-            machine_type: machine,
-            message: message,
+            client_name: String(name || ''),
+            client_email: String(email || ''),
+            client_phone: String(phone || ''),
+            machinery_type: String(machine || ''),
+            client_message: String(message || ''),
             to_email: 'serviciosysuministroswls@gmail.com' // Dirección de destino
         };
 
@@ -136,7 +136,7 @@ async function handleFormSubmit(event) {
         // 4. Click on it and look for the "Service ID" field (it might not be simply "gmail")
         const response = await emailjs.send(
             'service_x3ze2tv', // Service ID - REPLACE WITH THE ACTUAL SERVICE ID FROM YOUR EMAILJS DASHBOARD
-            'template_wls_contact', // Template ID - make sure this template exists in your EmailJS dashboard
+            'template_wls_contact_new', // Updated Template ID - make sure this template exists in your EmailJS dashboard
             templateParams
         );
 
