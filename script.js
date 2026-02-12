@@ -333,13 +333,13 @@ function handleTouchStart(event) {
 
 function handleTouchMove(event) {
     if (event.touches.length > 1) return; // Ignore multi-touch
-    
+
     touchEndX = event.touches[0].clientX;
     dragEndX = event.clientX;
-    
+
     // Calculate distance moved
     const diffX = touchStartX - touchEndX;
-    
+
     // Only consider it dragging if movement is significant
     if (Math.abs(diffX) > 10) {
         isDragging = true;
@@ -349,11 +349,12 @@ function handleTouchMove(event) {
 function handleTouchEnd(event) {
     touchEndX = event.changedTouches[0].clientX;
     dragEndX = event.clientX;
-    
+
     const diffX = touchStartX - touchEndX;
     const minSwipeDistance = 50; // Minimum distance to trigger a slide change
-    
-    if (Math.abs(diffX) > minSwipeDistance && !isDragging) {
+
+    // Check if swipe distance is sufficient AND if user was dragging
+    if (Math.abs(diffX) > minSwipeDistance && isDragging) {
         if (diffX > 0) {
             // Swiped left - go to next slide
             nextSlide();
@@ -362,7 +363,7 @@ function handleTouchEnd(event) {
             prevSlide();
         }
     }
-    
+
     isDragging = false;
 }
 
@@ -389,11 +390,12 @@ function handleMouseMove(event) {
 
 function handleMouseUp(event) {
     dragEndX = event.clientX;
-    
+
     const diffX = dragStartX - dragEndX;
     const minSwipeDistance = 50; // Minimum distance to trigger a slide change
-    
-    if (Math.abs(diffX) > minSwipeDistance && !isDragging) {
+
+    // Check if drag distance is sufficient AND if user was dragging
+    if (Math.abs(diffX) > minSwipeDistance && isDragging) {
         if (diffX > 0) {
             // Dragged left - go to next slide
             nextSlide();
@@ -402,9 +404,9 @@ function handleMouseUp(event) {
             prevSlide();
         }
     }
-    
+
     isDragging = false;
-    
+
     // Remove mousemove and mouseup event listeners
     document.removeEventListener('mousemove', handleMouseMove);
     document.removeEventListener('mouseup', handleMouseUp);
