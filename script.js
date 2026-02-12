@@ -22,12 +22,14 @@ const hamburger = document.querySelector('.hamburger');
 const sidebarNav = document.querySelector('.sidebar-nav');
 const navLinks = document.querySelectorAll('.nav-links a');
 const contactForm = document.getElementById('contactForm');
-const galleryItems = document.querySelectorAll('.gallery-item');
 const modal = document.getElementById('machineModal');
 const closeModal = document.querySelector('.close-modal');
 const modalImage = document.getElementById('modalImage');
 const modalTitle = document.getElementById('modalTitle');
 const modalFeatures = document.getElementById('modalFeatures');
+
+// Carousel Elements (will be defined in initApp after DOM loads)
+let carouselTrack, carouselSlides, prevBtn, nextBtn, indicators, galleryItems;
 
 // Toggle mobile menu
 function toggleMobileMenu() {
@@ -274,6 +276,49 @@ const machineData = {
     }
 };
 
+// Carousel functionality
+let currentSlide = 0;
+
+function updateCarousel() {
+    // Move the track to show the current slide
+    if (carouselTrack && carouselSlides.length > 0) {
+        const slideWidth = carouselTrack.offsetWidth;
+        carouselTrack.style.transform = `translateX(-${currentSlide * slideWidth}px)`;
+    }
+    
+    // Update active indicator
+    if (indicators) {
+        indicators.forEach((indicator, index) => {
+            if (index === currentSlide) {
+                indicator.classList.add('active');
+            } else {
+                indicator.classList.remove('active');
+            }
+        });
+    }
+}
+
+function goToSlide(slideIndex) {
+    if (carouselSlides && slideIndex >= 0 && slideIndex < carouselSlides.length) {
+        currentSlide = slideIndex;
+        updateCarousel();
+    }
+}
+
+function nextSlide() {
+    if (carouselSlides && carouselSlides.length > 0) {
+        currentSlide = (currentSlide + 1) % carouselSlides.length;
+        updateCarousel();
+    }
+}
+
+function prevSlide() {
+    if (carouselSlides && carouselSlides.length > 0) {
+        currentSlide = (currentSlide - 1 + carouselSlides.length) % carouselSlides.length;
+        updateCarousel();
+    }
+}
+
 // Show machine details modal
 function showMachineDetails(machineName) {
     const machine = machineData[machineName];
@@ -332,6 +377,14 @@ async function debugEmailServices() {
 
 // Initialize the application
 function initApp() {
+    // Initialize carousel elements after DOM loads
+    carouselTrack = document.querySelector('.carousel-track');
+    carouselSlides = document.querySelectorAll('.carousel-slide');
+    prevBtn = document.querySelector('.prev-btn');
+    nextBtn = document.querySelector('.next-btn');
+    indicators = document.querySelectorAll('.indicator');
+    galleryItems = document.querySelectorAll('.gallery-item');
+    
     // Add event listener for hamburger menu
     if (hamburger) {
         hamburger.addEventListener('click', toggleMobileMenu);
@@ -348,12 +401,15 @@ function initApp() {
     });
 
     // Add event listeners for gallery items
-    galleryItems.forEach(item => {
-        item.addEventListener('click', () => {
-            const machineName = item.querySelector('h3').textContent;
-            showMachineDetails(machineName);
+    const allGalleryItems = document.querySelectorAll('.gallery-item');
+    if (allGalleryItems) {
+        allGalleryItems.forEach(item => {
+            item.addEventListener('click', () => {
+                const machineName = item.querySelector('h3').textContent;
+                showMachineDetails(machineName);
+            });
         });
-    });
+    }
 
     // Add event listener for closing modal
     closeModal.addEventListener('click', closeMachineModal);
@@ -394,7 +450,47 @@ function initApp() {
             }
         });
     });
-    
+
+    // Carousel event listeners
+    if (prevBtn) {
+        prevBtn.addEventListener('click', prevSlide);
+    }
+
+    if (nextBtn) {
+        nextBtn.addEventListener('click', nextSlide);
+    }
+
+    if (indicators) {
+        indicators.forEach((indicator, index) => {
+            indicator.addEventListener('click', () => {
+                goToSlide(index);
+            });
+        });
+    }
+
+    // Auto-advance carousel every 5 seconds (with reference stored to clear later if needed)
+    if (carouselSlides && carouselSlides.length > 1) {
+        window.carouselInterval = setInterval(nextSlide, 5000);
+        
+        // Pause auto-advance when user interacts with carousel
+        const carouselElements = [prevBtn, nextBtn];
+        if (indicators) {
+            carouselElements.push(...indicators);
+        }
+        
+        carouselElements.forEach(element => {
+            if (element) {
+                element.addEventListener('mouseenter', () => {
+                    clearInterval(window.carouselInterval);
+                });
+                
+                element.addEventListener('mouseleave', () => {
+                    window.carouselInterval = setInterval(nextSlide, 5000);
+                });
+            }
+        });
+    }
+
     // Debug EmailJS services (remove this in production)
     debugEmailServices();
 }

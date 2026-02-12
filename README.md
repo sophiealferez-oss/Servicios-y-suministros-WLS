@@ -14,12 +14,13 @@ Esta landing page ha sido diseñada con un enfoque profesional y corporativo par
 - **Formulario de Contacto**: Con validación básica de campos requeridos
 - **Menú Móvil**: Menú hamburguesa para dispositivos móviles
 - **Botón de WhatsApp Flotante**: Acceso rápido al contacto por WhatsApp
+- **Carrusel de Maquinaria**: Sistema interactivo que muestra dos tarjetas de maquinaria por slide
 
 ## Estructura de la Página
 
 1. **Hero**: Sección inicial con imagen de fondo impactante y botones de acción
 2. **Sobre Nosotros**: Información sobre la empresa y sus estadísticas clave
-3. **Maquinaria Disponible**: Galería visual de la maquinaria disponible
+3. **Maquinaria Disponible**: Carrusel interactivo que muestra dos tarjetas de maquinaria por slide
 4. **Servicios**: Detalle de los servicios ofrecidos en formato de tarjetas
 5. **Contacto**: Formulario de contacto y datos de información
 
@@ -29,6 +30,7 @@ Esta landing page ha sido diseñada con un enfoque profesional y corporativo par
 - CSS3 (con Grid y Flexbox)
 - JavaScript ES6 (sin frameworks externos)
 - Google Fonts (fuente Poppins)
+- Sistema de carrusel personalizado con CSS y JavaScript
 
 ## Archivos del Proyecto
 
@@ -48,7 +50,12 @@ Esta landing page ha sido diseñada con un enfoque profesional y corporativo par
 ### Cambiar Imágenes
 Reemplaza las imágenes de placeholder con imágenes reales de tu negocio:
 - Imagen de hero: Actualiza la URL en la propiedad `background-image` de la clase `.hero`
-- Imágenes de galería: Reemplaza las URLs en la sección de maquinaria disponible
+- Imágenes de carrusel: Reemplaza las URLs en la sección de maquinaria disponible (ahora en formato de carrusel)
+
+### Personalizar el Carrusel
+- Modificar el número de tarjetas por slide: Edita la estructura HTML en la sección de maquinaria disponible
+- Ajustar el tiempo de auto-desplazamiento: Cambia el valor en milisegundos en la línea `setInterval(nextSlide, 5000)` en `script.js`
+- Cambiar estilos del carrusel: Modifica las clases CSS que empiezan con `.carousel-`
 
 ### Contenido
 Modifica el texto en `index.html` para reflejar la información específica de tu negocio:
