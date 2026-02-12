@@ -276,8 +276,13 @@ const machineData = {
     }
 };
 
-// Carousel functionality
+// Carousel functionality with touch swipe support
 let currentSlide = 0;
+let touchStartX = 0;
+let touchEndX = 0;
+let dragStartX = 0;
+let dragEndX = 0;
+let isDragging = false;
 
 function updateCarousel() {
     // Move the track to show the current slide
@@ -285,7 +290,7 @@ function updateCarousel() {
         const slideWidth = carouselTrack.offsetWidth;
         carouselTrack.style.transform = `translateX(-${currentSlide * slideWidth}px)`;
     }
-    
+
     // Update active indicator
     if (indicators) {
         indicators.forEach((indicator, index) => {
@@ -317,6 +322,92 @@ function prevSlide() {
         currentSlide = (currentSlide - 1 + carouselSlides.length) % carouselSlides.length;
         updateCarousel();
     }
+}
+
+// Touch Swipe and Mouse Drag Functions
+function handleTouchStart(event) {
+    touchStartX = event.changedTouches[0].clientX;
+    dragStartX = event.clientX;
+    isDragging = false;
+}
+
+function handleTouchMove(event) {
+    if (event.touches.length > 1) return; // Ignore multi-touch
+    
+    touchEndX = event.touches[0].clientX;
+    dragEndX = event.clientX;
+    
+    // Calculate distance moved
+    const diffX = touchStartX - touchEndX;
+    
+    // Only consider it dragging if movement is significant
+    if (Math.abs(diffX) > 10) {
+        isDragging = true;
+    }
+}
+
+function handleTouchEnd(event) {
+    touchEndX = event.changedTouches[0].clientX;
+    dragEndX = event.clientX;
+    
+    const diffX = touchStartX - touchEndX;
+    const minSwipeDistance = 50; // Minimum distance to trigger a slide change
+    
+    if (Math.abs(diffX) > minSwipeDistance && !isDragging) {
+        if (diffX > 0) {
+            // Swiped left - go to next slide
+            nextSlide();
+        } else {
+            // Swiped right - go to previous slide
+            prevSlide();
+        }
+    }
+    
+    isDragging = false;
+}
+
+function handleMouseDown(event) {
+    dragStartX = event.clientX;
+    isDragging = false;
+    
+    // Add mousemove and mouseup event listeners
+    document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mouseup', handleMouseUp);
+}
+
+function handleMouseMove(event) {
+    dragEndX = event.clientX;
+    
+    // Calculate distance moved
+    const diffX = dragStartX - dragEndX;
+    
+    // Only consider it dragging if movement is significant
+    if (Math.abs(diffX) > 10) {
+        isDragging = true;
+    }
+}
+
+function handleMouseUp(event) {
+    dragEndX = event.clientX;
+    
+    const diffX = dragStartX - dragEndX;
+    const minSwipeDistance = 50; // Minimum distance to trigger a slide change
+    
+    if (Math.abs(diffX) > minSwipeDistance && !isDragging) {
+        if (diffX > 0) {
+            // Dragged left - go to next slide
+            nextSlide();
+        } else {
+            // Dragged right - go to previous slide
+            prevSlide();
+        }
+    }
+    
+    isDragging = false;
+    
+    // Remove mousemove and mouseup event listeners
+    document.removeEventListener('mousemove', handleMouseMove);
+    document.removeEventListener('mouseup', handleMouseUp);
 }
 
 // Show machine details modal
@@ -468,22 +559,41 @@ function initApp() {
         });
     }
 
+    // Touch and mouse drag event listeners for carousel wrapper
+    if (carouselTrack) {
+        // Touch events
+        carouselTrack.addEventListener('touchstart', handleTouchStart, { passive: false });
+        carouselTrack.addEventListener('touchmove', handleTouchMove, { passive: false });
+        carouselTrack.addEventListener('touchend', handleTouchEnd);
+
+        // Mouse events for desktop drag functionality
+        carouselTrack.addEventListener('mousedown', handleMouseDown);
+        
+        // Prevent image drag behavior
+        const images = carouselTrack.querySelectorAll('img');
+        images.forEach(img => {
+            img.addEventListener('dragstart', (e) => {
+                e.preventDefault();
+            });
+        });
+    }
+
     // Auto-advance carousel every 5 seconds (with reference stored to clear later if needed)
     if (carouselSlides && carouselSlides.length > 1) {
         window.carouselInterval = setInterval(nextSlide, 5000);
-        
+
         // Pause auto-advance when user interacts with carousel
-        const carouselElements = [prevBtn, nextBtn];
+        const carouselElements = [prevBtn, nextBtn, carouselTrack];
         if (indicators) {
             carouselElements.push(...indicators);
         }
-        
+
         carouselElements.forEach(element => {
             if (element) {
                 element.addEventListener('mouseenter', () => {
                     clearInterval(window.carouselInterval);
                 });
-                
+
                 element.addEventListener('mouseleave', () => {
                     window.carouselInterval = setInterval(nextSlide, 5000);
                 });
