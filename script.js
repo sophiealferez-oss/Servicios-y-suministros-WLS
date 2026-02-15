@@ -287,12 +287,13 @@ let isDragging = false;
 function updateCarousel() {
     // Move the track to show the current slide
     if (carouselTrack && carouselSlides.length > 0) {
-        // Apply transformation only on desktop (larger than tablets)
+        // Apply transformation based on screen size
         if (window.innerWidth > 1024) {
+            // Desktop: use transform for sliding effect
             const slideWidth = carouselTrack.offsetWidth;
             carouselTrack.style.transform = `translateX(-${currentSlide * slideWidth}px)`;
         } else {
-            // For mobile and tablets, scroll to the current slide
+            // Mobile and tablets: scroll to the current slide
             if (carouselSlides[currentSlide]) {
                 carouselSlides[currentSlide].scrollIntoView({
                     behavior: 'smooth',
@@ -302,7 +303,7 @@ function updateCarousel() {
             }
         }
 
-        // Actualizar indicadores
+        // Update indicators
         if (indicators) {
             indicators.forEach((indicator, index) => {
                 if (index === currentSlide) {
@@ -338,25 +339,23 @@ function prevSlide() {
 
 // Touch Swipe and Mouse Drag Functions
 function handleTouchStart(event) {
-    // Activar para dispositivos móviles y tablets
+    // Activate for mobile and tablet devices
     if (window.innerWidth > 1024) return;
 
     touchStartX = event.changedTouches[0].clientX;
-    dragStartX = event.clientX;
     isDragging = false;
-    
+
     // Prevent default to avoid scrolling while swiping
     event.preventDefault();
 }
 
 function handleTouchMove(event) {
-    // Activar para dispositivos móviles y tablets
+    // Activate for mobile and tablet devices
     if (window.innerWidth > 1024) return;
 
     if (event.touches.length > 1) return; // Ignore multi-touch
 
     touchEndX = event.touches[0].clientX;
-    dragEndX = event.clientX;
 
     // Calculate distance moved
     const diffX = touchStartX - touchEndX;
@@ -364,18 +363,17 @@ function handleTouchMove(event) {
     // Only consider it dragging if movement is significant
     if (Math.abs(diffX) > 10) {
         isDragging = true;
-        
+
         // Prevent scrolling while dragging
         event.preventDefault();
     }
 }
 
 function handleTouchEnd(event) {
-    // Activar para dispositivos móviles y tablets
+    // Activate for mobile and tablet devices
     if (window.innerWidth > 1024) return;
 
     touchEndX = event.changedTouches[0].clientX;
-    dragEndX = event.clientX;
 
     const diffX = touchStartX - touchEndX;
     const minSwipeDistance = 30; // Reduced minimum distance for better responsiveness
@@ -395,8 +393,8 @@ function handleTouchEnd(event) {
 }
 
 function handleMouseDown(event) {
-    // Activar para dispositivos de escritorio
-    if (window.innerWidth <= 768) return;
+    // Activate for desktop devices (and tablets in some cases)
+    if (window.innerWidth <= 1024) return;
 
     dragStartX = event.clientX;
     isDragging = false;
@@ -407,8 +405,8 @@ function handleMouseDown(event) {
 }
 
 function handleMouseMove(event) {
-    // Activar para dispositivos de escritorio
-    if (window.innerWidth <= 768) return;
+    // Activate for desktop devices (and tablets in some cases)
+    if (window.innerWidth <= 1024) return;
 
     dragEndX = event.clientX;
 
@@ -422,8 +420,8 @@ function handleMouseMove(event) {
 }
 
 function handleMouseUp(event) {
-    // Activar para dispositivos de escritorio
-    if (window.innerWidth <= 768) return;
+    // Activate for desktop devices (and tablets in some cases)
+    if (window.innerWidth <= 1024) return;
 
     dragEndX = event.clientX;
 
@@ -525,7 +523,8 @@ function initApp() {
         if (window.carouselInterval) {
             clearInterval(window.carouselInterval);
         }
-        
+
+        // Handle carousel structure based on screen size
         if (window.innerWidth <= 768 && !carouselTrack.classList.contains('mobile-structured')) {
             restructureCarouselForMobile();
         } else if (window.innerWidth > 768 && carouselTrack.classList.contains('mobile-structured')) {
@@ -541,12 +540,15 @@ function initApp() {
                 indicatorContainer.style.display = 'flex'; // Always show indicators on all devices
             }
         }
-        
+
         // Re-initialize auto-rotation if needed (but not on touch devices)
         const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
-        if (carouselSlides && carouselSlides.length > 1 && window.innerWidth > 768 && !isTouchDevice) {
+        if (carouselSlides && carouselSlides.length > 1 && window.innerWidth > 1024 && !isTouchDevice) {
             window.carouselInterval = setInterval(nextSlide, 5000);
         }
+        
+        // Update carousel display after resize
+        updateCarousel();
     });
 
     // Add event listener for hamburger menu
@@ -655,7 +657,7 @@ function initApp() {
     // Only enable auto-advance on desktop devices, not on mobile or tablets
     // Disable auto-rotation on devices with touch capabilities (tablets and mobile)
     const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
-    if (carouselSlides && carouselSlides.length > 1 && window.innerWidth > 768 && !isTouchDevice) {
+    if (carouselSlides && carouselSlides.length > 1 && window.innerWidth > 1024 && !isTouchDevice) {
         window.carouselInterval = setInterval(nextSlide, 5000);
 
         // Pause auto-advance when user interacts with carousel
@@ -674,7 +676,7 @@ function initApp() {
 
                 element.addEventListener('mouseleave', () => {
                     const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
-                    if (carouselSlides && carouselSlides.length > 1 && window.innerWidth > 768 && !isTouchDevice) {
+                    if (carouselSlides && carouselSlides.length > 1 && window.innerWidth > 1024 && !isTouchDevice) {
                         window.carouselInterval = setInterval(nextSlide, 5000);
                     }
                 });
@@ -704,6 +706,11 @@ function restructureCarouselForMobile() {
     const allGalleryItems = carouselTrack.querySelectorAll('.gallery-item');
     if (!allGalleryItems || allGalleryItems.length === 0) {
         return;
+    }
+
+    // Store original structure for restoration
+    if (!carouselTrack.dataset.originalHtml) {
+        carouselTrack.dataset.originalHtml = carouselTrack.innerHTML;
     }
 
     // Clear the carousel track
@@ -737,6 +744,38 @@ function restructureCarouselForMobile() {
 
     // Mark as restructured
     carouselTrack.classList.add('mobile-structured');
+
+    // Reset to first slide
+    currentSlide = 0;
+    updateCarousel();
+}
+
+// Function to restore original carousel structure
+function restoreOriginalCarouselStructure() {
+    if (!carouselTrack || !carouselTrack.classList.contains('mobile-structured')) {
+        return; // Not in mobile structure
+    }
+
+    // Clear the carousel interval if it exists
+    if (window.carouselInterval) {
+        clearInterval(window.carouselInterval);
+    }
+
+    // Restore original HTML if available
+    if (carouselTrack.dataset.originalHtml) {
+        carouselTrack.innerHTML = carouselTrack.dataset.originalHtml;
+    } else {
+        // Fallback: reload the page
+        location.reload();
+        return;
+    }
+
+    // Remove the mobile-structured class
+    carouselTrack.classList.remove('mobile-structured');
+
+    // Reinitialize carousel elements
+    carouselSlides = document.querySelectorAll('.carousel-slide');
+    indicators = document.querySelectorAll('.indicator');
 
     // Reset to first slide
     currentSlide = 0;
