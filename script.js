@@ -344,6 +344,9 @@ function handleTouchStart(event) {
     touchStartX = event.changedTouches[0].clientX;
     dragStartX = event.clientX;
     isDragging = false;
+    
+    // Prevent default to avoid scrolling while swiping
+    event.preventDefault();
 }
 
 function handleTouchMove(event) {
@@ -361,6 +364,9 @@ function handleTouchMove(event) {
     // Only consider it dragging if movement is significant
     if (Math.abs(diffX) > 10) {
         isDragging = true;
+        
+        // Prevent scrolling while dragging
+        event.preventDefault();
     }
 }
 
@@ -372,7 +378,7 @@ function handleTouchEnd(event) {
     dragEndX = event.clientX;
 
     const diffX = touchStartX - touchEndX;
-    const minSwipeDistance = 50; // Minimum distance to trigger a slide change
+    const minSwipeDistance = 30; // Reduced minimum distance for better responsiveness
 
     // Check if swipe distance is sufficient AND if user was dragging
     if (Math.abs(diffX) > minSwipeDistance && isDragging) {
@@ -422,7 +428,7 @@ function handleMouseUp(event) {
     dragEndX = event.clientX;
 
     const diffX = dragStartX - dragEndX;
-    const minSwipeDistance = 50; // Minimum distance to trigger a slide change
+    const minSwipeDistance = 30; // Reduced minimum distance for better responsiveness
 
     // Check if drag distance is sufficient AND if user was dragging
     if (Math.abs(diffX) > minSwipeDistance && isDragging) {
@@ -678,6 +684,10 @@ function initApp() {
 
     // Debug EmailJS services (remove this in production)
     debugEmailServices();
+    
+    // Ensure carousel starts at first slide
+    currentSlide = 0;
+    updateCarousel();
 }
 
 // Function to restructure carousel for mobile to show one item per slide
@@ -750,4 +760,12 @@ function restoreOriginalCarouselStructure() {
 }
 
 // Initialize app when DOM is loaded
-document.addEventListener('DOMContentLoaded', initApp);
+document.addEventListener('DOMContentLoaded', function() {
+    // Ensure modal is hidden on page load
+    const modal = document.getElementById('machineModal');
+    if (modal) {
+        modal.style.display = 'none';
+    }
+    
+    initApp();
+});
