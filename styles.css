@@ -733,8 +733,10 @@ main {
         scroll-snap-type: x mandatory; /* Añadir snap para desplazamiento por página */
         scrollbar-width: none; /* Ocultar barra de desplazamiento en Firefox */
         -ms-overflow-style: none; /* Ocultar barra de desplazamiento en IE/Edge */
+        display: flex;
+        align-items: center; /* Centrar verticalmente */
     }
-    
+
     .carousel-track::-webkit-scrollbar {
         display: none; /* Ocultar barra de desplazamiento en Chrome/Safari */
     }
@@ -755,7 +757,7 @@ main {
         width: 100%;
         max-width: 350px;
         height: auto;
-        margin: 10px 0; /* Margen superior/inferior, sin margen lateral adicional */
+        margin: 10px auto; /* Centrar horizontalmente */
         display: flex;
         flex-direction: column;
         box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
@@ -765,22 +767,24 @@ main {
         height: 200px;
         object-fit: cover;
         width: 100%;
+        display: block;
+        margin: 0 auto; /* Centrar imagen dentro del contenedor */
     }
-    
+
     /* Asegurar que el contenedor del carrusel tenga desplazamiento horizontal */
     .carousel-wrapper {
         overflow-x: hidden; /* Ya que el desplazamiento se hace en .carousel-track */
         padding: 10px 0;
     }
-    
+
     /* Ocultar botones de navegación en móvil ya que se usa desplazamiento táctil */
     .carousel-btn {
         display: none;
     }
-    
-    /* Ocultar indicadores en móvil */
+
+    /* Mostrar indicadores en móvil */
     .carousel-indicators {
-        display: none;
+        display: flex;
     }
 }
 

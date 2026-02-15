@@ -291,8 +291,17 @@ function updateCarousel() {
         if (window.innerWidth > 768) {
             const slideWidth = carouselTrack.offsetWidth;
             carouselTrack.style.transform = `translateX(-${currentSlide * slideWidth}px)`;
+        } else {
+            // For mobile and tablets, scroll to the current slide
+            if (carouselSlides[currentSlide]) {
+                carouselSlides[currentSlide].scrollIntoView({ 
+                    behavior: 'smooth', 
+                    inline: 'center',
+                    block: 'nearest'
+                });
+            }
         }
-        
+
         // Actualizar indicadores
         if (indicators) {
             indicators.forEach((indicator, index) => {
@@ -329,18 +338,18 @@ function prevSlide() {
 
 // Touch Swipe and Mouse Drag Functions
 function handleTouchStart(event) {
-    // Solo activar para dispositivos móviles
-    if (window.innerWidth <= 768) return;
-    
+    // Activar para dispositivos móviles y tablets
+    if (window.innerWidth > 768) return;
+
     touchStartX = event.changedTouches[0].clientX;
     dragStartX = event.clientX;
     isDragging = false;
 }
 
 function handleTouchMove(event) {
-    // Solo activar para dispositivos móviles
-    if (window.innerWidth <= 768) return;
-    
+    // Activar para dispositivos móviles y tablets
+    if (window.innerWidth > 768) return;
+
     if (event.touches.length > 1) return; // Ignore multi-touch
 
     touchEndX = event.touches[0].clientX;
@@ -356,9 +365,9 @@ function handleTouchMove(event) {
 }
 
 function handleTouchEnd(event) {
-    // Solo activar para dispositivos móviles
-    if (window.innerWidth <= 768) return;
-    
+    // Activar para dispositivos móviles y tablets
+    if (window.innerWidth > 768) return;
+
     touchEndX = event.changedTouches[0].clientX;
     dragEndX = event.clientX;
 
@@ -380,9 +389,9 @@ function handleTouchEnd(event) {
 }
 
 function handleMouseDown(event) {
-    // Solo activar para dispositivos de escritorio
+    // Activar para dispositivos de escritorio
     if (window.innerWidth <= 768) return;
-    
+
     dragStartX = event.clientX;
     isDragging = false;
 
@@ -392,9 +401,9 @@ function handleMouseDown(event) {
 }
 
 function handleMouseMove(event) {
-    // Solo activar para dispositivos de escritorio
+    // Activar para dispositivos de escritorio
     if (window.innerWidth <= 768) return;
-    
+
     dragEndX = event.clientX;
 
     // Calculate distance moved
@@ -407,9 +416,9 @@ function handleMouseMove(event) {
 }
 
 function handleMouseUp(event) {
-    // Solo activar para dispositivos de escritorio
+    // Activar para dispositivos de escritorio
     if (window.innerWidth <= 768) return;
-    
+
     dragEndX = event.clientX;
 
     const diffX = dragStartX - dragEndX;
@@ -510,6 +519,16 @@ function initApp() {
             restructureCarouselForMobile();
         } else if (window.innerWidth > 768 && carouselTrack.classList.contains('mobile-structured')) {
             restoreOriginalCarouselStructure();
+        }
+        
+        // Update indicators visibility based on screen size
+        const indicatorContainer = document.querySelector('.carousel-indicators');
+        if (indicatorContainer) {
+            if (window.innerWidth <= 768) {
+                indicatorContainer.style.display = 'flex';
+            } else {
+                indicatorContainer.style.display = 'flex'; // Always show indicators on all devices
+            }
         }
     });
 
@@ -616,7 +635,8 @@ function initApp() {
     }
 
     // Auto-advance carousel every 5 seconds (with reference stored to clear later if needed)
-    if (carouselSlides && carouselSlides.length > 1) {
+    // Only enable auto-advance on desktop devices, not on mobile or tablets
+    if (carouselSlides && carouselSlides.length > 1 && window.innerWidth > 768) {
         window.carouselInterval = setInterval(nextSlide, 5000);
 
         // Pause auto-advance when user interacts with carousel
