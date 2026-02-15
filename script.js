@@ -287,19 +287,22 @@ let isDragging = false;
 function updateCarousel() {
     // Move the track to show the current slide
     if (carouselTrack && carouselSlides.length > 0) {
-        const slideWidth = carouselTrack.offsetWidth;
-        carouselTrack.style.transform = `translateX(-${currentSlide * slideWidth}px)`;
-    }
-
-    // Update active indicator
-    if (indicators) {
-        indicators.forEach((indicator, index) => {
-            if (index === currentSlide) {
-                indicator.classList.add('active');
-            } else {
-                indicator.classList.remove('active');
-            }
-        });
+        // Solo aplicar transformación en dispositivos de escritorio
+        if (window.innerWidth > 768) {
+            const slideWidth = carouselTrack.offsetWidth;
+            carouselTrack.style.transform = `translateX(-${currentSlide * slideWidth}px)`;
+        }
+        
+        // Actualizar indicadores
+        if (indicators) {
+            indicators.forEach((indicator, index) => {
+                if (index === currentSlide) {
+                    indicator.classList.add('active');
+                } else {
+                    indicator.classList.remove('active');
+                }
+            });
+        }
     }
 }
 
@@ -326,12 +329,18 @@ function prevSlide() {
 
 // Touch Swipe and Mouse Drag Functions
 function handleTouchStart(event) {
+    // Solo activar para dispositivos móviles
+    if (window.innerWidth <= 768) return;
+    
     touchStartX = event.changedTouches[0].clientX;
     dragStartX = event.clientX;
     isDragging = false;
 }
 
 function handleTouchMove(event) {
+    // Solo activar para dispositivos móviles
+    if (window.innerWidth <= 768) return;
+    
     if (event.touches.length > 1) return; // Ignore multi-touch
 
     touchEndX = event.touches[0].clientX;
@@ -347,6 +356,9 @@ function handleTouchMove(event) {
 }
 
 function handleTouchEnd(event) {
+    // Solo activar para dispositivos móviles
+    if (window.innerWidth <= 768) return;
+    
     touchEndX = event.changedTouches[0].clientX;
     dragEndX = event.clientX;
 
@@ -368,20 +380,26 @@ function handleTouchEnd(event) {
 }
 
 function handleMouseDown(event) {
+    // Solo activar para dispositivos de escritorio
+    if (window.innerWidth <= 768) return;
+    
     dragStartX = event.clientX;
     isDragging = false;
-    
+
     // Add mousemove and mouseup event listeners
     document.addEventListener('mousemove', handleMouseMove);
     document.addEventListener('mouseup', handleMouseUp);
 }
 
 function handleMouseMove(event) {
-    dragEndX = event.clientX;
+    // Solo activar para dispositivos de escritorio
+    if (window.innerWidth <= 768) return;
     
+    dragEndX = event.clientX;
+
     // Calculate distance moved
     const diffX = dragStartX - dragEndX;
-    
+
     // Only consider it dragging if movement is significant
     if (Math.abs(diffX) > 10) {
         isDragging = true;
@@ -389,6 +407,9 @@ function handleMouseMove(event) {
 }
 
 function handleMouseUp(event) {
+    // Solo activar para dispositivos de escritorio
+    if (window.innerWidth <= 768) return;
+    
     dragEndX = event.clientX;
 
     const diffX = dragStartX - dragEndX;
