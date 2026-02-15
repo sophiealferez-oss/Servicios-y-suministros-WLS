@@ -340,11 +340,11 @@ main {
 }
 
 .prev-btn {
-    left: 10px;
+    display: none;
 }
 
 .next-btn {
-    right: 10px;
+    display: none;
 }
 
 .carousel-indicators {
@@ -587,17 +587,37 @@ main {
     .sidebar-nav {
         width: 100%;
     }
-    
+
     .hero h1 {
         font-size: 1.8rem;
     }
-    
+
     .stats-grid {
         grid-template-columns: 1fr;
     }
-    
+
     .gallery-grid {
         grid-template-columns: 1fr;
+    }
+    
+    /* Mobile responsiveness for machinery carousel */
+    .gallery-item {
+        width: 100%;
+        height: auto;
+        max-width: 350px;
+    }
+    
+    .gallery-item img {
+        height: 200px;
+    }
+    
+    .carousel-container {
+        padding: 20px 10px;
+    }
+    
+    .carousel-slide {
+        flex-direction: column;
+        gap: 15px;
     }
 }
 
@@ -701,6 +721,143 @@ main {
     left: 0;
     color: #0066cc;
     font-weight: bold;
+}
+
+/* Machinery carousel mobile responsiveness */
+@media (max-width: 768px) {
+    .carousel-track {
+        flex-direction: column;
+    }
+    
+    .carousel-slide {
+        flex-direction: column;
+        align-items: center;
+        width: 100%;
+        display: flex !important;
+    }
+    
+    /* Show one gallery item per slide on mobile */
+    .carousel-slide .gallery-item {
+        width: 100%;
+        max-width: 500px;
+        height: auto;
+        margin: 10px 0;
+        display: block !important;
+    }
+    
+    .gallery-item img {
+        height: 250px;
+        object-fit: cover;
+        width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    .carousel-slide {
+        width: 100%;
+    }
+    
+    .gallery-item {
+        width: 100%;
+        max-width: 350px;
+        height: auto;
+        margin: 10px 0;
+    }
+    
+    .gallery-item img {
+        height: 220px;
+        object-fit: cover;
+        width: 100%;
+    }
+    
+    .carousel-container {
+        padding: 15px;
+    }
+}
+
+/* Specific styles for iPhone and Samsung devices */
+@media screen and (device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) {
+    /* iPhone X, XS, 11 Pro, 12 Mini, 13 Mini */
+    .carousel-slide {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .gallery-item {
+        width: 100%;
+        max-width: 350px;
+        height: auto;
+        margin: 10px 0;
+    }
+    
+    .gallery-item img {
+        height: 230px;
+        object-fit: cover;
+        width: 100%;
+    }
+}
+
+@media screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) {
+    /* iPhone XR, 11, 12, 13 */
+    .carousel-slide {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .gallery-item {
+        width: 100%;
+        max-width: 380px;
+        height: auto;
+        margin: 10px 0;
+    }
+    
+    .gallery-item img {
+        height: 250px;
+        object-fit: cover;
+        width: 100%;
+    }
+}
+
+@media screen and (device-width: 360px) and (device-height: 640px) and (-webkit-device-pixel-ratio: 2) {
+    /* Samsung Galaxy A series */
+    .carousel-slide {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .gallery-item {
+        width: 100%;
+        max-width: 340px;
+        height: auto;
+        margin: 10px 0;
+    }
+    
+    .gallery-item img {
+        height: 220px;
+        object-fit: cover;
+        width: 100%;
+    }
+}
+
+@media screen and (device-width: 360px) and (device-height: 740px) and (-webkit-device-pixel-ratio: 3) {
+    /* Samsung Galaxy S20 FE */
+    .carousel-slide {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .gallery-item {
+        width: 100%;
+        max-width: 340px;
+        height: auto;
+        margin: 10px 0;
+    }
+    
+    .gallery-item img {
+        height: 230px;
+        object-fit: cover;
+        width: 100%;
+    }
 }
 
 /* Hamburger Menu Styles */

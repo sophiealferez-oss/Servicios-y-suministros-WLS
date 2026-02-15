@@ -477,7 +477,21 @@ function initApp() {
     nextBtn = document.querySelector('.next-btn');
     indicators = document.querySelectorAll('.indicator');
     galleryItems = document.querySelectorAll('.gallery-item');
-    
+
+    // Restructure carousel for mobile devices to show one item per slide
+    if (window.innerWidth <= 768) {
+        restructureCarouselForMobile();
+    }
+
+    // Listen for resize events to restructure carousel if needed
+    window.addEventListener('resize', function() {
+        if (window.innerWidth <= 768 && !carouselTrack.classList.contains('mobile-structured')) {
+            restructureCarouselForMobile();
+        } else if (window.innerWidth > 768 && carouselTrack.classList.contains('mobile-structured')) {
+            restoreOriginalCarouselStructure();
+        }
+    });
+
     // Add event listener for hamburger menu
     if (hamburger) {
         hamburger.addEventListener('click', toggleMobileMenu);
@@ -570,7 +584,7 @@ function initApp() {
 
         // Mouse events for desktop drag functionality
         carouselTrack.addEventListener('mousedown', handleMouseDown);
-        
+
         // Prevent image drag behavior
         const images = carouselTrack.querySelectorAll('img');
         images.forEach(img => {
@@ -605,6 +619,65 @@ function initApp() {
 
     // Debug EmailJS services (remove this in production)
     debugEmailServices();
+}
+
+// Function to restructure carousel for mobile to show one item per slide
+function restructureCarouselForMobile() {
+    if (!carouselTrack || carouselTrack.classList.contains('mobile-structured')) {
+        return; // Already restructured
+    }
+
+    const allGalleryItems = carouselTrack.querySelectorAll('.gallery-item');
+    if (!allGalleryItems || allGalleryItems.length === 0) {
+        return;
+    }
+
+    // Clear the carousel track
+    carouselTrack.innerHTML = '';
+
+    // Create a new slide for each gallery item
+    allGalleryItems.forEach(item => {
+        const newSlide = document.createElement('div');
+        newSlide.className = 'carousel-slide';
+        newSlide.appendChild(item.cloneNode(true)); // Clone the gallery item
+        carouselTrack.appendChild(newSlide);
+    });
+
+    // Update the carousel elements
+    carouselSlides = document.querySelectorAll('.carousel-slide');
+    
+    // Recreate indicators
+    const indicatorContainer = document.querySelector('.carousel-indicators');
+    if (indicatorContainer) {
+        indicatorContainer.innerHTML = '';
+        for (let i = 0; i < carouselSlides.length; i++) {
+            const indicator = document.createElement('button');
+            indicator.className = 'indicator';
+            if (i === 0) indicator.classList.add('active');
+            indicator.dataset.slide = i;
+            indicator.addEventListener('click', () => goToSlide(i));
+            indicatorContainer.appendChild(indicator);
+        }
+        indicators = document.querySelectorAll('.indicator');
+    }
+
+    // Mark as restructured
+    carouselTrack.classList.add('mobile-structured');
+    
+    // Reset to first slide
+    currentSlide = 0;
+    updateCarousel();
+}
+
+// Function to restore original carousel structure
+function restoreOriginalCarouselStructure() {
+    if (!carouselTrack || !carouselTrack.classList.contains('mobile-structured')) {
+        return; // Not in mobile structure
+    }
+
+    // Reload the page or restore from original HTML structure
+    // For simplicity, we'll reload the carousel content from the original HTML
+    location.reload();
 }
 
 // Initialize app when DOM is loaded
