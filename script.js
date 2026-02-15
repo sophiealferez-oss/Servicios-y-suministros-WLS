@@ -287,15 +287,15 @@ let isDragging = false;
 function updateCarousel() {
     // Move the track to show the current slide
     if (carouselTrack && carouselSlides.length > 0) {
-        // Solo aplicar transformación en dispositivos de escritorio
-        if (window.innerWidth > 768) {
+        // Apply transformation only on desktop (larger than tablets)
+        if (window.innerWidth > 1024) {
             const slideWidth = carouselTrack.offsetWidth;
             carouselTrack.style.transform = `translateX(-${currentSlide * slideWidth}px)`;
         } else {
             // For mobile and tablets, scroll to the current slide
             if (carouselSlides[currentSlide]) {
-                carouselSlides[currentSlide].scrollIntoView({ 
-                    behavior: 'smooth', 
+                carouselSlides[currentSlide].scrollIntoView({
+                    behavior: 'smooth',
                     inline: 'center',
                     block: 'nearest'
                 });
@@ -339,7 +339,7 @@ function prevSlide() {
 // Touch Swipe and Mouse Drag Functions
 function handleTouchStart(event) {
     // Activar para dispositivos móviles y tablets
-    if (window.innerWidth > 768) return;
+    if (window.innerWidth > 1024) return;
 
     touchStartX = event.changedTouches[0].clientX;
     dragStartX = event.clientX;
@@ -348,7 +348,7 @@ function handleTouchStart(event) {
 
 function handleTouchMove(event) {
     // Activar para dispositivos móviles y tablets
-    if (window.innerWidth > 768) return;
+    if (window.innerWidth > 1024) return;
 
     if (event.touches.length > 1) return; // Ignore multi-touch
 
@@ -366,7 +366,7 @@ function handleTouchMove(event) {
 
 function handleTouchEnd(event) {
     // Activar para dispositivos móviles y tablets
-    if (window.innerWidth > 768) return;
+    if (window.innerWidth > 1024) return;
 
     touchEndX = event.changedTouches[0].clientX;
     dragEndX = event.clientX;

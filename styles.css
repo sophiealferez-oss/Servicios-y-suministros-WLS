@@ -307,6 +307,10 @@ main {
     display: flex;
     align-items: center;
     justify-content: center;
+    word-break: break-word; /* Ensure long words break properly */
+    hyphens: auto; /* Allow hyphenation for long words */
+    overflow-wrap: break-word; /* Break long words if needed */
+    line-height: 1.4; /* Improve text readability */
 }
 
 .gallery-item:hover {
@@ -599,22 +603,29 @@ main {
     .gallery-grid {
         grid-template-columns: 1fr;
     }
-    
+
     /* Mobile responsiveness for machinery carousel */
     .gallery-item {
         width: 100%;
         height: auto;
         max-width: 350px;
     }
-    
+
     .gallery-item img {
         height: 200px;
     }
-    
+
+    .gallery-item h3 {
+        font-size: 1rem; /* Ensure proper font size on small screens */
+        padding: 12px; /* Consistent padding */
+        word-break: break-word; /* Ensure long words break properly */
+        overflow-wrap: break-word; /* Break long words if needed */
+    }
+
     .carousel-container {
         padding: 20px 10px;
     }
-    
+
     .carousel-slide {
         flex-direction: column;
         gap: 15px;
@@ -644,18 +655,25 @@ main {
     background-color: rgba(0, 0, 0, 0.7);
     z-index: 2000;
     overflow: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .modal-content {
     position: relative;
     background-color: white;
-    margin: 5% auto;
+    margin: 0 auto;
     padding: 0;
     border-radius: 8px;
     width: 80%;
     max-width: 800px;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
     animation: modalFadeIn 0.3s ease-out;
+    /* Ensure modal is centered vertically and horizontally */
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
 }
 
 @keyframes modalFadeIn {
@@ -788,6 +806,46 @@ main {
     }
 }
 
+/* Tablet specific styles for carousel */
+@media (min-width: 769px) and (max-width: 1024px) and (orientation: landscape) {
+    .carousel-container {
+        max-width: 100%;
+        padding: 20px 40px;
+    }
+
+    .carousel-wrapper {
+        overflow-x: auto;
+        overflow-y: hidden;
+        -ms-overflow-style: -ms-autohiding-scrollbar;
+    }
+
+    .carousel-track {
+        display: flex;
+        flex-direction: row;
+        width: max-content;
+        min-width: 100%;
+    }
+
+    .carousel-slide {
+        display: flex;
+        flex-direction: row;
+        min-width: 100%;
+        gap: 30px;
+        padding: 20px 0;
+    }
+
+    .gallery-item {
+        flex: 0 0 auto;
+        min-width: 350px;
+        height: 400px;
+    }
+
+    /* Enable horizontal scrolling for tablets */
+    .carousel-wrapper {
+        -webkit-overflow-scrolling: touch; /* Enable momentum scrolling on iOS */
+    }
+}
+
 @media (max-width: 480px) {
     .carousel-slide {
         width: calc(100vw - 30px); /* Ancho completo de la pantalla menos márgenes */
@@ -805,6 +863,11 @@ main {
         height: 180px;
         object-fit: cover;
         width: 100%;
+    }
+
+    .gallery-item h3 {
+        font-size: 0.9rem; /* Smaller font size for mobile */
+        padding: 12px; /* Reduced padding */
     }
 
     .carousel-container {
@@ -948,16 +1011,33 @@ main {
     .modal-body {
         flex-direction: row;
     }
-    
+
     .modal-body img {
         width: 40%;
         height: auto;
         border-top-right-radius: 0;
         border-bottom-left-radius: 8px;
     }
-    
+
     .modal-text {
         width: 60%;
         padding: 30px;
+    }
+}
+
+/* Tablet specific modal styles */
+@media (min-width: 768px) and (max-width: 1024px) {
+    .modal-overlay {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .modal-content {
+        position: relative;
+        top: 0;
+        left: 0;
+        transform: none;
+        margin: 40px auto; /* Add some margin from top and bottom on tablets */
     }
 }
