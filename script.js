@@ -515,12 +515,17 @@ function initApp() {
 
     // Listen for resize events to restructure carousel if needed
     window.addEventListener('resize', function() {
+        // Clear any existing interval to prevent conflicts when resizing
+        if (window.carouselInterval) {
+            clearInterval(window.carouselInterval);
+        }
+        
         if (window.innerWidth <= 768 && !carouselTrack.classList.contains('mobile-structured')) {
             restructureCarouselForMobile();
         } else if (window.innerWidth > 768 && carouselTrack.classList.contains('mobile-structured')) {
             restoreOriginalCarouselStructure();
         }
-        
+
         // Update indicators visibility based on screen size
         const indicatorContainer = document.querySelector('.carousel-indicators');
         if (indicatorContainer) {
@@ -529,6 +534,12 @@ function initApp() {
             } else {
                 indicatorContainer.style.display = 'flex'; // Always show indicators on all devices
             }
+        }
+        
+        // Re-initialize auto-rotation if needed (but not on touch devices)
+        const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+        if (carouselSlides && carouselSlides.length > 1 && window.innerWidth > 768 && !isTouchDevice) {
+            window.carouselInterval = setInterval(nextSlide, 5000);
         }
     });
 
@@ -636,7 +647,9 @@ function initApp() {
 
     // Auto-advance carousel every 5 seconds (with reference stored to clear later if needed)
     // Only enable auto-advance on desktop devices, not on mobile or tablets
-    if (carouselSlides && carouselSlides.length > 1 && window.innerWidth > 768) {
+    // Disable auto-rotation on devices with touch capabilities (tablets and mobile)
+    const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+    if (carouselSlides && carouselSlides.length > 1 && window.innerWidth > 768 && !isTouchDevice) {
         window.carouselInterval = setInterval(nextSlide, 5000);
 
         // Pause auto-advance when user interacts with carousel
@@ -648,11 +661,16 @@ function initApp() {
         carouselElements.forEach(element => {
             if (element) {
                 element.addEventListener('mouseenter', () => {
-                    clearInterval(window.carouselInterval);
+                    if (window.carouselInterval) {
+                        clearInterval(window.carouselInterval);
+                    }
                 });
 
                 element.addEventListener('mouseleave', () => {
-                    window.carouselInterval = setInterval(nextSlide, 5000);
+                    const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+                    if (carouselSlides && carouselSlides.length > 1 && window.innerWidth > 768 && !isTouchDevice) {
+                        window.carouselInterval = setInterval(nextSlide, 5000);
+                    }
                 });
             }
         });
@@ -666,6 +684,11 @@ function initApp() {
 function restructureCarouselForMobile() {
     if (!carouselTrack || carouselTrack.classList.contains('mobile-structured')) {
         return; // Already restructured
+    }
+
+    // Clear the carousel interval if it exists
+    if (window.carouselInterval) {
+        clearInterval(window.carouselInterval);
     }
 
     const allGalleryItems = carouselTrack.querySelectorAll('.gallery-item');
@@ -686,7 +709,7 @@ function restructureCarouselForMobile() {
 
     // Update the carousel elements
     carouselSlides = document.querySelectorAll('.carousel-slide');
-    
+
     // Recreate indicators
     const indicatorContainer = document.querySelector('.carousel-indicators');
     if (indicatorContainer) {
@@ -704,7 +727,7 @@ function restructureCarouselForMobile() {
 
     // Mark as restructured
     carouselTrack.classList.add('mobile-structured');
-    
+
     // Reset to first slide
     currentSlide = 0;
     updateCarousel();
@@ -714,6 +737,11 @@ function restructureCarouselForMobile() {
 function restoreOriginalCarouselStructure() {
     if (!carouselTrack || !carouselTrack.classList.contains('mobile-structured')) {
         return; // Not in mobile structure
+    }
+
+    // Clear the carousel interval if it exists
+    if (window.carouselInterval) {
+        clearInterval(window.carouselInterval);
     }
 
     // Reload the page or restore from original HTML structure
