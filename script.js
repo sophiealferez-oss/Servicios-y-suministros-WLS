@@ -849,4 +849,464 @@ document.addEventListener('DOMContentLoaded', function() {
     setTimeout(() => {
         updateCarouselForMobile();
     }, 100);
+
+    // Initialize authentication
+    initializeAuth();
 });
+
+function initializeAuth() {
+    // Check if user is already logged in
+    const token = localStorage.getItem('authToken');
+    if (token) {
+        loadUserProfile();
+    }
+
+    // Set up event listeners for auth modals
+    setupAuthEventListeners();
+}
+
+function setupAuthEventListeners() {
+    // Show register modal
+    const registerLink = document.querySelector('#showRegisterModal');
+    if (registerLink) {
+        registerLink.addEventListener('click', function(e) {
+            e.preventDefault();
+            showRegisterModal();
+        });
+    }
+
+    // Show login modal
+    const loginLink = document.querySelector('#showLoginModal');
+    if (loginLink) {
+        loginLink.addEventListener('click', function(e) {
+            e.preventDefault();
+            showLoginModal();
+        });
+    }
+
+    // Close modals
+    const closeButtons = document.querySelectorAll('.modal .close');
+    closeButtons.forEach(button => {
+        button.addEventListener('click', closeModal);
+    });
+
+    // Close modal when clicking outside
+    window.addEventListener('click', function(event) {
+        const modals = document.querySelectorAll('.modal');
+        modals.forEach(modal => {
+            if (event.target === modal) {
+                closeModal(null, modal);
+            }
+        });
+    });
+}
+
+function showRegisterModal() {
+    // Create modal HTML if it doesn't exist
+    let modal = document.getElementById('registerModal');
+    if (!modal) {
+        createAuthModals();
+        modal = document.getElementById('registerModal');
+    }
+    
+    modal.style.display = 'block';
+}
+
+function showLoginModal() {
+    // Create modal HTML if it doesn't exist
+    let modal = document.getElementById('loginModal');
+    if (!modal) {
+        createAuthModals();
+        modal = document.getElementById('loginModal');
+    }
+    
+    modal.style.display = 'block';
+}
+
+function closeModal(e, modal) {
+    if (!modal) {
+        modal = e ? e.target.closest('.modal') : null;
+    }
+    
+    if (modal) {
+        modal.style.display = 'none';
+    }
+}
+
+function createAuthModals() {
+    // Create modal container if it doesn't exist
+    if (!document.getElementById('authModalsContainer')) {
+        const modalsContainer = document.createElement('div');
+        modalsContainer.id = 'authModalsContainer';
+        document.body.appendChild(modalsContainer);
+    }
+
+    // Create register modal
+    const registerModal = document.createElement('div');
+    registerModal.className = 'modal';
+    registerModal.id = 'registerModal';
+    registerModal.innerHTML = `
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Registrarse</h2>
+            <form id="registerForm">
+                <div class="form-group">
+                    <label for="regUsername">Nombre de Usuario:</label>
+                    <input type="text" id="regUsername" name="username" required>
+                </div>
+                <div class="form-group">
+                    <label for="regEmail">Correo Electrónico:</label>
+                    <input type="email" id="regEmail" name="email" required>
+                </div>
+                <div class="form-group">
+                    <label for="regPassword">Contraseña:</label>
+                    <input type="password" id="regPassword" name="password" required>
+                </div>
+                <button type="submit">Registrarse</button>
+            </form>
+            <p><a href="#" id="switchToLogin">¿Ya tienes cuenta? Inicia sesión aquí</a></p>
+        </div>
+    `;
+    document.getElementById('authModalsContainer').appendChild(registerModal);
+
+    // Create login modal
+    const loginModal = document.createElement('div');
+    loginModal.className = 'modal';
+    loginModal.id = 'loginModal';
+    loginModal.innerHTML = `
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Iniciar Sesión</h2>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="loginEmail">Correo Electrónico:</label>
+                    <input type="email" id="loginEmail" name="email" required>
+                </div>
+                <div class="form-group">
+                    <label for="loginPassword">Contraseña:</label>
+                    <input type="password" id="loginPassword" name="password" required>
+                </div>
+                <button type="submit">Iniciar Sesión</button>
+            </form>
+            <p><a href="#" id="switchToRegister">¿No tienes cuenta? Regístrate aquí</a></p>
+        </div>
+    `;
+    document.getElementById('authModalsContainer').appendChild(loginModal);
+
+    // Add event listeners to forms
+    document.getElementById('registerForm').addEventListener('submit', handleRegister);
+    document.getElementById('loginForm').addEventListener('submit', handleLogin);
+
+    // Add event listeners to switch links
+    document.getElementById('switchToLogin').addEventListener('click', function(e) {
+        e.preventDefault();
+        closeModal(null, document.getElementById('registerModal'));
+        showLoginModal();
+    });
+
+    document.getElementById('switchToRegister').addEventListener('click', function(e) {
+        e.preventDefault();
+        closeModal(null, document.getElementById('loginModal'));
+        showRegisterModal();
+    });
+
+    // Add event listeners to close buttons
+    document.querySelectorAll('#registerModal .close, #loginModal .close').forEach(button => {
+        button.addEventListener('click', function() {
+            closeModal(null, this.closest('.modal'));
+        });
+    });
+}
+
+async function handleRegister(e) {
+    e.preventDefault();
+    
+    const formData = {
+        username: document.getElementById('regUsername').value,
+        email: document.getElementById('regEmail').value,
+        password: document.getElementById('regPassword').value
+    };
+
+    try {
+        const response = await fetch('http://localhost:3000/api/auth/register', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(formData)
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            alert('Usuario registrado exitosamente');
+            closeModal(null, document.getElementById('registerModal'));
+            localStorage.setItem('authToken', result.token);
+            loadUserProfile();
+        } else {
+            alert('Error en el registro: ' + result.message);
+        }
+    } catch (error) {
+        console.error('Registration error:', error);
+        alert('Error de conexión durante el registro');
+    }
+}
+
+async function handleLogin(e) {
+    e.preventDefault();
+    
+    const formData = {
+        email: document.getElementById('loginEmail').value,
+        password: document.getElementById('loginPassword').value
+    };
+
+    try {
+        const response = await fetch('http://localhost:3000/api/auth/login', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(formData)
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            alert('Inicio de sesión exitoso');
+            closeModal(null, document.getElementById('loginModal'));
+            localStorage.setItem('authToken', result.token);
+            loadUserProfile();
+        } else {
+            alert('Error en el inicio de sesión: ' + result.message);
+        }
+    } catch (error) {
+        console.error('Login error:', error);
+        alert('Error de conexión durante el inicio de sesión');
+    }
+}
+
+function loadUserProfile() {
+    // This function would load and display user-specific content
+    // For now, just update UI to show user is logged in
+    updateAuthUI(true);
+}
+
+function updateAuthUI(isLoggedIn) {
+    // Create or update auth UI elements
+    let authSection = document.getElementById('authSection');
+    if (!authSection) {
+        // Find a suitable place to insert the auth section
+        const header = document.querySelector('header') || document.querySelector('nav');
+        if (header) {
+            authSection = document.createElement('div');
+            authSection.id = 'authSection';
+            authSection.style.cssText = 'float: right; margin-top: 10px;';
+            header.appendChild(authSection);
+        }
+    }
+
+    if (isLoggedIn) {
+        // Show logout button and user info
+        authSection.innerHTML = `
+            <span id="userInfo">Bienvenido</span>
+            <button id="logoutBtn" style="margin-left: 10px;">Cerrar Sesión</button>
+        `;
+        
+        document.getElementById('logoutBtn').addEventListener('click', handleLogout);
+    } else {
+        // Show login/register buttons
+        authSection.innerHTML = `
+            <button id="loginBtn" style="margin-right: 10px;">Iniciar Sesión</button>
+            <button id="registerBtn">Registrarse</button>
+        `;
+        
+        document.getElementById('loginBtn').addEventListener('click', showLoginModal);
+        document.getElementById('registerBtn').addEventListener('click', showRegisterModal);
+    }
+}
+
+function handleLogout() {
+    localStorage.removeItem('authToken');
+    updateAuthUI(false);
+    alert('Sesión cerrada exitosamente');
+}
+
+// Modify the form submission to save quotations for authenticated users
+async function handleFormSubmit(event) {
+    event.preventDefault();
+
+    // Get form values
+    const name = document.getElementById('name').value.trim();
+    const email = document.getElementById('email').value.trim();
+    const phone = document.getElementById('phone').value.trim();
+    const machine = document.getElementById('machine').value;
+    const message = document.getElementById('message').value.trim();
+
+    // Basic validation
+    if (!name || !email) {
+        alert('Por favor completa los campos obligatorios (nombre y email)');
+        return;
+    }
+
+    // Additional validation for name (minimum length)
+    if (name.length < 2) {
+        alert('Por favor ingresa un nombre válido (mínimo 2 caracteres)');
+        return;
+    }
+
+    // Email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+        alert('Por favor ingresa un email válido');
+        return;
+    }
+
+    // Phone validation (if provided)
+    if (phone && !/^[0-9+\-\s()]{7,15}$/.test(phone)) {
+        alert('Por favor ingresa un número de teléfono válido');
+        return;
+    }
+
+    // Message validation (optional but with minimum length if provided)
+    if (message && message.length < 10) {
+        alert('Por favor ingresa un mensaje más detallado (mínimo 10 caracteres)');
+        return;
+    }
+
+    // Check if user is authenticated
+    const token = localStorage.getItem('authToken');
+    if (token) {
+        // Save quotation to backend
+        await saveQuotation({ name, email, phone, machine, message });
+    } else {
+        // Send email using EmailJS if not authenticated
+        await sendEmailWithEmailJS({ name, email, phone, machine, message });
+    }
+}
+
+async function sendEmailWithEmailJS(formData) {
+    // Show loading message
+    const submitButton = contactForm.querySelector('button[type="submit"]');
+    const originalButtonText = submitButton.textContent;
+    submitButton.textContent = 'Enviando...';
+    submitButton.disabled = true;
+
+    try {
+        // Prepare template parameters - ensure clean string values
+        const templateParams = {
+            client_name: String(formData.name || ''),
+            client_email: String(formData.email || ''),
+            client_phone: String(formData.phone || ''),
+            machinery_type: String(formData.machine || ''),
+            client_message: String(formData.message || ''),
+            to_email: 'serviciosysuministroswls@gmail.com' // Dirección de destino
+        };
+
+        // Debug: Log the template parameters to console
+        console.log('Sending email with parameters:', templateParams);
+
+        // Send email via EmailJS
+        // Si tienes la Public Key (recomendado):
+        // IMPORTANTE: Verifica que el Service ID sea correcto en tu dashboard de EmailJS
+        console.log('Enviando correo con parámetros:', templateParams); // Debug: Log the parameters
+
+        const response = await emailjs.send(
+            'service_x3ze2tv', // Service ID - REPLACE WITH THE ACTUAL SERVICE ID FROM YOUR EMAILJS DASHBOARD
+            'template_wls_contact_new', // Updated Template ID - make sure this template exists in your EmailJS dashboard
+            templateParams
+        );
+
+        console.log('EmailJS response:', response); // Debug: Log the response
+        console.log('Response status:', response.status); // Debug: Log status
+        console.log('Response text:', response.text); // Debug: Log response text
+
+        // Verificar respuesta exitosa (EmailJS puede devolver diferentes códigos de éxito)
+        if (response && (response.status === 200 || response.status === 201)) {
+            // Success
+            console.log('Correo enviado exitosamente');
+            alert('¡Gracias por tu mensaje! Pronto nos pondremos en contacto contigo.');
+            contactForm.reset();
+        } else {
+            // Si el status no es 200 o 201, lanzar un error
+            console.error('Error: Código de estado inesperado:', response.status);
+            throw new Error(`EmailJS error: Status ${response.status}`);
+        }
+    } catch (error) {
+        // Comprehensive error handling
+        console.error('Email sending error:', error);
+
+        // Check if it's an EmailJS specific error
+        if (error.status) {
+            console.error('EmailJS Error Details:', {
+                status: error.status,
+                text: error.text,
+                message: error.message
+            });
+
+            // Different alerts based on error type
+            if (error.status === 400) {
+                alert('Error de solicitud: Verifica que todos los campos estén completos y sean válidos. Revisa la consola para más detalles.');
+            } else if (error.status === 401) {
+                alert('Error de autenticación: La clave pública o el servicio no están configurados correctamente. Revisa la consola para más detalles.');
+            } else if (error.status === 404) {
+                alert('Error: El servicio o template no se encontró. Verifica tu Service ID y Template ID en EmailJS. Revisa la consola para más detalles.');
+            } else if (error.status === 500) {
+                alert('Error interno del servidor de EmailJS. Por favor intenta más tarde. Revisa la consola para más detalles.');
+            } else {
+                alert(`Error desconocido (${error.status}): ${error.message}. Revisa la consola para más detalles.`);
+            }
+        } else {
+            // General error (might not be an HTTP error)
+            console.error('General Error Details:', {
+                message: error.message,
+                name: error.name
+            });
+
+            alert(`Error al enviar el correo: ${error.message}. Revisa la consola para más detalles.`);
+        }
+    } finally {
+        // Restore button state
+        submitButton.textContent = originalButtonText;
+        submitButton.disabled = false;
+    }
+}
+
+async function saveQuotation(formData) {
+    try {
+        const token = localStorage.getItem('authToken');
+        
+        // Prepare quotation data
+        const quotationData = {
+            equipment: formData.machine,
+            days: 1, // Default value, could be from form if available
+            quantity: 1, // Default value, could be from form if available
+            totalAmount: 0, // Could be calculated based on equipment and days
+            contactInfo: {
+                fullName: formData.name,
+                phoneNumber: formData.phone,
+                email: formData.email
+            }
+        };
+
+        const response = await fetch('http://localhost:3000/api/quotation', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify(quotationData)
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            alert('¡Cotización guardada exitosamente!');
+            document.getElementById('contactForm').reset();
+        } else {
+            alert('Error al guardar la cotización: ' + result.message);
+        }
+    } catch (error) {
+        console.error('Error saving quotation:', error);
+        alert('Error de conexión al guardar la cotización');
+    }
+}

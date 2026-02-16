@@ -106,6 +106,69 @@ Para que el formulario de contacto funcione correctamente, debes configurar Emai
 
 4. Actualiza tu Service ID en el archivo `script.js` si es diferente de "gmail"
 
+## Sistema de Autenticación
+
+El proyecto incluye un sistema de autenticación completo para gestionar usuarios y cotizaciones:
+
+### Características del Sistema de Autenticación
+
+- **Registro de Usuarios**: Permite a nuevos clientes registrarse con email/usuario y contraseña
+- **Inicio de Sesión Seguro**: Con verificación de credenciales y tokens JWT
+- **Gestión de Cotizaciones**: Los usuarios pueden guardar sus solicitudes de cotización en su cuenta
+- **Seguridad**: Contraseñas encriptadas con bcrypt y tokens expirables
+
+### Componentes del Sistema
+
+#### Backend (Servidor)
+- Servidor creado con **Node.js y Express**
+- Base de datos que puede usar **MongoDB o almacenamiento en memoria** (para pruebas)
+- **Encriptación de contraseñas** usando **bcrypt**
+- **Tokens JWT** para autenticación segura
+
+#### Frontend (Interfaz Web)
+- **Cuadros de diálogo** para login/registro que aparecen al hacer clic
+- **Botones de autenticación** en el encabezado de la página
+- **Integración con el formulario de contacto**: cuando un usuario está logueado, las cotizaciones se guardan en su cuenta
+
+#### Funcionalidades
+- Registro e inicio de sesión de usuarios
+- Cierre de sesión seguro
+- Guardado de cotizaciones asociadas al usuario
+- Visualización de cotizaciones previas (próximamente)
+
+### Archivos del Sistema de Autenticación
+
+- `server.js`: Servidor backend principal
+- `.env`: Configuración del entorno
+- `config/db.js`: Configuración de base de datos
+- `routes/auth.js`: Rutas de autenticación (registro/inicio de sesión)
+- `routes/quotation.js`: Rutas para manejo de cotizaciones
+- `middleware/auth.js`: Middleware de autenticación JWT
+- `models/User.js`: Modelo de usuario
+- `models/Quotation.js`: Modelo de cotización
+
+### Configuración del Servidor
+
+1. Instala las dependencias:
+   ```bash
+   npm install
+   ```
+
+2. Inicia el servidor backend:
+   ```bash
+   npm run dev
+   ```
+   El servidor se iniciará en `http://localhost:3000`
+
+3. Abre `index.html` usando un servidor local (como Live Server en VS Code)
+
+### Seguridad Implementada
+
+- Contraseñas **encriptadas** antes de guardarlas
+- **Tokens expirables** para mayor seguridad
+- **Validación de entradas** para prevenir inyecciones maliciosas
+- **Rutas protegidas** que requieren autenticación
+
 ## Licencias
 
 Este código es de uso libre y puede ser modificado según las necesidades del proyecto.
