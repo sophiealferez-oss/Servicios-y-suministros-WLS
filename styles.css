@@ -83,6 +83,12 @@ body {
 main {
     margin-left: 250px;
     transition: margin-left 0.3s ease;
+    -webkit-overflow-scrolling: touch; /* Enable smooth scrolling on iOS */
+}
+
+/* Ensure smooth scrolling for all sections */
+section {
+    -webkit-overflow-scrolling: touch;
 }
 
 /* Hero Section Styles */
@@ -654,7 +660,7 @@ main {
     background-color: rgba(0, 0, 0, 0.7);
     z-index: 2000;
     overflow: auto;
-    display: flex !important;
+    display: none; /* Hidden by default, shown via JavaScript */
     align-items: center;
     justify-content: center;
 }
@@ -742,157 +748,244 @@ main {
 
 /* Machinery carousel mobile responsiveness */
 @media (max-width: 768px) {
+    .carousel-container {
+        position: relative;
+        max-width: 100%;
+        margin: 0 auto;
+        padding: 20px 10px;
+        overflow: visible;
+    }
+
+    .carousel-wrapper {
+        overflow: visible;
+        border-radius: 8px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        position: relative;
+    }
+
     .carousel-track {
-        flex-direction: row; /* Cambiado de column a row para desplazamiento horizontal */
-        width: 100%; /* Ajustar ancho */
-        transform: none; /* Eliminar transformaciones previas */
-        overflow-x: auto; /* Permitir desplazamiento horizontal */
-        scroll-snap-type: x mandatory; /* Añadir snap para desplazamiento por página */
-        scrollbar-width: none; /* Ocultar barra de desplazamiento en Firefox */
-        -ms-overflow-style: none; /* Ocultar barra de desplazamiento en IE/Edge */
         display: flex;
-        align-items: center; /* Centrar verticalmente */
+        overflow-x: auto;
+        scroll-snap-type: x mandatory;
+        scroll-behavior: smooth;
+        -webkit-overflow-scrolling: touch; /* Enable momentum scrolling on iOS */
+        scrollbar-width: none; /* Hide scrollbar in Firefox */
+        -ms-overflow-style: -ms-autohiding-scrollbar; /* Hide scrollbar in IE/Edge */
+        gap: 30px;
+        padding: 20px 10px;
     }
 
     .carousel-track::-webkit-scrollbar {
-        display: none; /* Ocultar barra de desplazamiento en Chrome/Safari */
+        display: none; /* Hide scrollbar in Chrome/Safari */
     }
 
     .carousel-slide {
-        flex: 0 0 auto; /* Cambiado para evitar que se expandan */
-        width: calc(100vw - 40px); /* Ancho completo de la pantalla menos márgenes */
-        min-width: calc(100vw - 40px); /* Asegurar ancho mínimo */
+        flex: 0 0 auto;
+        width: 300px;
+        scroll-snap-align: start;
         display: flex;
         justify-content: center;
         align-items: center;
-        padding: 0 20px; /* Espaciado lateral */
-        scroll-snap-align: center; /* Alinear cada slide al centro */
     }
 
     /* Show one gallery item per slide on mobile */
     .carousel-slide .gallery-item {
         width: 100%;
-        max-width: 350px;
-        height: auto;
-        margin: 10px auto; /* Centrar horizontalmente */
+        max-width: 300px;
+        height: 400px;
+        margin: 0;
         display: flex;
         flex-direction: column;
-        align-items: center; /* Centrar contenido horizontalmente */
-        justify-content: center; /* Centrar contenido verticalmente */
+        align-items: center;
+        justify-content: center;
         box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s ease;
     }
 
     .gallery-item img {
-        height: 200px;
+        height: 250px;
         object-fit: cover;
         width: 100%;
         display: block;
-        margin: 0 auto; /* Centrar imagen dentro del contenedor */
     }
 
     .gallery-item h3 {
-        text-align: center; /* Centrar texto del título */
-        align-self: center; /* Alinear el título al centro */
+        text-align: center;
+        padding: 15px;
+        margin: 0;
+        flex-grow: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: #f5f5f5;
+        color: #333;
     }
 
-    /* Asegurar que el contenedor del carrusel tenga desplazamiento horizontal */
-    .carousel-wrapper {
-        overflow-x: hidden; /* Ya que el desplazamiento se hace en .carousel-track */
-        padding: 10px 0;
-    }
-
-    /* Ocultar botones de navegación en móvil ya que se usa desplazamiento táctil */
+    /* Show navigation buttons on mobile for better UX */
     .carousel-btn {
-        display: none;
+        display: flex;
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        background: rgba(255, 255, 255, 0.8);
+        border: none;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        font-size: 20px;
+        font-weight: bold;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        transition: all 0.3s ease;
+        z-index: 10;
+        backdrop-filter: blur(10px);
     }
 
-    /* Mostrar indicadores en móvil */
+    .carousel-btn:hover {
+        background: rgba(255, 255, 255, 1);
+        transform: translateY(-50%) scale(1.1);
+    }
+
+    .prev-btn {
+        left: 10px;
+        display: flex;
+    }
+
+    .next-btn {
+        right: 10px;
+        display: flex;
+    }
+
+    /* Show indicators on mobile */
     .carousel-indicators {
         display: flex;
+        justify-content: center;
+        margin-top: 20px;
+        gap: 10px;
     }
 }
 
 /* Tablet specific styles for carousel */
-@media (min-width: 769px) and (max-width: 1024px) and (orientation: landscape) {
+@media (min-width: 768px) and (max-width: 1024px) {
     .carousel-container {
+        position: relative;
         max-width: 100%;
+        margin: 0 auto;
         padding: 20px 40px;
+        overflow: visible;
     }
 
     .carousel-wrapper {
-        overflow-x: auto;
-        overflow-y: hidden;
-        -ms-overflow-style: -ms-autohiding-scrollbar;
-        display: flex;
-        align-items: center; /* Center items vertically */
-        -webkit-overflow-scrolling: touch; /* Enable momentum scrolling on iOS */
+        overflow: visible;
+        border-radius: 8px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        position: relative;
     }
 
     .carousel-track {
         display: flex;
-        flex-direction: row;
-        width: max-content;
-        min-width: 100%;
-        align-items: center; /* Center items vertically */
-        transition: transform 0.3s ease-in-out; /* Add smooth transition */
+        overflow-x: auto;
+        scroll-snap-type: x mandatory;
+        scroll-behavior: smooth;
+        -webkit-overflow-scrolling: touch; /* Enable momentum scrolling on iOS */
+        scrollbar-width: none; /* Hide scrollbar in Firefox */
+        -ms-overflow-style: -ms-autohiding-scrollbar; /* Hide scrollbar in IE/Edge */
+        gap: 30px;
+        padding: 20px 10px;
+    }
+
+    .carousel-track::-webkit-scrollbar {
+        display: none; /* Hide scrollbar in Chrome/Safari */
     }
 
     .carousel-slide {
-        display: flex;
-        flex-direction: row;
-        min-width: 100%;
-        gap: 30px;
-        padding: 20px 0;
-        justify-content: center; /* Center items horizontally */
-        align-items: center; /* Center items vertically */
-    }
-
-    .gallery-item {
         flex: 0 0 auto;
-        min-width: 350px;
-        height: 400px;
+        width: 350px;
+        scroll-snap-align: start;
         display: flex;
-        flex-direction: column;
-        align-items: center; /* Center content inside the item */
-    }
-
-    /* Enable horizontal scrolling for tablets */
-    .carousel-wrapper {
-        -webkit-overflow-scrolling: touch; /* Enable momentum scrolling on iOS */
-    }
-}
-
-/* Additional tablet styles for portrait orientation */
-@media (min-width: 768px) and (max-width: 1024px) and (orientation: portrait) {
-    .carousel-wrapper {
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
-    }
-    
-    .carousel-track {
-        display: flex;
-        flex-direction: row;
-        width: max-content;
-        transition: transform 0.3s ease-in-out;
-    }
-    
-    .carousel-slide {
-        display: flex;
-        flex-direction: row;
-        min-width: 100%;
-        gap: 30px;
-        padding: 20px 0;
         justify-content: center;
         align-items: center;
     }
-    
-    .gallery-item {
-        flex: 0 0 auto;
-        min-width: 350px;
+
+    .carousel-slide .gallery-item {
+        width: 100%;
+        max-width: 350px;
         height: 400px;
+        margin: 0;
         display: flex;
         flex-direction: column;
         align-items: center;
+        justify-content: center;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s ease;
+    }
+
+    .gallery-item img {
+        height: 250px;
+        object-fit: cover;
+        width: 100%;
+        display: block;
+    }
+
+    .gallery-item h3 {
+        text-align: center;
+        padding: 15px;
+        margin: 0;
+        flex-grow: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: #f5f5f5;
+        color: #333;
+    }
+
+    /* Show navigation buttons on tablets */
+    .carousel-btn {
+        display: flex;
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        background: rgba(255, 255, 255, 0.8);
+        border: none;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        font-size: 20px;
+        font-weight: bold;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        transition: all 0.3s ease;
+        z-index: 10;
+        backdrop-filter: blur(10px);
+    }
+
+    .carousel-btn:hover {
+        background: rgba(255, 255, 255, 1);
+        transform: translateY(-50%) scale(1.1);
+    }
+
+    .prev-btn {
+        left: 20px;
+        display: flex;
+    }
+
+    .next-btn {
+        right: 20px;
+        display: flex;
+    }
+
+    /* Show indicators on tablets */
+    .carousel-indicators {
+        display: flex;
+        justify-content: center;
+        margin-top: 20px;
+        gap: 10px;
     }
 }
 
@@ -1077,7 +1170,7 @@ main {
 
 /* Tablet specific modal styles */
 @media (min-width: 768px) and (max-width: 1024px) {
-    .modal-overlay {
+    .modal-overlay.show {
         display: flex;
         align-items: center;
         justify-content: center;

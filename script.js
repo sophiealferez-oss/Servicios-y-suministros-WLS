@@ -47,10 +47,20 @@ function closeMobileMenu() {
 function smoothScrollTo(targetId) {
     const targetElement = document.getElementById(targetId);
     if (targetElement) {
-        window.scrollTo({
-            top: targetElement.offsetTop - 80, // Account for fixed header
-            behavior: 'smooth'
-        });
+        // For better compatibility with mobile devices
+        const offsetTop = targetElement.offsetTop - 80; // Account for fixed header
+        
+        // Use a more compatible approach for older browsers and mobile devices
+        if ('scrollBehavior' in document.documentElement.style) {
+            // Modern browsers with scrollBehavior support
+            window.scrollTo({
+                top: offsetTop,
+                behavior: 'smooth'
+            });
+        } else {
+            // Fallback for older browsers
+            window.scrollTo(0, offsetTop);
+        }
     }
 }
 
@@ -288,18 +298,14 @@ function updateCarousel() {
     // Move the track to show the current slide
     if (carouselTrack && carouselSlides.length > 0) {
         // Apply transformation based on screen size
-        if (window.innerWidth > 1024) {
+        if (window.innerWidth > 768) {
             // Desktop: use transform for sliding effect
-            const slideWidth = carouselTrack.offsetWidth;
+            const slideWidth = carouselSlides[0] ? carouselSlides[0].offsetWidth + 30 : carouselTrack.offsetWidth / carouselSlides.length; // 30px gap
             carouselTrack.style.transform = `translateX(-${currentSlide * slideWidth}px)`;
         } else {
             // Mobile and tablets: scroll to the current slide
             if (carouselSlides[currentSlide]) {
-                carouselSlides[currentSlide].scrollIntoView({
-                    behavior: 'smooth',
-                    inline: 'center',
-                    block: 'nearest'
-                });
+                carouselTrack.scrollLeft = carouselSlides[currentSlide].offsetLeft;
             }
         }
 
@@ -325,22 +331,63 @@ function goToSlide(slideIndex) {
 
 function nextSlide() {
     if (carouselSlides && carouselSlides.length > 0) {
-        currentSlide = (currentSlide + 1) % carouselSlides.length;
-        updateCarousel();
+        if (window.innerWidth <= 768) {
+            // On mobile, scroll to next slide
+            if (currentSlide < carouselSlides.length - 1) {
+                currentSlide++;
+                const slideWidth = carouselSlides[0] ? carouselSlides[0].offsetWidth + 30 : 330; // 30px gap
+                carouselTrack.scrollTo({
+                    left: currentSlide * slideWidth,
+                    behavior: 'smooth'
+                });
+            } else {
+                // Loop back to first slide
+                currentSlide = 0;
+                carouselTrack.scrollTo({
+                    left: 0,
+                    behavior: 'smooth'
+                });
+            }
+        } else {
+            // On desktop, use transform
+            currentSlide = (currentSlide + 1) % carouselSlides.length;
+            updateCarousel();
+        }
     }
 }
 
 function prevSlide() {
     if (carouselSlides && carouselSlides.length > 0) {
-        currentSlide = (currentSlide - 1 + carouselSlides.length) % carouselSlides.length;
-        updateCarousel();
+        if (window.innerWidth <= 768) {
+            // On mobile, scroll to previous slide
+            if (currentSlide > 0) {
+                currentSlide--;
+                const slideWidth = carouselSlides[0] ? carouselSlides[0].offsetWidth + 30 : 330; // 30px gap
+                carouselTrack.scrollTo({
+                    left: currentSlide * slideWidth,
+                    behavior: 'smooth'
+                });
+            } else {
+                // Go to last slide
+                currentSlide = carouselSlides.length - 1;
+                const slideWidth = carouselSlides[0] ? carouselSlides[0].offsetWidth + 30 : 330; // 30px gap
+                carouselTrack.scrollTo({
+                    left: currentSlide * slideWidth,
+                    behavior: 'smooth'
+                });
+            }
+        } else {
+            // On desktop, use transform
+            currentSlide = (currentSlide - 1 + carouselSlides.length) % carouselSlides.length;
+            updateCarousel();
+        }
     }
 }
 
 // Touch Swipe and Mouse Drag Functions
 function handleTouchStart(event) {
     // Activate for mobile and tablet devices
-    if (window.innerWidth > 1024) return;
+    if (window.innerWidth > 768) return;
 
     touchStartX = event.changedTouches[0].clientX;
     isDragging = false;
@@ -351,7 +398,7 @@ function handleTouchStart(event) {
 
 function handleTouchMove(event) {
     // Activate for mobile and tablet devices
-    if (window.innerWidth > 1024) return;
+    if (window.innerWidth > 768) return;
 
     if (event.touches.length > 1) return; // Ignore multi-touch
 
@@ -371,7 +418,7 @@ function handleTouchMove(event) {
 
 function handleTouchEnd(event) {
     // Activate for mobile and tablet devices
-    if (window.innerWidth > 1024) return;
+    if (window.innerWidth > 768) return;
 
     touchEndX = event.changedTouches[0].clientX;
 
@@ -394,7 +441,7 @@ function handleTouchEnd(event) {
 
 function handleMouseDown(event) {
     // Activate for desktop devices (and tablets in some cases)
-    if (window.innerWidth <= 1024) return;
+    if (window.innerWidth <= 768) return;
 
     dragStartX = event.clientX;
     isDragging = false;
@@ -406,7 +453,7 @@ function handleMouseDown(event) {
 
 function handleMouseMove(event) {
     // Activate for desktop devices (and tablets in some cases)
-    if (window.innerWidth <= 1024) return;
+    if (window.innerWidth <= 768) return;
 
     dragEndX = event.clientX;
 
@@ -421,7 +468,7 @@ function handleMouseMove(event) {
 
 function handleMouseUp(event) {
     // Activate for desktop devices (and tablets in some cases)
-    if (window.innerWidth <= 1024) return;
+    if (window.innerWidth <= 768) return;
 
     dragEndX = event.clientX;
 
@@ -466,7 +513,8 @@ function showMachineDetails(machineName) {
         modalImage.src = machine.image;
         modalImage.alt = machine.title;
 
-        modal.style.display = 'block';
+        modal.style.display = 'flex'; // Use flex to match the CSS
+        modal.classList.add('show'); // Add show class for tablets
         document.body.style.overflow = 'hidden'; // Prevent scrolling when modal is open
     }
 }
@@ -474,10 +522,13 @@ function showMachineDetails(machineName) {
 // Close modal
 function closeMachineModal() {
     modal.style.display = 'none';
+    modal.classList.remove('show'); // Remove show class for tablets
     document.body.style.overflow = 'auto'; // Re-enable scrolling
 }
 
 // Function to debug and find available EmailJS services
+// Commented out to prevent console messages on page load
+/*
 async function debugEmailServices() {
     try {
         // Wait a bit to ensure emailjs is initialized
@@ -485,7 +536,7 @@ async function debugEmailServices() {
             try {
                 // Attempt to get service information
                 console.log('EmailJS initialized with public key:', emailjs.getUserID());
-                
+
                 // Note: EmailJS doesn't expose a direct method to list services
                 // The best way is to check your dashboard at https://dashboard.emailjs.com/
                 console.log('To find your correct Service ID:');
@@ -501,6 +552,7 @@ async function debugEmailServices() {
         console.error('Debug function error:', error);
     }
 }
+*/
 
 // Initialize the application
 function initApp() {
@@ -512,23 +564,11 @@ function initApp() {
     indicators = document.querySelectorAll('.indicator');
     galleryItems = document.querySelectorAll('.gallery-item');
 
-    // Restructure carousel for mobile devices to show one item per slide
-    if (window.innerWidth <= 768) {
-        restructureCarouselForMobile();
-    }
-
-    // Listen for resize events to restructure carousel if needed
+    // Listen for resize events to update carousel if needed
     window.addEventListener('resize', function() {
         // Clear any existing interval to prevent conflicts when resizing
         if (window.carouselInterval) {
             clearInterval(window.carouselInterval);
-        }
-
-        // Handle carousel structure based on screen size
-        if (window.innerWidth <= 768 && !carouselTrack.classList.contains('mobile-structured')) {
-            restructureCarouselForMobile();
-        } else if (window.innerWidth > 768 && carouselTrack.classList.contains('mobile-structured')) {
-            restoreOriginalCarouselStructure();
         }
 
         // Update indicators visibility based on screen size
@@ -543,10 +583,10 @@ function initApp() {
 
         // Re-initialize auto-rotation if needed (but not on touch devices)
         const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
-        if (carouselSlides && carouselSlides.length > 1 && window.innerWidth > 1024 && !isTouchDevice) {
+        if (carouselSlides && carouselSlides.length > 1 && window.innerWidth > 768 && !isTouchDevice) {
             window.carouselInterval = setInterval(nextSlide, 5000);
         }
-        
+
         // Update carousel display after resize
         updateCarousel();
     });
@@ -619,11 +659,17 @@ function initApp() {
 
     // Carousel event listeners
     if (prevBtn) {
-        prevBtn.addEventListener('click', prevSlide);
+        prevBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            prevSlide();
+        });
     }
 
     if (nextBtn) {
-        nextBtn.addEventListener('click', nextSlide);
+        nextBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            nextSlide();
+        });
     }
 
     if (indicators) {
@@ -651,13 +697,32 @@ function initApp() {
                 e.preventDefault();
             });
         });
+        
+        // Also handle scroll events for indicators update
+        carouselTrack.addEventListener('scroll', () => {
+            if (window.innerWidth <= 768) {
+                // Update current slide based on scroll position
+                const scrollLeft = carouselTrack.scrollLeft;
+                const slideWidth = carouselSlides[0] ? carouselSlides[0].offsetWidth + 30 : 330; // 30px gap
+                currentSlide = Math.round(scrollLeft / slideWidth);
+                
+                // Update indicators
+                indicators.forEach((indicator, index) => {
+                    if (index === currentSlide) {
+                        indicator.classList.add('active');
+                    } else {
+                        indicator.classList.remove('active');
+                    }
+                });
+            }
+        });
     }
 
     // Auto-advance carousel every 5 seconds (with reference stored to clear later if needed)
     // Only enable auto-advance on desktop devices, not on mobile or tablets
     // Disable auto-rotation on devices with touch capabilities (tablets and mobile)
     const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
-    if (carouselSlides && carouselSlides.length > 1 && window.innerWidth > 1024 && !isTouchDevice) {
+    if (carouselSlides && carouselSlides.length > 1 && window.innerWidth > 768 && !isTouchDevice) {
         window.carouselInterval = setInterval(nextSlide, 5000);
 
         // Pause auto-advance when user interacts with carousel
@@ -676,7 +741,7 @@ function initApp() {
 
                 element.addEventListener('mouseleave', () => {
                     const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
-                    if (carouselSlides && carouselSlides.length > 1 && window.innerWidth > 1024 && !isTouchDevice) {
+                    if (carouselSlides && carouselSlides.length > 1 && window.innerWidth > 768 && !isTouchDevice) {
                         window.carouselInterval = setInterval(nextSlide, 5000);
                     }
                 });
@@ -684,118 +749,40 @@ function initApp() {
         });
     }
 
-    // Debug EmailJS services (remove this in production)
-    debugEmailServices();
-    
     // Ensure carousel starts at first slide
     currentSlide = 0;
     updateCarousel();
 }
 
 // Function to restructure carousel for mobile to show one item per slide
-function restructureCarouselForMobile() {
-    if (!carouselTrack || carouselTrack.classList.contains('mobile-structured')) {
-        return; // Already restructured
-    }
-
-    // Clear the carousel interval if it exists
-    if (window.carouselInterval) {
-        clearInterval(window.carouselInterval);
-    }
-
-    const allGalleryItems = carouselTrack.querySelectorAll('.gallery-item');
-    if (!allGalleryItems || allGalleryItems.length === 0) {
-        return;
-    }
-
-    // Store original structure for restoration
-    if (!carouselTrack.dataset.originalHtml) {
-        carouselTrack.dataset.originalHtml = carouselTrack.innerHTML;
-    }
-
-    // Clear the carousel track
-    carouselTrack.innerHTML = '';
-
-    // Create a new slide for each gallery item
-    allGalleryItems.forEach(item => {
-        const newSlide = document.createElement('div');
-        newSlide.className = 'carousel-slide';
-        newSlide.appendChild(item.cloneNode(true)); // Clone the gallery item
-        carouselTrack.appendChild(newSlide);
-    });
-
-    // Update the carousel elements
-    carouselSlides = document.querySelectorAll('.carousel-slide');
-
-    // Recreate indicators
-    const indicatorContainer = document.querySelector('.carousel-indicators');
-    if (indicatorContainer) {
-        indicatorContainer.innerHTML = '';
-        for (let i = 0; i < carouselSlides.length; i++) {
-            const indicator = document.createElement('button');
-            indicator.className = 'indicator';
-            if (i === 0) indicator.classList.add('active');
-            indicator.dataset.slide = i;
-            indicator.addEventListener('click', () => goToSlide(i));
-            indicatorContainer.appendChild(indicator);
+// Function to update carousel for mobile devices
+function updateCarouselForMobile() {
+    if (!carouselTrack || !carouselSlides) return;
+    
+    // On mobile, we rely on CSS scroll-snap and scroll events
+    // The carousel track is already set up with overflow-x: auto and scroll-snap-type: x mandatory
+    // So we just need to ensure the current slide is visible
+    
+    if (window.innerWidth <= 768) {
+        // On mobile, update the current slide based on scroll position
+        const slideWidth = carouselSlides[0] ? carouselSlides[0].offsetWidth + 30 : 330; // 30px gap
+        currentSlide = Math.round(carouselTrack.scrollLeft / slideWidth);
+        
+        // Update indicators
+        if (indicators) {
+            indicators.forEach((indicator, index) => {
+                if (index === currentSlide) {
+                    indicator.classList.add('active');
+                } else {
+                    indicator.classList.remove('active');
+                }
+            });
         }
-        indicators = document.querySelectorAll('.indicator');
-    }
-
-    // Mark as restructured
-    carouselTrack.classList.add('mobile-structured');
-
-    // Reset to first slide
-    currentSlide = 0;
-    updateCarousel();
-}
-
-// Function to restore original carousel structure
-function restoreOriginalCarouselStructure() {
-    if (!carouselTrack || !carouselTrack.classList.contains('mobile-structured')) {
-        return; // Not in mobile structure
-    }
-
-    // Clear the carousel interval if it exists
-    if (window.carouselInterval) {
-        clearInterval(window.carouselInterval);
-    }
-
-    // Restore original HTML if available
-    if (carouselTrack.dataset.originalHtml) {
-        carouselTrack.innerHTML = carouselTrack.dataset.originalHtml;
     } else {
-        // Fallback: reload the page
-        location.reload();
-        return;
+        // On desktop, use the transform method
+        const slideWidth = carouselSlides[0] ? carouselSlides[0].offsetWidth + 30 : carouselTrack.offsetWidth / carouselSlides.length;
+        carouselTrack.style.transform = `translateX(-${currentSlide * slideWidth}px)`;
     }
-
-    // Remove the mobile-structured class
-    carouselTrack.classList.remove('mobile-structured');
-
-    // Reinitialize carousel elements
-    carouselSlides = document.querySelectorAll('.carousel-slide');
-    indicators = document.querySelectorAll('.indicator');
-
-    // Reset to first slide
-    currentSlide = 0;
-    updateCarousel();
-}
-
-// Function to restore original carousel structure
-function restoreOriginalCarouselStructure() {
-    if (!carouselTrack || !carouselTrack.classList.contains('mobile-structured')) {
-        return; // Not in mobile structure
-    }
-
-    // Clear the carousel interval if it exists
-    if (window.carouselInterval) {
-        clearInterval(window.carouselInterval);
-    }
-
-    // Reload the page or restore from original HTML structure
-    // For simplicity, we'll reload the carousel content from the original HTML
-    location.reload();
 }
 
 // Initialize app when DOM is loaded
@@ -804,7 +791,16 @@ document.addEventListener('DOMContentLoaded', function() {
     const modal = document.getElementById('machineModal');
     if (modal) {
         modal.style.display = 'none';
+        modal.classList.remove('show'); // Ensure show class is removed
     }
-    
+
     initApp();
+    
+    // Update carousel for initial view
+    if (window.innerWidth <= 768) {
+        // Small delay to ensure elements are fully loaded
+        setTimeout(() => {
+            updateCarouselForMobile();
+        }, 100);
+    }
 });
