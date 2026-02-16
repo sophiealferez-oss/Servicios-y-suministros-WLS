@@ -215,32 +215,25 @@ const machineData = {
 
 // Carousel functionality
 let currentSlide = 0;
-let touchStartX = 0;
-let touchEndX = 0;
-let isDragging = false;
 
-// Get visible slides count based on screen size
-function getVisibleSlidesCount() {
+// Get max slide index based on screen size
+function getMaxSlideIndex() {
+    if (!carouselSlides || carouselSlides.length === 0) return 0;
+    
     const width = window.innerWidth;
     if (width <= 768) {
-        return 1; // Mobile: 1 slide visible at a time
+        // Mobile: 4 individual slides
+        return carouselSlides.length - 1;
     } else {
-        return 2; // Tablet and Desktop: 2 slides visible at a time
+        // Tablet and Desktop: all slides visible
+        return carouselSlides.length - 1;
     }
-}
-
-// Get max slide index (number of positions, not individual slides)
-function getMaxSlideIndex() {
-    const visibleSlides = getVisibleSlidesCount();
-    // For tablet/desktop with 4 slides showing 2 at a time, we have 2 positions
-    return Math.ceil(carouselSlides.length / visibleSlides) - 1;
 }
 
 // Update carousel position
 function updateCarousel() {
     if (!carouselTrack || carouselSlides.length === 0) return;
 
-    const visibleSlides = getVisibleSlidesCount();
     const maxPosition = getMaxSlideIndex();
 
     // Ensure currentSlide is within bounds
@@ -248,31 +241,15 @@ function updateCarousel() {
     if (currentSlide > maxPosition) currentSlide = maxPosition;
 
     if (window.innerWidth <= 768) {
-        // Mobile: scroll to show one slide at a time
-        const slideWidth = carouselSlides[currentSlide].offsetWidth + 30; // 30px gap
+        // Mobile: use native scroll
+        const slideWidth = carouselSlides[currentSlide].offsetWidth + 20;
         carouselTrack.scrollTo({
             left: currentSlide * slideWidth,
-            behavior: 'smooth'
+            behavior: 'auto'
         });
-    } else if (window.innerWidth <= 1024) {
-        // Tablet: scroll to show 2 slides at a time (jump by 2)
-        const positionIndex = currentSlide * visibleSlides;
-        if (carouselSlides[positionIndex]) {
-            const slideWidth = carouselSlides[positionIndex].offsetWidth + 30;
-            carouselTrack.scrollTo({
-                left: positionIndex * slideWidth,
-                behavior: 'smooth'
-            });
-        }
-    } else {
-        // Desktop: use transform (jump by 2 slides)
-        const positionIndex = currentSlide * visibleSlides;
-        const slideWidth = carouselSlides[0].offsetWidth + 30;
-        const translateXValue = -positionIndex * slideWidth;
-        carouselTrack.style.transform = `translateX(${translateXValue}px)`;
+        updateIndicators();
     }
-
-    updateIndicators();
+    // Tablet and Desktop: no action needed (native scroll or grid layout)
 }
 
 // Update indicators based on current slide
@@ -307,7 +284,7 @@ function updateIndicators() {
         currentSlide = mostVisibleIndex;
     }
 
-    // Activate the indicator for the current slide (all devices)
+    // Activate the indicator for the current slide (mobile only)
     if (indicators[currentSlide]) {
         indicators[currentSlide].classList.add('active');
     }
@@ -323,148 +300,62 @@ function goToSlide(slideIndex) {
             currentSlide = slideIndex;
             updateCarousel();
         }
-    } else {
-        // Tablet/Desktop: can go to any of the 4 slides (scroll to show the selected one)
-        if (slideIndex < carouselSlides.length) {
-            currentSlide = slideIndex;
-            updateCarousel();
-        }
     }
+    // Tablet and Desktop: no indicators, no action needed
 }
 
 // Next slide
 function nextSlide() {
     if (!carouselSlides || carouselSlides.length === 0) return;
 
-    const maxPosition = getMaxSlideIndex();
-
-    if (currentSlide < maxPosition) {
-        currentSlide++;
-        updateCarousel();
-    } else {
-        // Loop back to first position
-        currentSlide = 0;
-        updateCarousel();
+    if (window.innerWidth <= 768) {
+        // Mobile: use native scroll to next slide
+        const currentScroll = carouselTrack.scrollLeft;
+        const slideWidth = carouselSlides[0].offsetWidth + 20;
+        const nextScroll = currentScroll + slideWidth;
+        const maxScroll = carouselTrack.scrollWidth - carouselTrack.clientWidth;
+        
+        if (nextScroll <= maxScroll) {
+            carouselTrack.scrollTo({
+                left: nextScroll,
+                behavior: 'auto'
+            });
+        } else {
+            // Loop back to start
+            carouselTrack.scrollTo({
+                left: 0,
+                behavior: 'auto'
+            });
+        }
     }
+    // Tablet and Desktop: no buttons, no action needed
 }
 
 // Previous slide
 function prevSlide() {
     if (!carouselSlides || carouselSlides.length === 0) return;
 
-    const maxPosition = getMaxSlideIndex();
-
-    if (currentSlide > 0) {
-        currentSlide--;
-        updateCarousel();
-    } else {
-        // Loop to last position
-        currentSlide = maxPosition;
-        updateCarousel();
-    }
-}
-
-// Touch events for mobile and tablet
-let clickTimeout = null;
-let isClick = true;
-
-function handleTouchStart(event) {
-    if (window.innerWidth > 1024) return;
-
-    touchStartX = event.changedTouches[0].clientX;
-    isDragging = false;
-    isClick = true;
-    
-    // Set a timeout to detect if this is a long press or just a tap
-    clickTimeout = setTimeout(() => {
-        isClick = false;
-    }, 200);
-    
-    event.preventDefault();
-}
-
-function handleTouchMove(event) {
-    if (window.innerWidth > 1024) return;
-    if (event.touches.length > 1) return;
-
-    touchEndX = event.touches[0].clientX;
-    const diffX = touchStartX - touchEndX;
-
-    if (Math.abs(diffX) > 10) {
-        isDragging = true;
-        isClick = false;
-        if (clickTimeout) {
-            clearTimeout(clickTimeout);
-        }
-        event.preventDefault();
-    }
-}
-
-function handleTouchEnd(event) {
-    if (window.innerWidth > 1024) return;
-
-    if (clickTimeout) {
-        clearTimeout(clickTimeout);
-    }
-
-    touchEndX = event.changedTouches[0].clientX;
-    const diffX = touchStartX - touchEndX;
-    const minSwipeDistance = 30;
-
-    // Only trigger swipe if it's not a click
-    if (Math.abs(diffX) > minSwipeDistance && isDragging) {
-        if (diffX > 0) {
-            nextSlide();
+    if (window.innerWidth <= 768) {
+        // Mobile: use native scroll to previous slide
+        const currentScroll = carouselTrack.scrollLeft;
+        const slideWidth = carouselSlides[0].offsetWidth + 20;
+        const prevScroll = currentScroll - slideWidth;
+        
+        if (prevScroll >= 0) {
+            carouselTrack.scrollTo({
+                left: prevScroll,
+                behavior: 'auto'
+            });
         } else {
-            prevSlide();
+            // Loop to end
+            const maxScroll = carouselTrack.scrollWidth - carouselTrack.clientWidth;
+            carouselTrack.scrollTo({
+                left: maxScroll,
+                behavior: 'auto'
+            });
         }
     }
-
-    isDragging = false;
-    isClick = false;
-}
-
-// Mouse drag events for desktop
-function handleMouseDown(event) {
-    if (window.innerWidth <= 1024) return;
-
-    touchStartX = event.clientX;
-    isDragging = false;
-
-    document.addEventListener('mousemove', handleMouseMove);
-    document.addEventListener('mouseup', handleMouseUp);
-}
-
-function handleMouseMove(event) {
-    if (window.innerWidth <= 1024) return;
-
-    touchEndX = event.clientX;
-    const diffX = touchStartX - touchEndX;
-
-    if (Math.abs(diffX) > 10) {
-        isDragging = true;
-    }
-}
-
-function handleMouseUp(event) {
-    if (window.innerWidth <= 1024) return;
-
-    touchEndX = event.clientX;
-    const diffX = touchStartX - touchEndX;
-    const minSwipeDistance = 30;
-
-    if (Math.abs(diffX) > minSwipeDistance && isDragging) {
-        if (diffX > 0) {
-            nextSlide();
-        } else {
-            prevSlide();
-        }
-    }
-
-    isDragging = false;
-
-    document.removeEventListener('mousemove', handleMouseMove);
-    document.removeEventListener('mouseup', handleMouseUp);
+    // Tablet and Desktop: no buttons, no action needed
 }
 
 // Show machine details modal
@@ -484,7 +375,6 @@ function showMachineDetails(machineName) {
         modalImage.src = machine.image;
         modalImage.alt = machine.title;
 
-        modal.style.display = 'flex';
         modal.classList.add('show');
         document.body.style.overflow = 'hidden';
     }
@@ -492,7 +382,6 @@ function showMachineDetails(machineName) {
 
 // Close modal
 function closeMachineModal() {
-    modal.style.display = 'none';
     modal.classList.remove('show');
     document.body.style.overflow = 'auto';
 }
@@ -505,6 +394,11 @@ function initApp() {
     nextBtn = document.querySelector('.next-btn');
     indicators = document.querySelectorAll('.indicator');
     galleryItems = document.querySelectorAll('.gallery-item');
+
+    // Reset carousel to start from beginning on load
+    if (carouselTrack) {
+        carouselTrack.scrollLeft = 0;
+    }
 
     // Handle resize events
     window.addEventListener('resize', function() {
@@ -538,13 +432,14 @@ function initApp() {
     // Gallery items click handlers - show machine details
     const allGalleryItems = document.querySelectorAll('.gallery-item');
     if (allGalleryItems) {
-        let galleryTouchStartTime = 0;
         const galleryTouchThreshold = 200; // ms
         const galleryMoveThreshold = 10; // pixels
 
         allGalleryItems.forEach(item => {
             // Desktop click
             item.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
                 const machineName = item.getAttribute('data-machine') || item.querySelector('h3').textContent;
                 showMachineDetails(machineName);
             });
@@ -553,6 +448,7 @@ function initApp() {
             let touchStartX = 0;
             let touchStartY = 0;
             let hasMoved = false;
+            let galleryTouchStartTime = 0;
 
             item.addEventListener('touchstart', (e) => {
                 touchStartX = e.changedTouches[0].clientX;
@@ -631,6 +527,7 @@ function initApp() {
     if (prevBtn) {
         prevBtn.addEventListener('click', (e) => {
             e.preventDefault();
+            e.stopPropagation();
             prevSlide();
         });
     }
@@ -638,6 +535,7 @@ function initApp() {
     if (nextBtn) {
         nextBtn.addEventListener('click', (e) => {
             e.preventDefault();
+            e.stopPropagation();
             nextSlide();
         });
     }
@@ -645,24 +543,18 @@ function initApp() {
     // Carousel indicators
     const allIndicators = document.querySelectorAll('.indicator');
     if (allIndicators) {
-        allIndicators.forEach((indicator, index) => {
-            indicator.addEventListener('click', () => {
+        allIndicators.forEach((indicator) => {
+            indicator.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
                 const slideIndex = parseInt(indicator.getAttribute('data-slide'));
                 goToSlide(slideIndex);
             });
         });
     }
 
-    // Touch and mouse drag events for carousel
+    // Carousel events
     if (carouselTrack) {
-        // Touch events
-        carouselTrack.addEventListener('touchstart', handleTouchStart, { passive: false });
-        carouselTrack.addEventListener('touchmove', handleTouchMove, { passive: false });
-        carouselTrack.addEventListener('touchend', handleTouchEnd);
-
-        // Mouse events
-        carouselTrack.addEventListener('mousedown', handleMouseDown);
-
         // Prevent image drag
         const images = carouselTrack.querySelectorAll('img');
         images.forEach(img => {
@@ -671,9 +563,8 @@ function initApp() {
             });
         });
 
-        // Scroll event for indicators update
+        // Scroll event for indicators update on mobile
         carouselTrack.addEventListener('scroll', () => {
-            // Only update from scroll on mobile
             if (window.innerWidth <= 768) {
                 updateIndicators();
             }
@@ -689,11 +580,19 @@ function initApp() {
 document.addEventListener('DOMContentLoaded', function() {
     const modal = document.getElementById('machineModal');
     if (modal) {
-        modal.style.display = 'none';
         modal.classList.remove('show');
     }
 
     initApp();
+
+    // Ensure carousel starts from the beginning
+    setTimeout(() => {
+        const carouselTrack = document.querySelector('.carousel-track');
+        if (carouselTrack) {
+            carouselTrack.scrollLeft = 0;
+            carouselTrack.style.transform = 'none';
+        }
+    }, 50);
 
     setTimeout(() => {
         updateCarousel();
