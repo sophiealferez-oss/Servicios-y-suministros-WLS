@@ -378,6 +378,361 @@ section {
     background: #0066cc;
 }
 
+/* Mobile and tablet responsive styles for machinery carousel */
+@media (max-width: 768px) {
+    .carousel-container {
+        position: relative;
+        max-width: 100%;
+        margin: 0 auto;
+        padding: 20px 10px;
+        overflow: visible;
+    }
+
+    .carousel-wrapper {
+        overflow: visible;
+        border-radius: 8px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        position: relative;
+    }
+
+    .carousel-track {
+        display: flex;
+        overflow-x: auto;
+        scroll-snap-type: x mandatory;
+        scroll-behavior: smooth;
+        -webkit-overflow-scrolling: touch; /* Enable momentum scrolling on iOS */
+        scrollbar-width: none; /* Hide scrollbar in Firefox */
+        -ms-overflow-style: -ms-autohiding-scrollbar; /* Hide scrollbar in IE/Edge */
+        gap: 30px;
+        padding: 20px 10px;
+    }
+
+    .carousel-track::-webkit-scrollbar {
+        display: none; /* Hide scrollbar in Chrome/Safari */
+    }
+
+    .carousel-slide {
+        flex: 0 0 auto;
+        width: 300px;
+        scroll-snap-align: start;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    /* Show one gallery item per slide on mobile */
+    .carousel-slide .gallery-item {
+        width: 100%;
+        max-width: 300px;
+        height: 400px;
+        margin: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s ease;
+    }
+
+    .gallery-item img {
+        height: 250px;
+        object-fit: cover;
+        width: 100%;
+        display: block;
+    }
+
+    .gallery-item h3 {
+        text-align: center;
+        padding: 15px;
+        margin: 0;
+        flex-grow: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: #f5f5f5;
+        color: #333;
+    }
+
+    /* Show navigation buttons on mobile for better UX */
+    .carousel-btn {
+        display: flex;
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        background: rgba(255, 255, 255, 0.8);
+        border: none;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        font-size: 20px;
+        font-weight: bold;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        transition: all 0.3s ease;
+        z-index: 10;
+        backdrop-filter: blur(10px);
+    }
+
+    .carousel-btn:hover {
+        background: rgba(255, 255, 255, 1);
+        transform: translateY(-50%) scale(1.1);
+    }
+
+    .prev-btn {
+        left: 10px;
+        display: flex;
+    }
+
+    .next-btn {
+        right: 10px;
+        display: flex;
+    }
+
+    /* Show indicators on mobile */
+    .carousel-indicators {
+        display: flex;
+        justify-content: center;
+        margin-top: 20px;
+        gap: 10px;
+    }
+}
+
+/* Tablet specific styles for carousel */
+@media (min-width: 769px) and (max-width: 1024px) {
+    .carousel-container {
+        position: relative;
+        max-width: 100%;
+        margin: 0 auto;
+        padding: 20px 40px;
+        overflow: visible;
+    }
+
+    .carousel-wrapper {
+        overflow: visible;
+        border-radius: 8px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        position: relative;
+    }
+
+    .carousel-track {
+        display: flex;
+        overflow-x: auto;
+        scroll-snap-type: x mandatory;
+        scroll-behavior: smooth;
+        -webkit-overflow-scrolling: touch; /* Enable momentum scrolling on iOS */
+        scrollbar-width: none; /* Hide scrollbar in Firefox */
+        -ms-overflow-style: -ms-autohiding-scrollbar; /* Hide scrollbar in IE/Edge */
+        gap: 30px;
+        padding: 20px 10px;
+    }
+
+    .carousel-track::-webkit-scrollbar {
+        display: none; /* Hide scrollbar in Chrome/Safari */
+    }
+
+    .carousel-slide {
+        flex: 0 0 calc(50% - 15px); /* Show 2 items per slide on tablets */
+        scroll-snap-align: start;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .carousel-slide .gallery-item {
+        width: 100%;
+        max-width: 350px;
+        height: 400px;
+        margin: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s ease;
+    }
+
+    .gallery-item img {
+        height: 250px;
+        object-fit: cover;
+        width: 100%;
+        display: block;
+    }
+
+    .gallery-item h3 {
+        text-align: center;
+        padding: 15px;
+        margin: 0;
+        flex-grow: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: #f5f5f5;
+        color: #333;
+    }
+
+    /* Show navigation buttons on tablets */
+    .carousel-btn {
+        display: flex;
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        background: rgba(255, 255, 255, 0.8);
+        border: none;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        font-size: 20px;
+        font-weight: bold;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        transition: all 0.3s ease;
+        z-index: 10;
+        backdrop-filter: blur(10px);
+    }
+
+    .carousel-btn:hover {
+        background: rgba(255, 255, 255, 1);
+        transform: translateY(-50%) scale(1.1);
+    }
+
+    .prev-btn {
+        left: 20px;
+        display: flex;
+    }
+
+    .next-btn {
+        right: 20px;
+        display: flex;
+    }
+
+    /* Show indicators on tablets */
+    .carousel-indicators {
+        display: flex;
+        justify-content: center;
+        margin-top: 20px;
+        gap: 10px;
+    }
+}
+
+/* Desktop styles for carousel - showing all items side by side */
+@media (min-width: 1025px) {
+    .carousel-container {
+        position: relative;
+        max-width: 100%;
+        margin: 0 auto;
+        padding: 20px 40px;
+        overflow: visible;
+    }
+
+    .carousel-wrapper {
+        overflow: visible;
+        border-radius: 8px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        position: relative;
+    }
+
+    .carousel-track {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 30px;
+        padding: 20px 0;
+    }
+
+    .carousel-slide {
+        flex: 0 0 calc(50% - 15px); /* Show 2 items per row on desktop */
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+
+    .carousel-slide:nth-child(odd) {
+        margin-right: 0;
+    }
+
+    .carousel-slide:nth-child(even) {
+        margin-left: 0;
+    }
+
+    .carousel-slide .gallery-item {
+        width: 100%;
+        max-width: 350px;
+        height: 400px;
+        margin: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s ease;
+    }
+
+    .gallery-item img {
+        height: 250px;
+        object-fit: cover;
+        width: 100%;
+        display: block;
+    }
+
+    .gallery-item h3 {
+        text-align: center;
+        padding: 15px;
+        margin: 0;
+        flex-grow: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: #f5f5f5;
+        color: #333;
+    }
+
+    /* Hide navigation buttons on desktop since items are all visible */
+    .carousel-btn {
+        display: none;
+    }
+
+    /* Hide indicators on desktop since items are all visible */
+    .carousel-indicators {
+        display: none;
+    }
+}
+
+@media (max-width: 480px) {
+    .carousel-slide {
+        width: calc(100vw - 30px); /* Ancho completo de la pantalla menos márgenes */
+        min-width: calc(100vw - 30px); /* Asegurar ancho mínimo */
+        padding: 0 15px;
+    }
+
+    .gallery-item {
+        width: 100%;
+        max-width: 300px;
+        margin: 10px 0;
+    }
+
+    .gallery-item img {
+        height: 180px;
+        object-fit: cover;
+        width: 100%;
+    }
+
+    .gallery-item h3 {
+        font-size: 0.9rem; /* Smaller font size for mobile */
+        padding: 12px; /* Reduced padding */
+    }
+
+    .carousel-container {
+        padding: 20px 10px;
+    }
+}
+
 /* Services Section Styles */
 .services {
     padding: 80px 0;

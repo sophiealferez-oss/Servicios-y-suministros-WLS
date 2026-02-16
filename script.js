@@ -298,15 +298,25 @@ function updateCarousel() {
     // Move the track to show the current slide
     if (carouselTrack && carouselSlides.length > 0) {
         // Apply transformation based on screen size
-        if (window.innerWidth > 768) {
-            // Desktop: use transform for sliding effect
-            const slideWidth = carouselSlides[0] ? carouselSlides[0].offsetWidth + 30 : carouselTrack.offsetWidth / carouselSlides.length; // 30px gap
-            carouselTrack.style.transform = `translateX(-${currentSlide * slideWidth}px)`;
-        } else {
-            // Mobile and tablets: scroll to the current slide
+        if (window.innerWidth <= 768) {
+            // Mobile: scroll to the current slide
             if (carouselSlides[currentSlide]) {
-                carouselTrack.scrollLeft = carouselSlides[currentSlide].offsetLeft;
+                carouselTrack.scrollTo({
+                    left: carouselSlides[currentSlide].offsetLeft,
+                    behavior: 'smooth'
+                });
             }
+        } else if (window.innerWidth <= 1024) {
+            // Tablet: scroll to the current slide (showing 2 items)
+            if (carouselSlides[currentSlide]) {
+                carouselTrack.scrollTo({
+                    left: carouselSlides[currentSlide].offsetLeft,
+                    behavior: 'smooth'
+                });
+            }
+        } else {
+            // Desktop: all slides are visible simultaneously, no scrolling needed
+            // Just update the indicators
         }
 
         // Update indicators
@@ -331,15 +341,16 @@ function goToSlide(slideIndex) {
 
 function nextSlide() {
     if (carouselSlides && carouselSlides.length > 0) {
-        if (window.innerWidth <= 768) {
-            // On mobile, scroll to next slide
+        if (window.innerWidth <= 1024) {
+            // On mobile and tablet, scroll to next slide
             if (currentSlide < carouselSlides.length - 1) {
                 currentSlide++;
-                const slideWidth = carouselSlides[0] ? carouselSlides[0].offsetWidth + 30 : 330; // 30px gap
-                carouselTrack.scrollTo({
-                    left: currentSlide * slideWidth,
-                    behavior: 'smooth'
-                });
+                if (carouselSlides[currentSlide]) {
+                    carouselTrack.scrollTo({
+                        left: carouselSlides[currentSlide].offsetLeft,
+                        behavior: 'smooth'
+                    });
+                }
             } else {
                 // Loop back to first slide
                 currentSlide = 0;
@@ -349,7 +360,8 @@ function nextSlide() {
                 });
             }
         } else {
-            // On desktop, use transform
+            // On desktop, all slides are visible, no scrolling needed
+            // But we can still cycle the active indicator
             currentSlide = (currentSlide + 1) % carouselSlides.length;
             updateCarousel();
         }
@@ -358,26 +370,29 @@ function nextSlide() {
 
 function prevSlide() {
     if (carouselSlides && carouselSlides.length > 0) {
-        if (window.innerWidth <= 768) {
-            // On mobile, scroll to previous slide
+        if (window.innerWidth <= 1024) {
+            // On mobile and tablet, scroll to previous slide
             if (currentSlide > 0) {
                 currentSlide--;
-                const slideWidth = carouselSlides[0] ? carouselSlides[0].offsetWidth + 30 : 330; // 30px gap
-                carouselTrack.scrollTo({
-                    left: currentSlide * slideWidth,
-                    behavior: 'smooth'
-                });
+                if (carouselSlides[currentSlide]) {
+                    carouselTrack.scrollTo({
+                        left: carouselSlides[currentSlide].offsetLeft,
+                        behavior: 'smooth'
+                    });
+                }
             } else {
                 // Go to last slide
                 currentSlide = carouselSlides.length - 1;
-                const slideWidth = carouselSlides[0] ? carouselSlides[0].offsetWidth + 30 : 330; // 30px gap
-                carouselTrack.scrollTo({
-                    left: currentSlide * slideWidth,
-                    behavior: 'smooth'
-                });
+                if (carouselSlides[currentSlide]) {
+                    carouselTrack.scrollTo({
+                        left: carouselSlides[currentSlide].offsetLeft,
+                        behavior: 'smooth'
+                    });
+                }
             }
         } else {
-            // On desktop, use transform
+            // On desktop, all slides are visible, no scrolling needed
+            // But we can still cycle the active indicator backwards
             currentSlide = (currentSlide - 1 + carouselSlides.length) % carouselSlides.length;
             updateCarousel();
         }
@@ -387,7 +402,7 @@ function prevSlide() {
 // Touch Swipe and Mouse Drag Functions
 function handleTouchStart(event) {
     // Activate for mobile and tablet devices
-    if (window.innerWidth > 768) return;
+    if (window.innerWidth > 1024) return;
 
     touchStartX = event.changedTouches[0].clientX;
     isDragging = false;
@@ -398,7 +413,7 @@ function handleTouchStart(event) {
 
 function handleTouchMove(event) {
     // Activate for mobile and tablet devices
-    if (window.innerWidth > 768) return;
+    if (window.innerWidth > 1024) return;
 
     if (event.touches.length > 1) return; // Ignore multi-touch
 
@@ -418,7 +433,7 @@ function handleTouchMove(event) {
 
 function handleTouchEnd(event) {
     // Activate for mobile and tablet devices
-    if (window.innerWidth > 768) return;
+    if (window.innerWidth > 1024) return;
 
     touchEndX = event.changedTouches[0].clientX;
 
@@ -441,7 +456,7 @@ function handleTouchEnd(event) {
 
 function handleMouseDown(event) {
     // Activate for desktop devices (and tablets in some cases)
-    if (window.innerWidth <= 768) return;
+    if (window.innerWidth <= 1024) return;
 
     dragStartX = event.clientX;
     isDragging = false;
@@ -453,7 +468,7 @@ function handleMouseDown(event) {
 
 function handleMouseMove(event) {
     // Activate for desktop devices (and tablets in some cases)
-    if (window.innerWidth <= 768) return;
+    if (window.innerWidth <= 1024) return;
 
     dragEndX = event.clientX;
 
@@ -468,7 +483,7 @@ function handleMouseMove(event) {
 
 function handleMouseUp(event) {
     // Activate for desktop devices (and tablets in some cases)
-    if (window.innerWidth <= 768) return;
+    if (window.innerWidth <= 1024) return;
 
     dragEndX = event.clientX;
 
@@ -700,12 +715,24 @@ function initApp() {
         
         // Also handle scroll events for indicators update
         carouselTrack.addEventListener('scroll', () => {
-            if (window.innerWidth <= 768) {
+            if (window.innerWidth <= 1024) {
                 // Update current slide based on scroll position
                 const scrollLeft = carouselTrack.scrollLeft;
-                const slideWidth = carouselSlides[0] ? carouselSlides[0].offsetWidth + 30 : 330; // 30px gap
-                currentSlide = Math.round(scrollLeft / slideWidth);
                 
+                // Find the closest slide to the current scroll position
+                let closestSlideIndex = 0;
+                let smallestDiff = Math.abs(carouselSlides[0].offsetLeft - scrollLeft);
+                
+                for (let i = 1; i < carouselSlides.length; i++) {
+                    const diff = Math.abs(carouselSlides[i].offsetLeft - scrollLeft);
+                    if (diff < smallestDiff) {
+                        smallestDiff = diff;
+                        closestSlideIndex = i;
+                    }
+                }
+                
+                currentSlide = closestSlideIndex;
+
                 // Update indicators
                 indicators.forEach((indicator, index) => {
                     if (index === currentSlide) {
@@ -795,9 +822,9 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     initApp();
-    
+
     // Update carousel for initial view
-    if (window.innerWidth <= 768) {
+    if (window.innerWidth <= 1024) {
         // Small delay to ensure elements are fully loaded
         setTimeout(() => {
             updateCarouselForMobile();
