@@ -315,8 +315,13 @@ function updateCarousel() {
                 });
             }
         } else {
-            // Desktop: all slides are visible simultaneously, no scrolling needed
-            // Just update the indicators
+            // Desktop: show 2 slides at a time, slide by slide pairs
+            // Calculate the visible container width (the wrapper)
+            const containerWidth = document.querySelector('.carousel-wrapper').offsetWidth;
+            const translateXValue = -currentSlide * containerWidth;
+            
+            // Apply the transform to move the track
+            carouselTrack.style.transform = `translateX(${translateXValue}px)`;
         }
 
         // Update indicators
@@ -333,9 +338,21 @@ function updateCarousel() {
 }
 
 function goToSlide(slideIndex) {
-    if (carouselSlides && slideIndex >= 0 && slideIndex < carouselSlides.length) {
-        currentSlide = slideIndex;
-        updateCarousel();
+    if (carouselSlides && slideIndex >= 0) {
+        if (window.innerWidth <= 1024) {
+            // On mobile and tablet, ensure slideIndex is within bounds
+            if (slideIndex < carouselSlides.length) {
+                currentSlide = slideIndex;
+                updateCarousel();
+            }
+        } else {
+            // On desktop, ensure slideIndex is within the range of slide pairs
+            const maxSlide = Math.ceil(carouselSlides.length / 2) - 1;
+            if (slideIndex <= maxSlide) {
+                currentSlide = slideIndex;
+                updateCarousel();
+            }
+        }
     }
 }
 
@@ -360,9 +377,14 @@ function nextSlide() {
                 });
             }
         } else {
-            // On desktop, all slides are visible, no scrolling needed
-            // But we can still cycle the active indicator
-            currentSlide = (currentSlide + 1) % carouselSlides.length;
+            // On desktop, show 2 slides at a time, advance by pairs
+            const maxSlide = Math.ceil(carouselSlides.length / 2) - 1;
+            if (currentSlide < maxSlide) {
+                currentSlide++;
+            } else {
+                // Loop back to first slide
+                currentSlide = 0;
+            }
             updateCarousel();
         }
     }
@@ -391,9 +413,14 @@ function prevSlide() {
                 }
             }
         } else {
-            // On desktop, all slides are visible, no scrolling needed
-            // But we can still cycle the active indicator backwards
-            currentSlide = (currentSlide - 1 + carouselSlides.length) % carouselSlides.length;
+            // On desktop, show 2 slides at a time, go back by pairs
+            if (currentSlide > 0) {
+                currentSlide--;
+            } else {
+                // Go to last slide pair
+                const maxSlide = Math.ceil(carouselSlides.length / 2) - 1;
+                currentSlide = maxSlide;
+            }
             updateCarousel();
         }
     }
@@ -596,11 +623,11 @@ function initApp() {
             }
         }
 
-        // Re-initialize auto-rotation if needed (but not on touch devices)
-        const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
-        if (carouselSlides && carouselSlides.length > 1 && window.innerWidth > 768 && !isTouchDevice) {
-            window.carouselInterval = setInterval(nextSlide, 5000);
-        }
+        // Disable auto-rotation - scrolling should be manual only
+        // const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+        // if (carouselSlides && carouselSlides.length > 1 && window.innerWidth > 768 && !isTouchDevice) {
+        //     window.carouselInterval = setInterval(nextSlide, 5000);
+        // }
 
         // Update carousel display after resize
         updateCarousel();
@@ -718,11 +745,11 @@ function initApp() {
             if (window.innerWidth <= 1024) {
                 // Update current slide based on scroll position
                 const scrollLeft = carouselTrack.scrollLeft;
-                
+
                 // Find the closest slide to the current scroll position
                 let closestSlideIndex = 0;
                 let smallestDiff = Math.abs(carouselSlides[0].offsetLeft - scrollLeft);
-                
+
                 for (let i = 1; i < carouselSlides.length; i++) {
                     const diff = Math.abs(carouselSlides[i].offsetLeft - scrollLeft);
                     if (diff < smallestDiff) {
@@ -730,7 +757,7 @@ function initApp() {
                         closestSlideIndex = i;
                     }
                 }
-                
+
                 currentSlide = closestSlideIndex;
 
                 // Update indicators
@@ -743,6 +770,18 @@ function initApp() {
                 });
             }
         });
+        
+        // Handle transform-based navigation for desktop
+        if (window.innerWidth > 1024) {
+            // Update indicators based on currentSlide for desktop
+            indicators.forEach((indicator, index) => {
+                if (index === currentSlide) {
+                    indicator.classList.add('active');
+                } else {
+                    indicator.classList.remove('active');
+                }
+            });
+        }
     }
 
     // Auto-advance carousel every 5 seconds (with reference stored to clear later if needed)
@@ -782,19 +821,19 @@ function initApp() {
 }
 
 // Function to restructure carousel for mobile to show one item per slide
-// Function to update carousel for mobile devices
+// Function to update carousel for all devices
 function updateCarouselForMobile() {
     if (!carouselTrack || !carouselSlides) return;
-    
-    // On mobile, we rely on CSS scroll-snap and scroll events
+
+    // On mobile and tablet, we rely on CSS scroll-snap and scroll events
     // The carousel track is already set up with overflow-x: auto and scroll-snap-type: x mandatory
     // So we just need to ensure the current slide is visible
-    
-    if (window.innerWidth <= 768) {
-        // On mobile, update the current slide based on scroll position
+
+    if (window.innerWidth <= 1024) {
+        // On mobile and tablet, update the current slide based on scroll position
         const slideWidth = carouselSlides[0] ? carouselSlides[0].offsetWidth + 30 : 330; // 30px gap
         currentSlide = Math.round(carouselTrack.scrollLeft / slideWidth);
-        
+
         // Update indicators
         if (indicators) {
             indicators.forEach((indicator, index) => {
@@ -806,9 +845,22 @@ function updateCarouselForMobile() {
             });
         }
     } else {
-        // On desktop, use the transform method
-        const slideWidth = carouselSlides[0] ? carouselSlides[0].offsetWidth + 30 : carouselTrack.offsetWidth / carouselSlides.length;
-        carouselTrack.style.transform = `translateX(-${currentSlide * slideWidth}px)`;
+        // On desktop, use the transform method for showing 2 slides at a time
+        const containerWidth = document.querySelector('.carousel-wrapper').offsetWidth;
+        const translateXValue = -currentSlide * containerWidth;
+        
+        carouselTrack.style.transform = `translateX(${translateXValue}px)`;
+        
+        // Update indicators
+        if (indicators) {
+            indicators.forEach((indicator, index) => {
+                if (index === currentSlide) {
+                    indicator.classList.add('active');
+                } else {
+                    indicator.classList.remove('active');
+                }
+            });
+        }
     }
 }
 
@@ -824,10 +876,8 @@ document.addEventListener('DOMContentLoaded', function() {
     initApp();
 
     // Update carousel for initial view
-    if (window.innerWidth <= 1024) {
-        // Small delay to ensure elements are fully loaded
-        setTimeout(() => {
-            updateCarouselForMobile();
-        }, 100);
-    }
+    // Small delay to ensure elements are fully loaded
+    setTimeout(() => {
+        updateCarouselForMobile();
+    }, 100);
 });

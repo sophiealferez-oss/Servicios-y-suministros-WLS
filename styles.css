@@ -317,6 +317,7 @@ section {
     hyphens: auto; /* Allow hyphenation for long words */
     overflow-wrap: break-word; /* Break long words if needed */
     line-height: 1.4; /* Improve text readability */
+    width: 100%; /* Ensure full width for proper centering */
 }
 
 .gallery-item:hover {
@@ -405,6 +406,7 @@ section {
         -ms-overflow-style: -ms-autohiding-scrollbar; /* Hide scrollbar in IE/Edge */
         gap: 30px;
         padding: 20px 10px;
+        justify-content: center; /* Center the track content */
     }
 
     .carousel-track::-webkit-scrollbar {
@@ -418,6 +420,7 @@ section {
         display: flex;
         justify-content: center;
         align-items: center;
+        margin: 0 auto; /* Center each slide */
     }
 
     /* Show one gallery item per slide on mobile */
@@ -425,7 +428,7 @@ section {
         width: 100%;
         max-width: 300px;
         height: 400px;
-        margin: 0;
+        margin: 0 auto; /* Center the gallery item */
         display: flex;
         flex-direction: column;
         align-items: center;
@@ -439,6 +442,7 @@ section {
         object-fit: cover;
         width: 100%;
         display: block;
+        margin: 0 auto; /* Center the image */
     }
 
     .gallery-item h3 {
@@ -451,44 +455,12 @@ section {
         justify-content: center;
         background-color: #f5f5f5;
         color: #333;
+        width: 100%; /* Ensure full width for proper centering */
     }
 
-    /* Show navigation buttons on mobile for better UX */
+    /* Hide navigation buttons on mobile - only show on desktop */
     .carousel-btn {
-        display: flex;
-        position: absolute;
-        top: 50%;
-        transform: translateY(-50%);
-        background: rgba(255, 255, 255, 0.8);
-        border: none;
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-        font-size: 20px;
-        font-weight: bold;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-        transition: all 0.3s ease;
-        z-index: 10;
-        backdrop-filter: blur(10px);
-    }
-
-    .carousel-btn:hover {
-        background: rgba(255, 255, 255, 1);
-        transform: translateY(-50%) scale(1.1);
-    }
-
-    .prev-btn {
-        left: 10px;
-        display: flex;
-    }
-
-    .next-btn {
-        right: 10px;
-        display: flex;
+        display: none;
     }
 
     /* Show indicators on mobile */
@@ -497,6 +469,21 @@ section {
         justify-content: center;
         margin-top: 20px;
         gap: 10px;
+    }
+    
+    /* Show 4 indicators on mobile */
+    .carousel-indicators .indicator {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        border: none;
+        background: #ccc;
+        cursor: pointer;
+        transition: background 0.3s ease;
+    }
+    
+    .carousel-indicators .indicator.active {
+        background: #0066cc;
     }
 }
 
@@ -527,6 +514,7 @@ section {
         -ms-overflow-style: -ms-autohiding-scrollbar; /* Hide scrollbar in IE/Edge */
         gap: 30px;
         padding: 20px 10px;
+        justify-content: center; /* Center the track content */
     }
 
     .carousel-track::-webkit-scrollbar {
@@ -539,13 +527,14 @@ section {
         display: flex;
         justify-content: center;
         align-items: center;
+        margin: 0 auto; /* Center each slide */
     }
 
     .carousel-slide .gallery-item {
         width: 100%;
         max-width: 350px;
         height: 400px;
-        margin: 0;
+        margin: 0 auto; /* Center the gallery item */
         display: flex;
         flex-direction: column;
         align-items: center;
@@ -559,6 +548,7 @@ section {
         object-fit: cover;
         width: 100%;
         display: block;
+        margin: 0 auto; /* Center the image */
     }
 
     .gallery-item h3 {
@@ -571,9 +561,108 @@ section {
         justify-content: center;
         background-color: #f5f5f5;
         color: #333;
+        width: 100%; /* Ensure full width for proper centering */
     }
 
-    /* Show navigation buttons on tablets */
+    /* Hide navigation buttons on tablets - only show on desktop */
+    .carousel-btn {
+        display: none;
+    }
+
+    /* Show indicators on tablets - only 2 indicators for 2 items */
+    .carousel-indicators {
+        display: flex;
+        justify-content: center;
+        margin-top: 20px;
+        gap: 10px;
+    }
+    
+    /* Show only 2 indicators on tablets */
+    .carousel-indicators .indicator:nth-child(n+3) {
+        display: none; /* Hide indicators beyond the 2nd one */
+    }
+}
+
+/* Mobile specific indicator count - show all 4 indicators for 4 machines */
+@media (max-width: 768px) {
+    .carousel-indicators .indicator:nth-child(n+5) {
+        display: none; /* Hide indicators beyond the 4th one */
+    }
+}
+
+/* Desktop styles for carousel - showing 2 items at a time */
+@media (min-width: 1025px) {
+    .carousel-container {
+        position: relative;
+        max-width: 100%;
+        margin: 0 auto;
+        padding: 20px 40px;
+        overflow: visible;
+    }
+
+    .carousel-wrapper {
+        overflow: hidden; /* Changed from visible to hide overflow */
+        border-radius: 8px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        position: relative;
+        width: 100%;
+        max-width: 760px; /* Width for 2 items with spacing */
+        margin: 0 auto;
+    }
+
+    .carousel-track {
+        display: flex;
+        flex-wrap: nowrap; /* Keep items in a single row */
+        justify-content: flex-start;
+        gap: 30px;
+        padding: 20px 0;
+        transition: transform 0.5s ease-in-out; /* Added transition for sliding effect */
+    }
+
+    .carousel-slide {
+        flex: 0 0 calc(50% - 15px); /* Show 2 items per slide on desktop */
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin: 0;
+        min-width: 350px; /* Ensure consistent width */
+    }
+
+    .carousel-slide .gallery-item {
+        width: 100%;
+        max-width: 350px;
+        height: 400px;
+        margin: 0 auto; /* Center the gallery item */
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s ease;
+    }
+
+    .gallery-item img {
+        height: 250px;
+        object-fit: cover;
+        width: 100%;
+        display: block;
+        margin: 0 auto; /* Center the image */
+    }
+
+    .gallery-item h3 {
+        text-align: center;
+        padding: 15px;
+        margin: 0;
+        flex-grow: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: #f5f5f5;
+        color: #333;
+        width: 100%; /* Ensure full width for proper centering */
+    }
+
+    /* Show navigation buttons on desktop */
     .carousel-btn {
         display: flex;
         position: absolute;
@@ -603,104 +692,30 @@ section {
 
     .prev-btn {
         left: 20px;
-        display: flex;
     }
 
     .next-btn {
         right: 20px;
-        display: flex;
     }
 
-    /* Show indicators on tablets */
+    /* Show indicators on desktop - only 2 indicators for 2 positions */
     .carousel-indicators {
         display: flex;
         justify-content: center;
         margin-top: 20px;
         gap: 10px;
     }
+    
+    /* Show only 2 indicators on desktop */
+    .carousel-indicators .indicator:nth-child(n+3) {
+        display: none;
+    }
 }
 
-/* Desktop styles for carousel - showing all items side by side */
+/* Desktop specific indicator count - show 2 indicators */
 @media (min-width: 1025px) {
-    .carousel-container {
-        position: relative;
-        max-width: 100%;
-        margin: 0 auto;
-        padding: 20px 40px;
-        overflow: visible;
-    }
-
-    .carousel-wrapper {
-        overflow: visible;
-        border-radius: 8px;
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-        position: relative;
-    }
-
-    .carousel-track {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: center;
-        gap: 30px;
-        padding: 20px 0;
-    }
-
-    .carousel-slide {
-        flex: 0 0 calc(50% - 15px); /* Show 2 items per row on desktop */
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        margin-bottom: 20px;
-    }
-
-    .carousel-slide:nth-child(odd) {
-        margin-right: 0;
-    }
-
-    .carousel-slide:nth-child(even) {
-        margin-left: 0;
-    }
-
-    .carousel-slide .gallery-item {
-        width: 100%;
-        max-width: 350px;
-        height: 400px;
-        margin: 0;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-        transition: transform 0.3s ease;
-    }
-
-    .gallery-item img {
-        height: 250px;
-        object-fit: cover;
-        width: 100%;
-        display: block;
-    }
-
-    .gallery-item h3 {
-        text-align: center;
-        padding: 15px;
-        margin: 0;
-        flex-grow: 1;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background-color: #f5f5f5;
-        color: #333;
-    }
-
-    /* Hide navigation buttons on desktop since items are all visible */
-    .carousel-btn {
-        display: none;
-    }
-
-    /* Hide indicators on desktop since items are all visible */
-    .carousel-indicators {
-        display: none;
+    .carousel-indicators .indicator:nth-child(n+3) {
+        display: none; /* Hide indicators beyond the 2nd one */
     }
 }
 
@@ -1034,6 +1049,9 @@ section {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
+    /* Additional centering for better alignment */
+    display: flex;
+    flex-direction: column;
 }
 
 @keyframes modalFadeIn {
@@ -1061,6 +1079,8 @@ section {
 .modal-body {
     display: flex;
     flex-direction: column;
+    align-items: center; /* Center content horizontally */
+    text-align: center; /* Center text */
 }
 
 .modal-body img {
@@ -1072,6 +1092,8 @@ section {
 
 .modal-text {
     padding: 25px;
+    width: 100%;
+    text-align: center; /* Ensure text is centered */
 }
 
 .modal-text h2 {
@@ -1174,44 +1196,12 @@ section {
         justify-content: center;
         background-color: #f5f5f5;
         color: #333;
+        width: 100%; /* Ensure full width for proper centering */
     }
 
-    /* Show navigation buttons on mobile for better UX */
+    /* Hide navigation buttons on mobile - only show on desktop */
     .carousel-btn {
-        display: flex;
-        position: absolute;
-        top: 50%;
-        transform: translateY(-50%);
-        background: rgba(255, 255, 255, 0.8);
-        border: none;
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-        font-size: 20px;
-        font-weight: bold;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-        transition: all 0.3s ease;
-        z-index: 10;
-        backdrop-filter: blur(10px);
-    }
-
-    .carousel-btn:hover {
-        background: rgba(255, 255, 255, 1);
-        transform: translateY(-50%) scale(1.1);
-    }
-
-    .prev-btn {
-        left: 10px;
-        display: flex;
-    }
-
-    .next-btn {
-        right: 10px;
-        display: flex;
+        display: none;
     }
 
     /* Show indicators on mobile */
@@ -1224,7 +1214,7 @@ section {
 }
 
 /* Tablet specific styles for carousel */
-@media (min-width: 768px) and (max-width: 1024px) {
+@media (min-width: 769px) and (max-width: 1024px) {
     .carousel-container {
         position: relative;
         max-width: 100%;
@@ -1250,6 +1240,7 @@ section {
         -ms-overflow-style: -ms-autohiding-scrollbar; /* Hide scrollbar in IE/Edge */
         gap: 30px;
         padding: 20px 10px;
+        justify-content: center; /* Center the track content */
     }
 
     .carousel-track::-webkit-scrollbar {
@@ -1257,19 +1248,19 @@ section {
     }
 
     .carousel-slide {
-        flex: 0 0 auto;
-        width: 350px;
+        flex: 0 0 calc(50% - 15px); /* Show 2 items per slide on tablets */
         scroll-snap-align: start;
         display: flex;
         justify-content: center;
         align-items: center;
+        margin: 0 auto; /* Center each slide */
     }
 
     .carousel-slide .gallery-item {
         width: 100%;
         max-width: 350px;
         height: 400px;
-        margin: 0;
+        margin: 0 auto; /* Center the gallery item */
         display: flex;
         flex-direction: column;
         align-items: center;
@@ -1283,6 +1274,7 @@ section {
         object-fit: cover;
         width: 100%;
         display: block;
+        margin: 0 auto; /* Center the image */
     }
 
     .gallery-item h3 {
@@ -1295,52 +1287,25 @@ section {
         justify-content: center;
         background-color: #f5f5f5;
         color: #333;
+        width: 100%; /* Ensure full width for proper centering */
     }
 
-    /* Show navigation buttons on tablets */
+    /* Hide navigation buttons on tablets - only show on desktop */
     .carousel-btn {
-        display: flex;
-        position: absolute;
-        top: 50%;
-        transform: translateY(-50%);
-        background: rgba(255, 255, 255, 0.8);
-        border: none;
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-        font-size: 20px;
-        font-weight: bold;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-        transition: all 0.3s ease;
-        z-index: 10;
-        backdrop-filter: blur(10px);
+        display: none;
     }
 
-    .carousel-btn:hover {
-        background: rgba(255, 255, 255, 1);
-        transform: translateY(-50%) scale(1.1);
-    }
-
-    .prev-btn {
-        left: 20px;
-        display: flex;
-    }
-
-    .next-btn {
-        right: 20px;
-        display: flex;
-    }
-
-    /* Show indicators on tablets */
+    /* Show indicators on tablets - only 2 indicators for 2 items */
     .carousel-indicators {
         display: flex;
         justify-content: center;
         margin-top: 20px;
         gap: 10px;
+    }
+    
+    /* Show only 2 indicators on tablets */
+    .carousel-indicators .indicator:nth-child(n+3) {
+        display: none; /* Hide indicators beyond the 2nd one */
     }
 }
 
@@ -1505,9 +1470,38 @@ section {
 }
 
 /* Responsive Modal Styles */
-@media (min-width: 768px) {
+@media (max-width: 768px) {
+    .modal-body {
+        flex-direction: column;
+        align-items: center; /* Keep content centered on mobile */
+        text-align: center; /* Keep text centered on mobile */
+    }
+
+    .modal-body img {
+        width: 100%;
+        height: auto;
+        border-top-right-radius: 8px;
+    }
+
+    .modal-text {
+        width: 100%;
+        padding: 20px;
+        text-align: center; /* Ensure text remains centered on mobile */
+    }
+    
+    .modal-content {
+        width: 95%;
+        margin: 20px auto;
+        max-height: 80vh;
+        overflow-y: auto;
+    }
+}
+
+@media (min-width: 769px) {
     .modal-body {
         flex-direction: row;
+        align-items: flex-start; /* Align items at the start for row layout */
+        text-align: left; /* Left-align text for desktop */
     }
 
     .modal-body img {
@@ -1520,22 +1514,24 @@ section {
     .modal-text {
         width: 60%;
         padding: 30px;
+        text-align: left; /* Left-align text for desktop */
     }
 }
 
 /* Tablet specific modal styles */
-@media (min-width: 768px) and (max-width: 1024px) {
+@media (min-width: 769px) and (max-width: 1024px) {
     .modal-overlay.show {
         display: flex;
         align-items: center;
         justify-content: center;
     }
-    
+
     .modal-content {
         position: relative;
         top: 0;
         left: 0;
         transform: none;
         margin: 40px auto; /* Add some margin from top and bottom on tablets */
+        width: 85%;
     }
 }
