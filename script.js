@@ -4,15 +4,6 @@
  */
 
 // EmailJS Configuration
-// Para que esta funcionalidad funcione, tienes dos opciones:
-// OPCIÓN 1 (recomendada para frontend): 
-// 1. Obtén tu Public Key de EmailJS (no la API Key) y reemplaza 'YOUR_PUBLIC_KEY'
-// 2. Conecta tu proveedor de correo y crea el template 'template_wls_contact'
-
-// OPCIÓN 2 (si solo tienes API Key):
-// 1. Usa el método sendForm con tu API Key (ver comentario en handleFormSubmit)
-
-// Si usas la Public Key (método recomendado para frontend):
 (function() {
     emailjs.init("MXUf6SrJdCruo3eHu"); // Tu Public Key real de EmailJS
 })();
@@ -34,31 +25,27 @@ let carouselTrack, carouselSlides, prevBtn, nextBtn, indicators, galleryItems;
 // Toggle mobile menu
 function toggleMobileMenu() {
     sidebarNav.classList.toggle('active');
-    hamburger.classList.toggle('active'); // Agregar animación al ícono del menú hamburguesa
+    hamburger.classList.toggle('active');
 }
 
 // Close mobile menu when clicking on a link
 function closeMobileMenu() {
     sidebarNav.classList.remove('active');
-    hamburger.classList.remove('active'); // Remover animación del ícono del menú hamburguesa
+    hamburger.classList.remove('active');
 }
 
 // Smooth scrolling for anchor links
 function smoothScrollTo(targetId) {
     const targetElement = document.getElementById(targetId);
     if (targetElement) {
-        // For better compatibility with mobile devices
-        const offsetTop = targetElement.offsetTop - 80; // Account for fixed header
-        
-        // Use a more compatible approach for older browsers and mobile devices
+        const offsetTop = targetElement.offsetTop - 80;
+
         if ('scrollBehavior' in document.documentElement.style) {
-            // Modern browsers with scrollBehavior support
             window.scrollTo({
                 top: offsetTop,
                 behavior: 'smooth'
             });
         } else {
-            // Fallback for older browsers
             window.scrollTo(0, offsetTop);
         }
     }
@@ -67,154 +54,95 @@ function smoothScrollTo(targetId) {
 async function handleFormSubmit(event) {
     event.preventDefault();
 
-    // Get form values
     const name = document.getElementById('name').value.trim();
     const email = document.getElementById('email').value.trim();
     const phone = document.getElementById('phone').value.trim();
     const machine = document.getElementById('machine').value;
     const message = document.getElementById('message').value.trim();
 
-    // Basic validation
     if (!name || !email) {
         alert('Por favor completa los campos obligatorios (nombre y email)');
         return;
     }
 
-    // Additional validation for name (minimum length)
     if (name.length < 2) {
         alert('Por favor ingresa un nombre válido (mínimo 2 caracteres)');
         return;
     }
 
-    // Email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
         alert('Por favor ingresa un email válido');
         return;
     }
 
-    // Phone validation (if provided)
     if (phone && !/^[0-9+\-\s()]{7,15}$/.test(phone)) {
         alert('Por favor ingresa un número de teléfono válido');
         return;
     }
 
-    // Message validation (optional but with minimum length if provided)
     if (message && message.length < 10) {
         alert('Por favor ingresa un mensaje más detallado (mínimo 10 caracteres)');
         return;
     }
 
-    // Show loading message
     const submitButton = contactForm.querySelector('button[type="submit"]');
     const originalButtonText = submitButton.textContent;
     submitButton.textContent = 'Enviando...';
     submitButton.disabled = true;
 
     try {
-        // Prepare template parameters - ensure clean string values
         const templateParams = {
             client_name: String(name || ''),
             client_email: String(email || ''),
             client_phone: String(phone || ''),
             machinery_type: String(machine || ''),
             client_message: String(message || ''),
-            to_email: 'serviciosysuministroswls@gmail.com' // Dirección de destino
+            to_email: 'serviciosysuministroswls@gmail.com'
         };
 
-        // Debug: Log the template parameters to console
         console.log('Sending email with parameters:', templateParams);
 
-        // Send email via EmailJS
-        // Si tienes la Public Key (recomendado):
-        // IMPORTANTE: Verifica que el Service ID sea correcto en tu dashboard de EmailJS
-        console.log('Enviando correo con parámetros:', templateParams); // Debug: Log the parameters
-        
-        // DEBUG: First, let's get the list of available services to identify the correct one
-        // Uncomment the following lines temporarily to see your available services:
-        /*
-        try {
-            const services = await emailjs.init().getServiceID();
-            console.log('Available services:', services);
-        } catch (e) {
-            console.log('Could not retrieve services list:', e);
-        }
-        */
-        
-        // Send email via EmailJS
-        // IMPORTANT: Make sure the Service ID matches your actual service in EmailJS dashboard
-        // To find your correct Service ID:
-        // 1. Log into https://dashboard.emailjs.com/
-        // 2. Go to "Email Services" section
-        // 3. Look for the service you connected (Gmail, Outlook, etc.)
-        // 4. Click on it and look for the "Service ID" field (it might not be simply "gmail")
         const response = await emailjs.send(
-            'service_x3ze2tv', // Service ID - REPLACE WITH THE ACTUAL SERVICE ID FROM YOUR EMAILJS DASHBOARD
-            'template_wls_contact_new', // Updated Template ID - make sure this template exists in your EmailJS dashboard
+            'service_x3ze2tv',
+            'template_wls_contact_new',
             templateParams
         );
 
-        console.log('EmailJS response:', response); // Debug: Log the response
-        console.log('Response status:', response.status); // Debug: Log status
-        console.log('Response text:', response.text); // Debug: Log response text
+        console.log('EmailJS response:', response);
 
-        // ALTERNATIVA: Si solo tienes la API Key (requiere backend o proxy):
-        // Descomenta este bloque y comenta el bloque anterior si usas API Key directamente
-        /*
-        const response = await emailjs.sendForm(
-            'your_service_id', // Service ID
-            'template_wls_contact', // Template ID
-            '#contactForm', // Selector del formulario
-            'YOUR_API_KEY' // Tu API Key aquí
-        );
-        */
-
-        // Verificar respuesta exitosa (EmailJS puede devolver diferentes códigos de éxito)
         if (response && (response.status === 200 || response.status === 201)) {
-            // Success
             console.log('Correo enviado exitosamente');
             alert('¡Gracias por tu mensaje! Pronto nos pondremos en contacto contigo.');
             contactForm.reset();
         } else {
-            // Si el status no es 200 o 201, lanzar un error
-            console.error('Error: Código de estado inesperado:', response.status);
             throw new Error(`EmailJS error: Status ${response.status}`);
         }
     } catch (error) {
-        // Comprehensive error handling
         console.error('Email sending error:', error);
-        
-        // Check if it's an EmailJS specific error
+
         if (error.status) {
             console.error('EmailJS Error Details:', {
                 status: error.status,
                 text: error.text,
                 message: error.message
             });
-            
-            // Different alerts based on error type
+
             if (error.status === 400) {
-                alert('Error de solicitud: Verifica que todos los campos estén completos y sean válidos. Revisa la consola para más detalles.');
+                alert('Error de solicitud: Verifica que todos los campos estén completos y sean válidos.');
             } else if (error.status === 401) {
-                alert('Error de autenticación: La clave pública o el servicio no están configurados correctamente. Revisa la consola para más detalles.');
+                alert('Error de autenticación: La clave pública o el servicio no están configurados correctamente.');
             } else if (error.status === 404) {
-                alert('Error: El servicio o template no se encontró. Verifica tu Service ID y Template ID en EmailJS. Revisa la consola para más detalles.');
+                alert('Error: El servicio o template no se encontró. Verifica tu Service ID y Template ID.');
             } else if (error.status === 500) {
-                alert('Error interno del servidor de EmailJS. Por favor intenta más tarde. Revisa la consola para más detalles.');
+                alert('Error interno del servidor de EmailJS. Por favor intenta más tarde.');
             } else {
-                alert(`Error desconocido (${error.status}): ${error.message}. Revisa la consola para más detalles.`);
+                alert(`Error desconocido (${error.status}): ${error.message}`);
             }
         } else {
-            // General error (might not be an HTTP error)
-            console.error('General Error Details:', {
-                message: error.message,
-                name: error.name
-            });
-            
-            alert(`Error al enviar el correo: ${error.message}. Revisa la consola para más detalles.`);
+            alert(`Error al enviar el correo: ${error.message}`);
         }
     } finally {
-        // Restore button state
         submitButton.textContent = originalButtonText;
         submitButton.disabled = false;
     }
@@ -235,7 +163,6 @@ function setupIntersectionObserver() {
         });
     }, observerOptions);
 
-    // Observe elements with fade-in class
     document.querySelectorAll('.fade-in').forEach(el => {
         observer.observe(el);
     });
@@ -286,82 +213,86 @@ const machineData = {
     }
 };
 
-// Carousel functionality with touch swipe support
+// Carousel functionality
 let currentSlide = 0;
 let touchStartX = 0;
 let touchEndX = 0;
-let dragStartX = 0;
-let dragEndX = 0;
 let isDragging = false;
 
-// Helper function to get visible slides count based on screen size
+// Get visible slides count based on screen size
 function getVisibleSlidesCount() {
-    if (window.innerWidth <= 768) {
-        return 1; // Mobile: 1 slide
-    } else if (window.innerWidth <= 1024) {
-        return 2; // Tablet: 2 slides
+    const width = window.innerWidth;
+    if (width <= 768) {
+        return 1; // Mobile: 1 slide visible at a time
     } else {
-        return 2; // Desktop: 2 slides
+        return 2; // Tablet and Desktop: 2 slides visible at a time
     }
 }
 
-// Helper function to get max slide index
+// Get max slide index (number of positions, not individual slides)
 function getMaxSlideIndex() {
     const visibleSlides = getVisibleSlidesCount();
-    return carouselSlides.length - visibleSlides;
+    // For tablet/desktop with 4 slides showing 2 at a time, we have 2 positions
+    return Math.ceil(carouselSlides.length / visibleSlides) - 1;
 }
 
+// Update carousel position
 function updateCarousel() {
     if (!carouselTrack || carouselSlides.length === 0) return;
 
     const visibleSlides = getVisibleSlidesCount();
-    const maxSlide = carouselSlides.length - visibleSlides;
+    const maxPosition = getMaxSlideIndex();
 
     // Ensure currentSlide is within bounds
     if (currentSlide < 0) currentSlide = 0;
-    if (currentSlide > maxSlide) currentSlide = maxSlide;
+    if (currentSlide > maxPosition) currentSlide = maxPosition;
 
-    // Apply transformation based on screen size
-    if (window.innerWidth <= 1024) {
-        // Mobile and Tablet: use scroll
-        if (carouselSlides[currentSlide]) {
+    if (window.innerWidth <= 768) {
+        // Mobile: scroll to show one slide at a time
+        const slideWidth = carouselSlides[currentSlide].offsetWidth + 30; // 30px gap
+        carouselTrack.scrollTo({
+            left: currentSlide * slideWidth,
+            behavior: 'smooth'
+        });
+    } else if (window.innerWidth <= 1024) {
+        // Tablet: scroll to show 2 slides at a time (jump by 2)
+        const positionIndex = currentSlide * visibleSlides;
+        if (carouselSlides[positionIndex]) {
+            const slideWidth = carouselSlides[positionIndex].offsetWidth + 30;
             carouselTrack.scrollTo({
-                left: carouselSlides[currentSlide].offsetLeft,
+                left: positionIndex * slideWidth,
                 behavior: 'smooth'
             });
         }
     } else {
-        // Desktop: use transform
-        const containerWidth = document.querySelector('.carousel-wrapper').offsetWidth;
-        const slideWidth = containerWidth / visibleSlides;
-        const translateXValue = -currentSlide * slideWidth;
+        // Desktop: use transform (jump by 2 slides)
+        const positionIndex = currentSlide * visibleSlides;
+        const slideWidth = carouselSlides[0].offsetWidth + 30;
+        const translateXValue = -positionIndex * slideWidth;
         carouselTrack.style.transform = `translateX(${translateXValue}px)`;
     }
 
-    // Update indicators - highlight the first visible slide
     updateIndicators();
 }
 
+// Update indicators based on current slide
 function updateIndicators() {
     if (!indicators || indicators.length === 0) return;
 
-    // Remove active class from all indicators
     indicators.forEach(indicator => indicator.classList.remove('active'));
 
-    // On mobile/tablet, determine which slide is most visible based on scroll position
-    if (window.innerWidth <= 1024) {
+    if (window.innerWidth <= 768) {
+        // Mobile: determine active indicator based on scroll position
         const scrollLeft = carouselTrack.scrollLeft;
         const wrapperWidth = carouselTrack.offsetWidth;
-        
-        // Find the slide that's most visible
+
         let mostVisibleIndex = 0;
         let maxVisibility = 0;
 
         carouselSlides.forEach((slide, index) => {
             const slideLeft = slide.offsetLeft;
             const slideRight = slideLeft + slide.offsetWidth;
-            
-            // Calculate how much of the slide is visible
+
             const visibleLeft = Math.max(slideLeft, scrollLeft);
             const visibleRight = Math.min(slideRight, scrollLeft + wrapperWidth);
             const visibleWidth = Math.max(0, visibleRight - visibleLeft);
@@ -374,108 +305,106 @@ function updateIndicators() {
         });
 
         currentSlide = mostVisibleIndex;
-        
-        // Activate the indicator for the most visible slide
-        if (indicators[currentSlide]) {
-            indicators[currentSlide].classList.add('active');
+
+        // Activate mobile indicator
+        const mobileIndicators = document.querySelectorAll('.indicator-mobile');
+        if (mobileIndicators[currentSlide]) {
+            mobileIndicators[currentSlide].classList.add('active');
         }
     } else {
-        // Desktop: activate indicator based on currentSlide
-        if (indicators[currentSlide]) {
-            indicators[currentSlide].classList.add('active');
+        // Tablet/Desktop: activate indicator based on position (0 or 1)
+        const desktopIndicators = document.querySelectorAll('.indicator-desktop');
+        if (desktopIndicators[currentSlide]) {
+            desktopIndicators[currentSlide].classList.add('active');
         }
     }
 }
 
+// Go to specific slide
 function goToSlide(slideIndex) {
     if (!carouselSlides || slideIndex < 0) return;
-    
-    const maxSlide = getMaxSlideIndex();
-    
-    if (slideIndex <= maxSlide) {
-        currentSlide = slideIndex;
-        updateCarousel();
+
+    if (window.innerWidth <= 768) {
+        // Mobile: can go to any of the 4 slides
+        if (slideIndex < carouselSlides.length) {
+            currentSlide = slideIndex;
+            updateCarousel();
+        }
+    } else {
+        // Tablet/Desktop: only 2 positions (0 and 1)
+        const maxPosition = getMaxSlideIndex();
+        if (slideIndex <= maxPosition) {
+            currentSlide = slideIndex;
+            updateCarousel();
+        }
     }
 }
 
+// Next slide
 function nextSlide() {
     if (!carouselSlides || carouselSlides.length === 0) return;
 
-    const maxSlide = getMaxSlideIndex();
-    
-    if (currentSlide < maxSlide) {
+    const maxPosition = getMaxSlideIndex();
+
+    if (currentSlide < maxPosition) {
         currentSlide++;
         updateCarousel();
     } else {
-        // Loop back to first slide
+        // Loop back to first position
         currentSlide = 0;
         updateCarousel();
     }
 }
 
+// Previous slide
 function prevSlide() {
     if (!carouselSlides || carouselSlides.length === 0) return;
 
-    const maxSlide = getMaxSlideIndex();
-    
+    const maxPosition = getMaxSlideIndex();
+
     if (currentSlide > 0) {
         currentSlide--;
         updateCarousel();
     } else {
-        // Loop to last possible slide
-        currentSlide = maxSlide;
+        // Loop to last position
+        currentSlide = maxPosition;
         updateCarousel();
     }
 }
 
-// Touch Swipe and Mouse Drag Functions
+// Touch events for mobile and tablet
 function handleTouchStart(event) {
-    // Activate for mobile and tablet devices
     if (window.innerWidth > 1024) return;
 
     touchStartX = event.changedTouches[0].clientX;
     isDragging = false;
-
-    // Prevent default to avoid scrolling while swiping
     event.preventDefault();
 }
 
 function handleTouchMove(event) {
-    // Activate for mobile and tablet devices
     if (window.innerWidth > 1024) return;
-
-    if (event.touches.length > 1) return; // Ignore multi-touch
+    if (event.touches.length > 1) return;
 
     touchEndX = event.touches[0].clientX;
-
-    // Calculate distance moved
     const diffX = touchStartX - touchEndX;
 
-    // Only consider it dragging if movement is significant
     if (Math.abs(diffX) > 10) {
         isDragging = true;
-
-        // Prevent scrolling while dragging
         event.preventDefault();
     }
 }
 
 function handleTouchEnd(event) {
-    // Activate for mobile and tablet devices
     if (window.innerWidth > 1024) return;
 
     touchEndX = event.changedTouches[0].clientX;
-
     const diffX = touchStartX - touchEndX;
-    const minSwipeDistance = 30; // Reduced minimum distance for better responsiveness
+    const minSwipeDistance = 30;
 
-    // Check if swipe distance is sufficient AND if user was dragging
     if (Math.abs(diffX) > minSwipeDistance && isDragging) {
         if (diffX > 0) {
-            // Swiped left - go to next slide
             nextSlide();
         } else {
-            // Swiped right - go to previous slide
             prevSlide();
         }
     }
@@ -483,56 +412,45 @@ function handleTouchEnd(event) {
     isDragging = false;
 }
 
+// Mouse drag events for desktop
 function handleMouseDown(event) {
-    // Activate for desktop devices (and tablets in some cases)
     if (window.innerWidth <= 1024) return;
 
-    dragStartX = event.clientX;
+    touchStartX = event.clientX;
     isDragging = false;
 
-    // Add mousemove and mouseup event listeners
     document.addEventListener('mousemove', handleMouseMove);
     document.addEventListener('mouseup', handleMouseUp);
 }
 
 function handleMouseMove(event) {
-    // Activate for desktop devices (and tablets in some cases)
     if (window.innerWidth <= 1024) return;
 
-    dragEndX = event.clientX;
+    touchEndX = event.clientX;
+    const diffX = touchStartX - touchEndX;
 
-    // Calculate distance moved
-    const diffX = dragStartX - dragEndX;
-
-    // Only consider it dragging if movement is significant
     if (Math.abs(diffX) > 10) {
         isDragging = true;
     }
 }
 
 function handleMouseUp(event) {
-    // Activate for desktop devices (and tablets in some cases)
     if (window.innerWidth <= 1024) return;
 
-    dragEndX = event.clientX;
+    touchEndX = event.clientX;
+    const diffX = touchStartX - touchEndX;
+    const minSwipeDistance = 30;
 
-    const diffX = dragStartX - dragEndX;
-    const minSwipeDistance = 30; // Reduced minimum distance for better responsiveness
-
-    // Check if drag distance is sufficient AND if user was dragging
     if (Math.abs(diffX) > minSwipeDistance && isDragging) {
         if (diffX > 0) {
-            // Dragged left - go to next slide
             nextSlide();
         } else {
-            // Dragged right - go to previous slide
             prevSlide();
         }
     }
 
     isDragging = false;
 
-    // Remove mousemove and mouseup event listeners
     document.removeEventListener('mousemove', handleMouseMove);
     document.removeEventListener('mouseup', handleMouseUp);
 }
@@ -543,11 +461,8 @@ function showMachineDetails(machineName) {
 
     if (machine) {
         modalTitle.textContent = machine.title;
-
-        // Clear previous features
         modalFeatures.innerHTML = '';
 
-        // Add new features
         machine.features.forEach(feature => {
             const li = document.createElement('li');
             li.textContent = feature;
@@ -557,51 +472,21 @@ function showMachineDetails(machineName) {
         modalImage.src = machine.image;
         modalImage.alt = machine.title;
 
-        // Show modal with flex display for proper centering
         modal.style.display = 'flex';
         modal.classList.add('show');
-        document.body.style.overflow = 'hidden'; // Prevent scrolling when modal is open
+        document.body.style.overflow = 'hidden';
     }
 }
 
 // Close modal
 function closeMachineModal() {
     modal.style.display = 'none';
-    modal.classList.remove('show'); // Remove show class for tablets
-    document.body.style.overflow = 'auto'; // Re-enable scrolling
+    modal.classList.remove('show');
+    document.body.style.overflow = 'auto';
 }
-
-// Function to debug and find available EmailJS services
-// Commented out to prevent console messages on page load
-/*
-async function debugEmailServices() {
-    try {
-        // Wait a bit to ensure emailjs is initialized
-        setTimeout(async () => {
-            try {
-                // Attempt to get service information
-                console.log('EmailJS initialized with public key:', emailjs.getUserID());
-
-                // Note: EmailJS doesn't expose a direct method to list services
-                // The best way is to check your dashboard at https://dashboard.emailjs.com/
-                console.log('To find your correct Service ID:');
-                console.log('1. Log into https://dashboard.emailjs.com/');
-                console.log('2. Go to "Email Services" section');
-                console.log('3. Look for the service you connected (Gmail, Outlook, etc.)');
-                console.log('4. Click on it and look for the "Service ID" field');
-            } catch (e) {
-                console.log('Could not retrieve service info:', e);
-            }
-        }, 1000);
-    } catch (error) {
-        console.error('Debug function error:', error);
-    }
-}
-*/
 
 // Initialize the application
 function initApp() {
-    // Initialize carousel elements after DOM loads
     carouselTrack = document.querySelector('.carousel-track');
     carouselSlides = document.querySelectorAll('.carousel-slide');
     prevBtn = document.querySelector('.prev-btn');
@@ -609,82 +494,72 @@ function initApp() {
     indicators = document.querySelectorAll('.indicator');
     galleryItems = document.querySelectorAll('.gallery-item');
 
-    // Listen for resize events to update carousel if needed
+    // Handle resize events
     window.addEventListener('resize', function() {
-        // Clear any existing interval to prevent conflicts when resizing
         if (window.carouselInterval) {
             clearInterval(window.carouselInterval);
         }
 
-        // Update indicators visibility based on screen size
         const indicatorContainer = document.querySelector('.carousel-indicators');
         if (indicatorContainer) {
-            if (window.innerWidth <= 768) {
-                indicatorContainer.style.display = 'flex';
-            } else {
-                indicatorContainer.style.display = 'flex'; // Always show indicators on all devices
-            }
+            indicatorContainer.style.display = 'flex';
         }
 
-        // Disable auto-rotation - scrolling should be manual only
-        // const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
-        // if (carouselSlides && carouselSlides.length > 1 && window.innerWidth > 768 && !isTouchDevice) {
-        //     window.carouselInterval = setInterval(nextSlide, 5000);
-        // }
-
-        // Update carousel display after resize
         updateCarousel();
     });
 
-    // Add event listener for hamburger menu
+    // Hamburger menu
     if (hamburger) {
         hamburger.addEventListener('click', toggleMobileMenu);
     }
 
-    // Add event listeners for navigation links
+    // Navigation links
     navLinks.forEach(link => {
         link.addEventListener('click', (e) => {
             e.preventDefault();
             const targetId = link.getAttribute('href').substring(1);
             smoothScrollTo(targetId);
-            closeMobileMenu(); // Close menu after clicking
+            closeMobileMenu();
         });
     });
 
-    // Add event listeners for gallery items
+    // Gallery items click handlers - show machine details
     const allGalleryItems = document.querySelectorAll('.gallery-item');
     if (allGalleryItems) {
         allGalleryItems.forEach(item => {
             item.addEventListener('click', () => {
-                // Use data-machine attribute if available, otherwise fallback to h3 text
                 const machineName = item.getAttribute('data-machine') || item.querySelector('h3').textContent;
                 showMachineDetails(machineName);
             });
         });
     }
 
-    // Add event listener for closing modal
-    closeModal.addEventListener('click', closeMachineModal);
+    // Close modal
+    if (closeModal) {
+        closeModal.addEventListener('click', closeMachineModal);
+    }
 
-    // Close modal when clicking outside the content
-    modal.addEventListener('click', (e) => {
-        if (e.target === modal) {
-            closeMachineModal();
-        }
-    });
+    // Close modal when clicking outside
+    if (modal) {
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                closeMachineModal();
+            }
+        });
+    }
 
-    // Add event listener for form submission
+    // Form submission
     if (contactForm) {
         contactForm.addEventListener('submit', handleFormSubmit);
     }
 
-    // Setup intersection observer for animations
+    // Intersection Observer
     setupIntersectionObserver();
 
-    // Add active class to navigation based on scroll position
+    // Active navigation on scroll
     window.addEventListener('scroll', () => {
         const sections = document.querySelectorAll('section');
-        const scrollPos = window.scrollY + 100; // Adjust offset as needed
+        const scrollPos = window.scrollY + 100;
 
         sections.forEach(section => {
             const sectionTop = section.offsetTop;
@@ -692,7 +567,6 @@ function initApp() {
             const sectionId = section.getAttribute('id');
 
             if (scrollPos >= sectionTop && scrollPos < sectionTop + sectionHeight) {
-                // Remove active class from all links
                 navLinks.forEach(link => {
                     link.classList.remove('active');
                     if (link.getAttribute('href') === `#${sectionId}`) {
@@ -703,7 +577,7 @@ function initApp() {
         });
     });
 
-    // Carousel event listeners
+    // Carousel navigation buttons
     if (prevBtn) {
         prevBtn.addEventListener('click', (e) => {
             e.preventDefault();
@@ -718,562 +592,60 @@ function initApp() {
         });
     }
 
-    if (indicators) {
-        indicators.forEach((indicator, index) => {
+    // Carousel indicators
+    const allIndicators = document.querySelectorAll('.indicator');
+    if (allIndicators) {
+        allIndicators.forEach((indicator, index) => {
             indicator.addEventListener('click', () => {
-                goToSlide(index);
+                const slideIndex = parseInt(indicator.getAttribute('data-slide'));
+                goToSlide(slideIndex);
             });
         });
     }
 
-    // Touch and mouse drag event listeners for carousel wrapper
+    // Touch and mouse drag events for carousel
     if (carouselTrack) {
         // Touch events
         carouselTrack.addEventListener('touchstart', handleTouchStart, { passive: false });
         carouselTrack.addEventListener('touchmove', handleTouchMove, { passive: false });
         carouselTrack.addEventListener('touchend', handleTouchEnd);
 
-        // Mouse events for desktop drag functionality
+        // Mouse events
         carouselTrack.addEventListener('mousedown', handleMouseDown);
 
-        // Prevent image drag behavior
+        // Prevent image drag
         const images = carouselTrack.querySelectorAll('img');
         images.forEach(img => {
             img.addEventListener('dragstart', (e) => {
                 e.preventDefault();
             });
         });
-        
-        // Also handle scroll events for indicators update
+
+        // Scroll event for indicators update
         carouselTrack.addEventListener('scroll', () => {
-            // Use the centralized updateIndicators function
-            updateIndicators();
+            // Only update from scroll on mobile
+            if (window.innerWidth <= 768) {
+                updateIndicators();
+            }
         });
     }
 
-    // Ensure carousel starts at first slide
+    // Initialize carousel position
     currentSlide = 0;
     updateCarousel();
 }
 
-// Function to restructure carousel for mobile to show one item per slide
-// Function to update carousel for all devices
-function updateCarouselForMobile() {
-    if (!carouselTrack || !carouselSlides) return;
-
-    // On mobile and tablet, we rely on CSS scroll-snap and scroll events
-    // The carousel track is already set up with overflow-x: auto and scroll-snap-type: x mandatory
-    // So we just need to ensure the current slide is visible
-
-    if (window.innerWidth <= 1024) {
-        // On mobile and tablet, update the current slide based on scroll position
-        const slideWidth = carouselSlides[0] ? carouselSlides[0].offsetWidth + 30 : 330; // 30px gap
-        currentSlide = Math.round(carouselTrack.scrollLeft / slideWidth);
-
-        // Update indicators
-        if (indicators) {
-            indicators.forEach((indicator, index) => {
-                if (index === currentSlide) {
-                    indicator.classList.add('active');
-                } else {
-                    indicator.classList.remove('active');
-                }
-            });
-        }
-    } else {
-        // On desktop, use the transform method for showing 2 slides at a time
-        const containerWidth = document.querySelector('.carousel-wrapper').offsetWidth;
-        const translateXValue = -currentSlide * containerWidth;
-        
-        carouselTrack.style.transform = `translateX(${translateXValue}px)`;
-        
-        // Update indicators
-        if (indicators) {
-            indicators.forEach((indicator, index) => {
-                if (index === currentSlide) {
-                    indicator.classList.add('active');
-                } else {
-                    indicator.classList.remove('active');
-                }
-            });
-        }
-    }
-}
-
 // Initialize app when DOM is loaded
 document.addEventListener('DOMContentLoaded', function() {
-    // Ensure modal is hidden on page load
     const modal = document.getElementById('machineModal');
     if (modal) {
         modal.style.display = 'none';
-        modal.classList.remove('show'); // Ensure show class is removed
+        modal.classList.remove('show');
     }
 
     initApp();
 
-    // Update carousel for initial view
-    // Small delay to ensure elements are fully loaded
     setTimeout(() => {
-        updateCarouselForMobile();
+        updateCarousel();
     }, 100);
-
-    // Initialize authentication
-    initializeAuth();
 });
-
-function initializeAuth() {
-    // Check if user is already logged in
-    const token = localStorage.getItem('authToken');
-    if (token) {
-        loadUserProfile();
-    }
-
-    // Set up event listeners for auth modals
-    setupAuthEventListeners();
-}
-
-function setupAuthEventListeners() {
-    // Show register modal
-    const registerLink = document.querySelector('#showRegisterModal');
-    if (registerLink) {
-        registerLink.addEventListener('click', function(e) {
-            e.preventDefault();
-            showRegisterModal();
-        });
-    }
-
-    // Show login modal
-    const loginLink = document.querySelector('#showLoginModal');
-    if (loginLink) {
-        loginLink.addEventListener('click', function(e) {
-            e.preventDefault();
-            showLoginModal();
-        });
-    }
-
-    // Close modals
-    const closeButtons = document.querySelectorAll('.modal .close');
-    closeButtons.forEach(button => {
-        button.addEventListener('click', closeModal);
-    });
-
-    // Close modal when clicking outside
-    window.addEventListener('click', function(event) {
-        const modals = document.querySelectorAll('.modal');
-        modals.forEach(modal => {
-            if (event.target === modal) {
-                closeAuthModal(null, modal);
-            }
-        });
-    });
-}
-
-function showRegisterModal() {
-    // Create modal HTML if it doesn't exist
-    let modal = document.getElementById('registerModal');
-    if (!modal) {
-        createAuthModals();
-        modal = document.getElementById('registerModal');
-    }
-
-    modal.style.display = 'block';
-}
-
-function showLoginModal() {
-    // Create modal HTML if it doesn't exist
-    let modal = document.getElementById('loginModal');
-    if (!modal) {
-        createAuthModals();
-        modal = document.getElementById('loginModal');
-    }
-
-    modal.style.display = 'block';
-}
-
-function closeAuthModal(e, modal) {
-    if (!modal) {
-        modal = e ? e.target.closest('.modal') : null;
-    }
-
-    if (modal) {
-        modal.style.display = 'none';
-    }
-}
-
-function createAuthModals() {
-    // Create modal container if it doesn't exist
-    if (!document.getElementById('authModalsContainer')) {
-        const modalsContainer = document.createElement('div');
-        modalsContainer.id = 'authModalsContainer';
-        document.body.appendChild(modalsContainer);
-    }
-
-    // Create register modal
-    const registerModal = document.createElement('div');
-    registerModal.className = 'modal';
-    registerModal.id = 'registerModal';
-    registerModal.innerHTML = `
-        <div class="modal-content">
-            <span class="close">&times;</span>
-            <h2>Registrarse</h2>
-            <form id="registerForm">
-                <div class="form-group">
-                    <label for="regUsername">Nombre de Usuario:</label>
-                    <input type="text" id="regUsername" name="username" required>
-                </div>
-                <div class="form-group">
-                    <label for="regEmail">Correo Electrónico:</label>
-                    <input type="email" id="regEmail" name="email" required>
-                </div>
-                <div class="form-group">
-                    <label for="regPassword">Contraseña:</label>
-                    <input type="password" id="regPassword" name="password" required>
-                </div>
-                <button type="submit">Registrarse</button>
-            </form>
-            <p><a href="#" id="switchToLogin">¿Ya tienes cuenta? Inicia sesión aquí</a></p>
-        </div>
-    `;
-    document.getElementById('authModalsContainer').appendChild(registerModal);
-
-    // Create login modal
-    const loginModal = document.createElement('div');
-    loginModal.className = 'modal';
-    loginModal.id = 'loginModal';
-    loginModal.innerHTML = `
-        <div class="modal-content">
-            <span class="close">&times;</span>
-            <h2>Iniciar Sesión</h2>
-            <form id="loginForm">
-                <div class="form-group">
-                    <label for="loginEmail">Correo Electrónico:</label>
-                    <input type="email" id="loginEmail" name="email" required>
-                </div>
-                <div class="form-group">
-                    <label for="loginPassword">Contraseña:</label>
-                    <input type="password" id="loginPassword" name="password" required>
-                </div>
-                <button type="submit">Iniciar Sesión</button>
-            </form>
-            <p><a href="#" id="switchToRegister">¿No tienes cuenta? Regístrate aquí</a></p>
-        </div>
-    `;
-    document.getElementById('authModalsContainer').appendChild(loginModal);
-
-    // Add event listeners to forms
-    document.getElementById('registerForm').addEventListener('submit', handleRegister);
-    document.getElementById('loginForm').addEventListener('submit', handleLogin);
-
-    // Add event listeners to switch links
-    document.getElementById('switchToLogin').addEventListener('click', function(e) {
-        e.preventDefault();
-        closeAuthModal(null, document.getElementById('registerModal'));
-        showLoginModal();
-    });
-
-    document.getElementById('switchToRegister').addEventListener('click', function(e) {
-        e.preventDefault();
-        closeAuthModal(null, document.getElementById('loginModal'));
-        showRegisterModal();
-    });
-
-    // Add event listeners to close buttons
-    document.querySelectorAll('#registerModal .close, #loginModal .close').forEach(button => {
-        button.addEventListener('click', function() {
-            closeAuthModal(null, this.closest('.modal'));
-        });
-    });
-}
-
-async function handleRegister(e) {
-    e.preventDefault();
-
-    const formData = {
-        username: document.getElementById('regUsername').value,
-        email: document.getElementById('regEmail').value,
-        password: document.getElementById('regPassword').value
-    };
-
-    try {
-        const response = await fetch('http://localhost:3000/api/auth/register', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(formData)
-        });
-
-        const result = await response.json();
-
-        if (result.success) {
-            alert('Usuario registrado exitosamente');
-            closeAuthModal(null, document.getElementById('registerModal'));
-            localStorage.setItem('authToken', result.token);
-            loadUserProfile();
-        } else {
-            alert('Error en el registro: ' + result.message);
-        }
-    } catch (error) {
-        console.error('Registration error:', error);
-        alert('Error de conexión durante el registro');
-    }
-}
-
-async function handleLogin(e) {
-    e.preventDefault();
-
-    const formData = {
-        email: document.getElementById('loginEmail').value,
-        password: document.getElementById('loginPassword').value
-    };
-
-    try {
-        const response = await fetch('http://localhost:3000/api/auth/login', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(formData)
-        });
-
-        const result = await response.json();
-
-        if (result.success) {
-            alert('Inicio de sesión exitoso');
-            closeAuthModal(null, document.getElementById('loginModal'));
-            localStorage.setItem('authToken', result.token);
-            loadUserProfile();
-        } else {
-            alert('Error en el inicio de sesión: ' + result.message);
-        }
-    } catch (error) {
-        console.error('Login error:', error);
-        alert('Error de conexión durante el inicio de sesión');
-    }
-}
-
-function loadUserProfile() {
-    // This function would load and display user-specific content
-    // For now, just update UI to show user is logged in
-    updateAuthUI(true);
-}
-
-function updateAuthUI(isLoggedIn) {
-    // Create or update auth UI elements
-    let authSection = document.getElementById('authSection');
-    if (!authSection) {
-        // Find a suitable place to insert the auth section
-        const header = document.querySelector('header') || document.querySelector('nav');
-        if (header) {
-            authSection = document.createElement('div');
-            authSection.id = 'authSection';
-            authSection.style.cssText = 'float: right; margin-top: 10px;';
-            header.appendChild(authSection);
-        }
-    }
-
-    if (isLoggedIn) {
-        // Show logout button and user info
-        authSection.innerHTML = `
-            <span id="userInfo">Bienvenido</span>
-            <button id="logoutBtn" style="margin-left: 10px;">Cerrar Sesión</button>
-        `;
-        
-        document.getElementById('logoutBtn').addEventListener('click', handleLogout);
-    } else {
-        // Show login/register buttons
-        authSection.innerHTML = `
-            <button id="loginBtn" style="margin-right: 10px;">Iniciar Sesión</button>
-            <button id="registerBtn">Registrarse</button>
-        `;
-        
-        document.getElementById('loginBtn').addEventListener('click', showLoginModal);
-        document.getElementById('registerBtn').addEventListener('click', showRegisterModal);
-    }
-}
-
-function handleLogout() {
-    localStorage.removeItem('authToken');
-    updateAuthUI(false);
-    alert('Sesión cerrada exitosamente');
-}
-
-// Modify the form submission to save quotations for authenticated users
-async function handleFormSubmit(event) {
-    event.preventDefault();
-
-    // Get form values
-    const name = document.getElementById('name').value.trim();
-    const email = document.getElementById('email').value.trim();
-    const phone = document.getElementById('phone').value.trim();
-    const machine = document.getElementById('machine').value;
-    const message = document.getElementById('message').value.trim();
-
-    // Basic validation
-    if (!name || !email) {
-        alert('Por favor completa los campos obligatorios (nombre y email)');
-        return;
-    }
-
-    // Additional validation for name (minimum length)
-    if (name.length < 2) {
-        alert('Por favor ingresa un nombre válido (mínimo 2 caracteres)');
-        return;
-    }
-
-    // Email validation
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-        alert('Por favor ingresa un email válido');
-        return;
-    }
-
-    // Phone validation (if provided)
-    if (phone && !/^[0-9+\-\s()]{7,15}$/.test(phone)) {
-        alert('Por favor ingresa un número de teléfono válido');
-        return;
-    }
-
-    // Message validation (optional but with minimum length if provided)
-    if (message && message.length < 10) {
-        alert('Por favor ingresa un mensaje más detallado (mínimo 10 caracteres)');
-        return;
-    }
-
-    // Check if user is authenticated
-    const token = localStorage.getItem('authToken');
-    if (token) {
-        // Save quotation to backend
-        await saveQuotation({ name, email, phone, machine, message });
-    } else {
-        // Send email using EmailJS if not authenticated
-        await sendEmailWithEmailJS({ name, email, phone, machine, message });
-    }
-}
-
-async function sendEmailWithEmailJS(formData) {
-    // Show loading message
-    const submitButton = contactForm.querySelector('button[type="submit"]');
-    const originalButtonText = submitButton.textContent;
-    submitButton.textContent = 'Enviando...';
-    submitButton.disabled = true;
-
-    try {
-        // Prepare template parameters - ensure clean string values
-        const templateParams = {
-            client_name: String(formData.name || ''),
-            client_email: String(formData.email || ''),
-            client_phone: String(formData.phone || ''),
-            machinery_type: String(formData.machine || ''),
-            client_message: String(formData.message || ''),
-            to_email: 'serviciosysuministroswls@gmail.com' // Dirección de destino
-        };
-
-        // Debug: Log the template parameters to console
-        console.log('Sending email with parameters:', templateParams);
-
-        // Send email via EmailJS
-        // Si tienes la Public Key (recomendado):
-        // IMPORTANTE: Verifica que el Service ID sea correcto en tu dashboard de EmailJS
-        console.log('Enviando correo con parámetros:', templateParams); // Debug: Log the parameters
-
-        const response = await emailjs.send(
-            'service_x3ze2tv', // Service ID - REPLACE WITH THE ACTUAL SERVICE ID FROM YOUR EMAILJS DASHBOARD
-            'template_wls_contact_new', // Updated Template ID - make sure this template exists in your EmailJS dashboard
-            templateParams
-        );
-
-        console.log('EmailJS response:', response); // Debug: Log the response
-        console.log('Response status:', response.status); // Debug: Log status
-        console.log('Response text:', response.text); // Debug: Log response text
-
-        // Verificar respuesta exitosa (EmailJS puede devolver diferentes códigos de éxito)
-        if (response && (response.status === 200 || response.status === 201)) {
-            // Success
-            console.log('Correo enviado exitosamente');
-            alert('¡Gracias por tu mensaje! Pronto nos pondremos en contacto contigo.');
-            contactForm.reset();
-        } else {
-            // Si el status no es 200 o 201, lanzar un error
-            console.error('Error: Código de estado inesperado:', response.status);
-            throw new Error(`EmailJS error: Status ${response.status}`);
-        }
-    } catch (error) {
-        // Comprehensive error handling
-        console.error('Email sending error:', error);
-
-        // Check if it's an EmailJS specific error
-        if (error.status) {
-            console.error('EmailJS Error Details:', {
-                status: error.status,
-                text: error.text,
-                message: error.message
-            });
-
-            // Different alerts based on error type
-            if (error.status === 400) {
-                alert('Error de solicitud: Verifica que todos los campos estén completos y sean válidos. Revisa la consola para más detalles.');
-            } else if (error.status === 401) {
-                alert('Error de autenticación: La clave pública o el servicio no están configurados correctamente. Revisa la consola para más detalles.');
-            } else if (error.status === 404) {
-                alert('Error: El servicio o template no se encontró. Verifica tu Service ID y Template ID en EmailJS. Revisa la consola para más detalles.');
-            } else if (error.status === 500) {
-                alert('Error interno del servidor de EmailJS. Por favor intenta más tarde. Revisa la consola para más detalles.');
-            } else {
-                alert(`Error desconocido (${error.status}): ${error.message}. Revisa la consola para más detalles.`);
-            }
-        } else {
-            // General error (might not be an HTTP error)
-            console.error('General Error Details:', {
-                message: error.message,
-                name: error.name
-            });
-
-            alert(`Error al enviar el correo: ${error.message}. Revisa la consola para más detalles.`);
-        }
-    } finally {
-        // Restore button state
-        submitButton.textContent = originalButtonText;
-        submitButton.disabled = false;
-    }
-}
-
-async function saveQuotation(formData) {
-    try {
-        const token = localStorage.getItem('authToken');
-        
-        // Prepare quotation data
-        const quotationData = {
-            equipment: formData.machine,
-            days: 1, // Default value, could be from form if available
-            quantity: 1, // Default value, could be from form if available
-            totalAmount: 0, // Could be calculated based on equipment and days
-            contactInfo: {
-                fullName: formData.name,
-                phoneNumber: formData.phone,
-                email: formData.email
-            }
-        };
-
-        const response = await fetch('http://localhost:3000/api/quotation', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-            },
-            body: JSON.stringify(quotationData)
-        });
-
-        const result = await response.json();
-
-        if (result.success) {
-            alert('¡Cotización guardada exitosamente!');
-            document.getElementById('contactForm').reset();
-        } else {
-            alert('Error al guardar la cotización: ' + result.message);
-        }
-    } catch (error) {
-        console.error('Error saving quotation:', error);
-        alert('Error de conexión al guardar la cotización');
-    }
-}
