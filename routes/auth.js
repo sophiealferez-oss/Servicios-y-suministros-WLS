@@ -1,8 +1,8 @@
 const express = require('express');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const { Op } = require('sequelize');
 const User = require('../models/User');
-const { InMemoryDB } = require('../config/db'); // Import InMemoryDB for fallback
 const router = express.Router();
 
 // Register a new user
@@ -10,59 +10,30 @@ router.post('/register', async (req, res) => {
   try {
     const { username, email, password } = req.body;
 
-    // Check if we're using in-memory DB
-    const isUsingInMemory = typeof global.dbConnection === 'object' && global.dbConnection.constructor.name === 'Object';
+    const existingUser = await User.findOne({
+      where: {
+        [Op.or]: [{ email }, { username }]
+      }
+    });
 
-    let existingUser;
-    if (isUsingInMemory) {
-      // For in-memory DB, check manually
-      existingUser = InMemoryDB.findUser({ 
-        $or: [{ email }, { username }] 
-      });
-    } else {
-      // For MongoDB
-      existingUser = await User.findOne({ 
-        $or: [{ email }, { username }] 
-      });
-    }
-    
     if (existingUser) {
-      return res.status(400).json({ 
-        success: false, 
-        message: 'User with this email or username already exists' 
+      return res.status(400).json({
+        success: false,
+        message: 'User with this email or username already exists'
       });
     }
 
-    // Hash the password
     const saltRounds = 10;
     const hashedPassword = await bcrypt.hash(password, saltRounds);
 
-    // Create new user
-    let newUser;
-    if (isUsingInMemory) {
-      // For in-memory DB
-      newUser = {
-        _id: Date.now().toString() + Math.random().toString(36).substr(2, 5),
-        username,
-        email,
-        password: hashedPassword,
-        createdAt: new Date(),
-        updatedAt: new Date()
-      };
-      InMemoryDB.addUser(newUser);
-    } else {
-      // For MongoDB
-      newUser = new User({
-        username,
-        email,
-        password: hashedPassword
-      });
-      await newUser.save();
-    }
+    const newUser = await User.create({
+      username,
+      email,
+      password: hashedPassword
+    });
 
-    // Generate JWT token
     const token = jwt.sign(
-      { userId: newUser._id },
+      { userId: newUser.id },
       process.env.JWT_SECRET,
       { expiresIn: '24h' }
     );
@@ -72,7 +43,7 @@ router.post('/register', async (req, res) => {
       message: 'User registered successfully',
       token,
       user: {
-        id: newUser._id,
+        id: newUser.id,
         username: newUser.username,
         email: newUser.email
       }
@@ -91,18 +62,8 @@ router.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    // Check if we're using in-memory DB
-    const isUsingInMemory = typeof global.dbConnection === 'object' && global.dbConnection.constructor.name === 'Object';
+    const user = await User.findOne({ where: { email } });
 
-    let user;
-    if (isUsingInMemory) {
-      // For in-memory DB, find user manually
-      user = InMemoryDB.findUser({ email });
-    } else {
-      // For MongoDB
-      user = await User.findOne({ email });
-    }
-    
     if (!user) {
       return res.status(400).json({
         success: false,
@@ -110,7 +71,6 @@ router.post('/login', async (req, res) => {
       });
     }
 
-    // Compare passwords
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       return res.status(400).json({
@@ -119,9 +79,8 @@ router.post('/login', async (req, res) => {
       });
     }
 
-    // Generate JWT token
     const token = jwt.sign(
-      { userId: user._id },
+      { userId: user.id },
       process.env.JWT_SECRET,
       { expiresIn: '24h' }
     );
@@ -131,7 +90,7 @@ router.post('/login', async (req, res) => {
       message: 'Login successful',
       token,
       user: {
-        id: user._id,
+        id: user.id,
         username: user.username,
         email: user.email
       }
