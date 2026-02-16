@@ -294,135 +294,137 @@ let dragStartX = 0;
 let dragEndX = 0;
 let isDragging = false;
 
+// Helper function to get visible slides count based on screen size
+function getVisibleSlidesCount() {
+    if (window.innerWidth <= 768) {
+        return 1; // Mobile: 1 slide
+    } else if (window.innerWidth <= 1024) {
+        return 2; // Tablet: 2 slides
+    } else {
+        return 2; // Desktop: 2 slides
+    }
+}
+
+// Helper function to get max slide index
+function getMaxSlideIndex() {
+    const visibleSlides = getVisibleSlidesCount();
+    return carouselSlides.length - visibleSlides;
+}
+
 function updateCarousel() {
-    // Move the track to show the current slide
-    if (carouselTrack && carouselSlides.length > 0) {
-        // Apply transformation based on screen size
-        if (window.innerWidth <= 768) {
-            // Mobile: scroll to the current slide
-            if (carouselSlides[currentSlide]) {
-                carouselTrack.scrollTo({
-                    left: carouselSlides[currentSlide].offsetLeft,
-                    behavior: 'smooth'
-                });
-            }
-        } else if (window.innerWidth <= 1024) {
-            // Tablet: scroll to the current slide (showing 2 items)
-            if (carouselSlides[currentSlide]) {
-                carouselTrack.scrollTo({
-                    left: carouselSlides[currentSlide].offsetLeft,
-                    behavior: 'smooth'
-                });
-            }
-        } else {
-            // Desktop: show 2 slides at a time, slide by slide pairs
-            // Calculate the visible container width (the wrapper)
-            const containerWidth = document.querySelector('.carousel-wrapper').offsetWidth;
-            const translateXValue = -currentSlide * containerWidth;
+    if (!carouselTrack || carouselSlides.length === 0) return;
 
-            // Apply the transform to move the track
-            carouselTrack.style.transform = `translateX(${translateXValue}px)`;
-        }
+    const visibleSlides = getVisibleSlidesCount();
+    const maxSlide = carouselSlides.length - visibleSlides;
 
-        // Update indicators
-        if (indicators) {
-            indicators.forEach((indicator, index) => {
-                if (index === currentSlide) {
-                    indicator.classList.add('active');
-                } else {
-                    indicator.classList.remove('active');
-                }
+    // Ensure currentSlide is within bounds
+    if (currentSlide < 0) currentSlide = 0;
+    if (currentSlide > maxSlide) currentSlide = maxSlide;
+
+    // Apply transformation based on screen size
+    if (window.innerWidth <= 1024) {
+        // Mobile and Tablet: use scroll
+        if (carouselSlides[currentSlide]) {
+            carouselTrack.scrollTo({
+                left: carouselSlides[currentSlide].offsetLeft,
+                behavior: 'smooth'
             });
+        }
+    } else {
+        // Desktop: use transform
+        const containerWidth = document.querySelector('.carousel-wrapper').offsetWidth;
+        const slideWidth = containerWidth / visibleSlides;
+        const translateXValue = -currentSlide * slideWidth;
+        carouselTrack.style.transform = `translateX(${translateXValue}px)`;
+    }
+
+    // Update indicators - highlight the first visible slide
+    updateIndicators();
+}
+
+function updateIndicators() {
+    if (!indicators || indicators.length === 0) return;
+
+    // Remove active class from all indicators
+    indicators.forEach(indicator => indicator.classList.remove('active'));
+
+    // On mobile/tablet, determine which slide is most visible based on scroll position
+    if (window.innerWidth <= 1024) {
+        const scrollLeft = carouselTrack.scrollLeft;
+        const wrapperWidth = carouselTrack.offsetWidth;
+        
+        // Find the slide that's most visible
+        let mostVisibleIndex = 0;
+        let maxVisibility = 0;
+
+        carouselSlides.forEach((slide, index) => {
+            const slideLeft = slide.offsetLeft;
+            const slideRight = slideLeft + slide.offsetWidth;
+            
+            // Calculate how much of the slide is visible
+            const visibleLeft = Math.max(slideLeft, scrollLeft);
+            const visibleRight = Math.min(slideRight, scrollLeft + wrapperWidth);
+            const visibleWidth = Math.max(0, visibleRight - visibleLeft);
+            const visibilityRatio = visibleWidth / slide.offsetWidth;
+
+            if (visibilityRatio > maxVisibility) {
+                maxVisibility = visibilityRatio;
+                mostVisibleIndex = index;
+            }
+        });
+
+        currentSlide = mostVisibleIndex;
+        
+        // Activate the indicator for the most visible slide
+        if (indicators[currentSlide]) {
+            indicators[currentSlide].classList.add('active');
+        }
+    } else {
+        // Desktop: activate indicator based on currentSlide
+        if (indicators[currentSlide]) {
+            indicators[currentSlide].classList.add('active');
         }
     }
 }
 
 function goToSlide(slideIndex) {
-    if (carouselSlides && slideIndex >= 0) {
-        if (window.innerWidth <= 1024) {
-            // On mobile and tablet, ensure slideIndex is within bounds
-            if (slideIndex < carouselSlides.length) {
-                currentSlide = slideIndex;
-                updateCarousel();
-            }
-        } else {
-            // On desktop, ensure slideIndex is within the range of slide pairs
-            const maxSlide = Math.ceil(carouselSlides.length / 2) - 1;
-            if (slideIndex <= maxSlide) {
-                currentSlide = slideIndex;
-                updateCarousel();
-            }
-        }
+    if (!carouselSlides || slideIndex < 0) return;
+    
+    const maxSlide = getMaxSlideIndex();
+    
+    if (slideIndex <= maxSlide) {
+        currentSlide = slideIndex;
+        updateCarousel();
     }
 }
 
 function nextSlide() {
-    if (carouselSlides && carouselSlides.length > 0) {
-        if (window.innerWidth <= 1024) {
-            // On mobile and tablet, scroll to next slide
-            if (currentSlide < carouselSlides.length - 1) {
-                currentSlide++;
-                if (carouselSlides[currentSlide]) {
-                    carouselTrack.scrollTo({
-                        left: carouselSlides[currentSlide].offsetLeft,
-                        behavior: 'smooth'
-                    });
-                }
-            } else {
-                // Loop back to first slide
-                currentSlide = 0;
-                carouselTrack.scrollTo({
-                    left: 0,
-                    behavior: 'smooth'
-                });
-            }
-        } else {
-            // On desktop, show 2 slides at a time, advance by pairs
-            const maxSlide = Math.ceil(carouselSlides.length / 2) - 1;
-            if (currentSlide < maxSlide) {
-                currentSlide++;
-            } else {
-                // Loop back to first slide
-                currentSlide = 0;
-            }
-            updateCarousel();
-        }
+    if (!carouselSlides || carouselSlides.length === 0) return;
+
+    const maxSlide = getMaxSlideIndex();
+    
+    if (currentSlide < maxSlide) {
+        currentSlide++;
+        updateCarousel();
+    } else {
+        // Loop back to first slide
+        currentSlide = 0;
+        updateCarousel();
     }
 }
 
 function prevSlide() {
-    if (carouselSlides && carouselSlides.length > 0) {
-        if (window.innerWidth <= 1024) {
-            // On mobile and tablet, scroll to previous slide
-            if (currentSlide > 0) {
-                currentSlide--;
-                if (carouselSlides[currentSlide]) {
-                    carouselTrack.scrollTo({
-                        left: carouselSlides[currentSlide].offsetLeft,
-                        behavior: 'smooth'
-                    });
-                }
-            } else {
-                // Go to last slide
-                currentSlide = carouselSlides.length - 1;
-                if (carouselSlides[currentSlide]) {
-                    carouselTrack.scrollTo({
-                        left: carouselSlides[currentSlide].offsetLeft,
-                        behavior: 'smooth'
-                    });
-                }
-            }
-        } else {
-            // On desktop, show 2 slides at a time, go back by pairs
-            if (currentSlide > 0) {
-                currentSlide--;
-            } else {
-                // Go to last slide pair
-                const maxSlide = Math.ceil(carouselSlides.length / 2) - 1;
-                currentSlide = maxSlide;
-            }
-            updateCarousel();
-        }
+    if (!carouselSlides || carouselSlides.length === 0) return;
+
+    const maxSlide = getMaxSlideIndex();
+    
+    if (currentSlide > 0) {
+        currentSlide--;
+        updateCarousel();
+    } else {
+        // Loop to last possible slide
+        currentSlide = maxSlide;
+        updateCarousel();
     }
 }
 
@@ -555,8 +557,9 @@ function showMachineDetails(machineName) {
         modalImage.src = machine.image;
         modalImage.alt = machine.title;
 
-        modal.style.display = 'flex'; // Use flex to match the CSS
-        modal.classList.add('show'); // Add show class for tablets
+        // Show modal with flex display for proper centering
+        modal.style.display = 'flex';
+        modal.classList.add('show');
         document.body.style.overflow = 'hidden'; // Prevent scrolling when modal is open
     }
 }
@@ -653,7 +656,8 @@ function initApp() {
     if (allGalleryItems) {
         allGalleryItems.forEach(item => {
             item.addEventListener('click', () => {
-                const machineName = item.querySelector('h3').textContent;
+                // Use data-machine attribute if available, otherwise fallback to h3 text
+                const machineName = item.getAttribute('data-machine') || item.querySelector('h3').textContent;
                 showMachineDetails(machineName);
             });
         });
@@ -742,46 +746,9 @@ function initApp() {
         
         // Also handle scroll events for indicators update
         carouselTrack.addEventListener('scroll', () => {
-            if (window.innerWidth <= 1024) {
-                // Update current slide based on scroll position
-                const scrollLeft = carouselTrack.scrollLeft;
-
-                // Find the closest slide to the current scroll position
-                let closestSlideIndex = 0;
-                let smallestDiff = Math.abs(carouselSlides[0].offsetLeft - scrollLeft);
-
-                for (let i = 1; i < carouselSlides.length; i++) {
-                    const diff = Math.abs(carouselSlides[i].offsetLeft - scrollLeft);
-                    if (diff < smallestDiff) {
-                        smallestDiff = diff;
-                        closestSlideIndex = i;
-                    }
-                }
-
-                currentSlide = closestSlideIndex;
-
-                // Update indicators
-                indicators.forEach((indicator, index) => {
-                    if (index === currentSlide) {
-                        indicator.classList.add('active');
-                    } else {
-                        indicator.classList.remove('active');
-                    }
-                });
-            }
+            // Use the centralized updateIndicators function
+            updateIndicators();
         });
-        
-        // Handle transform-based navigation for desktop
-        if (window.innerWidth > 1024) {
-            // Update indicators based on currentSlide for desktop
-            indicators.forEach((indicator, index) => {
-                if (index === currentSlide) {
-                    indicator.classList.add('active');
-                } else {
-                    indicator.classList.remove('active');
-                }
-            });
-        }
     }
 
     // Ensure carousel starts at first slide
@@ -895,7 +862,7 @@ function setupAuthEventListeners() {
         const modals = document.querySelectorAll('.modal');
         modals.forEach(modal => {
             if (event.target === modal) {
-                closeModal(null, modal);
+                closeAuthModal(null, modal);
             }
         });
     });
@@ -908,7 +875,7 @@ function showRegisterModal() {
         createAuthModals();
         modal = document.getElementById('registerModal');
     }
-    
+
     modal.style.display = 'block';
 }
 
@@ -919,15 +886,15 @@ function showLoginModal() {
         createAuthModals();
         modal = document.getElementById('loginModal');
     }
-    
+
     modal.style.display = 'block';
 }
 
-function closeModal(e, modal) {
+function closeAuthModal(e, modal) {
     if (!modal) {
         modal = e ? e.target.closest('.modal') : null;
     }
-    
+
     if (modal) {
         modal.style.display = 'none';
     }
@@ -1000,27 +967,27 @@ function createAuthModals() {
     // Add event listeners to switch links
     document.getElementById('switchToLogin').addEventListener('click', function(e) {
         e.preventDefault();
-        closeModal(null, document.getElementById('registerModal'));
+        closeAuthModal(null, document.getElementById('registerModal'));
         showLoginModal();
     });
 
     document.getElementById('switchToRegister').addEventListener('click', function(e) {
         e.preventDefault();
-        closeModal(null, document.getElementById('loginModal'));
+        closeAuthModal(null, document.getElementById('loginModal'));
         showRegisterModal();
     });
 
     // Add event listeners to close buttons
     document.querySelectorAll('#registerModal .close, #loginModal .close').forEach(button => {
         button.addEventListener('click', function() {
-            closeModal(null, this.closest('.modal'));
+            closeAuthModal(null, this.closest('.modal'));
         });
     });
 }
 
 async function handleRegister(e) {
     e.preventDefault();
-    
+
     const formData = {
         username: document.getElementById('regUsername').value,
         email: document.getElementById('regEmail').value,
@@ -1040,7 +1007,7 @@ async function handleRegister(e) {
 
         if (result.success) {
             alert('Usuario registrado exitosamente');
-            closeModal(null, document.getElementById('registerModal'));
+            closeAuthModal(null, document.getElementById('registerModal'));
             localStorage.setItem('authToken', result.token);
             loadUserProfile();
         } else {
@@ -1054,7 +1021,7 @@ async function handleRegister(e) {
 
 async function handleLogin(e) {
     e.preventDefault();
-    
+
     const formData = {
         email: document.getElementById('loginEmail').value,
         password: document.getElementById('loginPassword').value
@@ -1073,7 +1040,7 @@ async function handleLogin(e) {
 
         if (result.success) {
             alert('Inicio de sesión exitoso');
-            closeModal(null, document.getElementById('loginModal'));
+            closeAuthModal(null, document.getElementById('loginModal'));
             localStorage.setItem('authToken', result.token);
             loadUserProfile();
         } else {
