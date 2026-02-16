@@ -504,7 +504,7 @@ section {
     }
 
     .carousel-wrapper {
-        overflow: visible;
+        overflow: hidden;
         border-radius: 8px;
         box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
         position: relative;
@@ -512,15 +512,15 @@ section {
 
     .carousel-track {
         display: flex;
+        flex-wrap: nowrap;
+        justify-content: flex-start;
+        gap: 30px;
+        padding: 20px 0;
+        transition: transform 0.5s ease-in-out;
         overflow-x: auto;
-        scroll-snap-type: x mandatory;
-        scroll-behavior: smooth;
         -webkit-overflow-scrolling: touch;
         scrollbar-width: none;
-        -ms-overflow-style: -ms-autohiding-scrollbar;
-        gap: 30px;
-        padding: 20px 10px;
-        justify-content: flex-start;
+        -ms-overflow-style: none;
     }
 
     .carousel-track::-webkit-scrollbar {
@@ -529,11 +529,11 @@ section {
 
     .carousel-slide {
         flex: 0 0 calc(50% - 15px);
-        scroll-snap-align: start;
         display: flex;
         justify-content: center;
         align-items: center;
         margin: 0;
+        min-width: 350px;
     }
 
     .carousel-slide .gallery-item {
@@ -551,6 +551,8 @@ section {
         position: relative;
         left: auto;
         transform: none;
+        pointer-events: auto;
+        cursor: pointer;
     }
 
     .gallery-item img {
@@ -560,6 +562,7 @@ section {
         display: block;
         margin: 0 auto;
         background-color: #f0f0f0;
+        pointer-events: none;
     }
 
     .gallery-item h3 {
@@ -574,10 +577,19 @@ section {
         color: #333;
         width: 100%;
         min-height: 80px;
+        pointer-events: none;
     }
 
     .carousel-btn {
-        display: none;
+        display: flex;
+    }
+
+    .prev-btn {
+        left: 20px;
+    }
+
+    .next-btn {
+        right: 20px;
     }
 
     .carousel-indicators {
@@ -585,11 +597,6 @@ section {
         justify-content: center;
         margin-top: 20px;
         gap: 10px;
-    }
-
-    /* Show only desktop indicators on tablets */
-    .indicator-mobile {
-        display: none;
     }
 }
 
@@ -604,7 +611,7 @@ section {
     }
 
     .carousel-wrapper {
-        overflow: visible;
+        overflow: hidden;
         border-radius: 8px;
         box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
         position: relative;
@@ -617,7 +624,7 @@ section {
         scroll-behavior: smooth;
         -webkit-overflow-scrolling: touch;
         scrollbar-width: none;
-        -ms-overflow-style: -ms-autohiding-scrollbar;
+        -ms-overflow-style: none;
         gap: 30px;
         padding: 20px 10px;
         justify-content: center;
@@ -649,6 +656,8 @@ section {
         box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
         transition: transform 0.3s ease;
         flex-shrink: 0;
+        pointer-events: auto;
+        cursor: pointer;
     }
 
     .gallery-item img {
@@ -658,6 +667,7 @@ section {
         display: block;
         margin: 0 auto;
         background-color: #f0f0f0;
+        pointer-events: none;
     }
 
     .gallery-item h3 {
@@ -672,6 +682,7 @@ section {
         color: #333;
         width: 100%;
         min-height: 80px;
+        pointer-events: none;
     }
 
     .carousel-btn {
@@ -684,8 +695,6 @@ section {
         margin-top: 20px;
         gap: 10px;
     }
-
-    /* Show all 4 indicators on mobile (one per machine) */
 }
 
 /* Extra small mobile devices (max-width: 480px) */
@@ -1162,12 +1171,22 @@ section {
 @media (min-width: 769px) and (max-width: 1024px) {
     .modal-overlay {
         padding: 15px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .modal-overlay.show {
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
 
     .modal-content {
         width: 90%;
         max-width: 450px;
         max-height: 85vh;
+        margin: 0 auto;
     }
 
     .modal-body img {

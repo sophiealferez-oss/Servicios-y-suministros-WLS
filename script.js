@@ -305,18 +305,11 @@ function updateIndicators() {
         });
 
         currentSlide = mostVisibleIndex;
+    }
 
-        // Activate mobile indicator
-        const mobileIndicators = document.querySelectorAll('.indicator-mobile');
-        if (mobileIndicators[currentSlide]) {
-            mobileIndicators[currentSlide].classList.add('active');
-        }
-    } else {
-        // Tablet/Desktop: activate indicator based on position (0 or 1)
-        const desktopIndicators = document.querySelectorAll('.indicator-desktop');
-        if (desktopIndicators[currentSlide]) {
-            desktopIndicators[currentSlide].classList.add('active');
-        }
+    // Activate the indicator for the current slide (all devices)
+    if (indicators[currentSlide]) {
+        indicators[currentSlide].classList.add('active');
     }
 }
 
@@ -331,9 +324,8 @@ function goToSlide(slideIndex) {
             updateCarousel();
         }
     } else {
-        // Tablet/Desktop: only 2 positions (0 and 1)
-        const maxPosition = getMaxSlideIndex();
-        if (slideIndex <= maxPosition) {
+        // Tablet/Desktop: can go to any of the 4 slides (scroll to show the selected one)
+        if (slideIndex < carouselSlides.length) {
             currentSlide = slideIndex;
             updateCarousel();
         }
@@ -373,11 +365,21 @@ function prevSlide() {
 }
 
 // Touch events for mobile and tablet
+let clickTimeout = null;
+let isClick = true;
+
 function handleTouchStart(event) {
     if (window.innerWidth > 1024) return;
 
     touchStartX = event.changedTouches[0].clientX;
     isDragging = false;
+    isClick = true;
+    
+    // Set a timeout to detect if this is a long press or just a tap
+    clickTimeout = setTimeout(() => {
+        isClick = false;
+    }, 200);
+    
     event.preventDefault();
 }
 
@@ -390,6 +392,10 @@ function handleTouchMove(event) {
 
     if (Math.abs(diffX) > 10) {
         isDragging = true;
+        isClick = false;
+        if (clickTimeout) {
+            clearTimeout(clickTimeout);
+        }
         event.preventDefault();
     }
 }
@@ -397,10 +403,15 @@ function handleTouchMove(event) {
 function handleTouchEnd(event) {
     if (window.innerWidth > 1024) return;
 
+    if (clickTimeout) {
+        clearTimeout(clickTimeout);
+    }
+
     touchEndX = event.changedTouches[0].clientX;
     const diffX = touchStartX - touchEndX;
     const minSwipeDistance = 30;
 
+    // Only trigger swipe if it's not a click
     if (Math.abs(diffX) > minSwipeDistance && isDragging) {
         if (diffX > 0) {
             nextSlide();
@@ -410,6 +421,7 @@ function handleTouchEnd(event) {
     }
 
     isDragging = false;
+    isClick = false;
 }
 
 // Mouse drag events for desktop
@@ -526,11 +538,49 @@ function initApp() {
     // Gallery items click handlers - show machine details
     const allGalleryItems = document.querySelectorAll('.gallery-item');
     if (allGalleryItems) {
+        let galleryTouchStartTime = 0;
+        const galleryTouchThreshold = 200; // ms
+        const galleryMoveThreshold = 10; // pixels
+
         allGalleryItems.forEach(item => {
-            item.addEventListener('click', () => {
+            // Desktop click
+            item.addEventListener('click', (e) => {
                 const machineName = item.getAttribute('data-machine') || item.querySelector('h3').textContent;
                 showMachineDetails(machineName);
             });
+
+            // Mobile/Tablet touch handling
+            let touchStartX = 0;
+            let touchStartY = 0;
+            let hasMoved = false;
+
+            item.addEventListener('touchstart', (e) => {
+                touchStartX = e.changedTouches[0].clientX;
+                touchStartY = e.changedTouches[0].clientY;
+                galleryTouchStartTime = Date.now();
+                hasMoved = false;
+            }, { passive: true });
+
+            item.addEventListener('touchmove', (e) => {
+                const touchEndX = e.changedTouches[0].clientX;
+                const touchEndY = e.changedTouches[0].clientY;
+                const diffX = Math.abs(touchEndX - touchStartX);
+                const diffY = Math.abs(touchEndY - touchStartY);
+
+                if (diffX > galleryMoveThreshold || diffY > galleryMoveThreshold) {
+                    hasMoved = true;
+                }
+            }, { passive: true });
+
+            item.addEventListener('touchend', (e) => {
+                const touchDuration = Date.now() - galleryTouchStartTime;
+
+                // Only trigger click if it was a short tap without significant movement
+                if (!hasMoved && touchDuration < galleryTouchThreshold) {
+                    const machineName = item.getAttribute('data-machine') || item.querySelector('h3').textContent;
+                    showMachineDetails(machineName);
+                }
+            }, { passive: true });
         });
     }
 
