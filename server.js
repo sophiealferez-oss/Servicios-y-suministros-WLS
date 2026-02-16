@@ -23,10 +23,12 @@ connectDB()
 // Import routes
 const authRoutes = require('./routes/auth');
 const quotationRoutes = require('./routes/quotation');
+const contactRoutes = require('./routes/contact');
 
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/quotation', quotationRoutes);
+app.use('/api/contact', contactRoutes);
 
 // Basic route
 app.get('/', (req, res) => {

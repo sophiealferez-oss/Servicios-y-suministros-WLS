@@ -3,6 +3,12 @@
  * Implements hamburger menu, smooth scrolling, form validation, and machine details
  */
 
+// API Base URL
+const API_URL = 'http://localhost:3000/api';
+
+// Auth state
+let currentUser = null;
+
 // EmailJS Configuration
 (function() {
     emailjs.init("MXUf6SrJdCruo3eHu"); // Tu Public Key real de EmailJS
@@ -18,6 +24,16 @@ const closeModal = document.querySelector('.close-modal');
 const modalImage = document.getElementById('modalImage');
 const modalTitle = document.getElementById('modalTitle');
 const modalFeatures = document.getElementById('modalFeatures');
+
+// Auth Modal Elements
+const loginModal = document.getElementById('loginModal');
+const registerModal = document.getElementById('registerModal');
+const loginForm = document.getElementById('loginForm');
+const registerForm = document.getElementById('registerForm');
+const showRegisterLink = document.getElementById('showRegister');
+const showLoginLink = document.getElementById('showLogin');
+const closeAuthModal = document.querySelectorAll('.close-auth-modal');
+const authButtonsContainer = document.getElementById('authButtons');
 
 // Carousel Elements (will be defined in initApp after DOM loads)
 let carouselTrack, carouselSlides, prevBtn, nextBtn, indicators, galleryItems;
@@ -103,6 +119,28 @@ async function handleFormSubmit(event) {
 
         console.log('Sending email with parameters:', templateParams);
 
+        // Step 1: Save contact to database (for all users)
+        try {
+            await fetch(`${API_URL}/contact`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    name,
+                    email,
+                    phone,
+                    machine,
+                    message
+                })
+            });
+            console.log('Contact saved to database');
+        } catch (dbError) {
+            console.error('Error saving contact to DB:', dbError);
+            // Continue with email sending even if DB save fails
+        }
+
+        // Step 2: Send email via EmailJS
         const response = await emailjs.send(
             'service_x3ze2tv',
             'template_wls_contact_new',
@@ -166,6 +204,215 @@ function setupIntersectionObserver() {
     document.querySelectorAll('.fade-in').forEach(el => {
         observer.observe(el);
     });
+}
+
+// ==================== AUTHENTICATION FUNCTIONS ====================
+
+// Check if user is logged in on page load
+function checkAuthStatus() {
+    const token = localStorage.getItem('authToken');
+    const user = localStorage.getItem('currentUser');
+
+    if (token && user) {
+        currentUser = JSON.parse(user);
+        updateAuthUI(true);
+    } else {
+        updateAuthUI(false);
+    }
+}
+
+// Update UI based on auth status
+function updateAuthUI(isLoggedIn) {
+    if (!authButtonsContainer) return;
+
+    if (isLoggedIn && currentUser) {
+        authButtonsContainer.innerHTML = `
+            <div class="user-info">
+                <span class="user-name">👤 ${currentUser.username}</span>
+                <button class="btn btn-logout" id="logoutBtn">Cerrar Sesión</button>
+            </div>
+        `;
+
+        const logoutBtn = document.getElementById('logoutBtn');
+        if (logoutBtn) {
+            logoutBtn.addEventListener('click', handleLogout);
+        }
+    } else {
+        authButtonsContainer.innerHTML = `
+            <button class="btn btn-auth" id="loginBtnNav">Iniciar Sesión</button>
+            <button class="btn btn-auth btn-register" id="registerBtnNav">Registrarse</button>
+        `;
+
+        const loginBtnNav = document.getElementById('loginBtnNav');
+        const registerBtnNav = document.getElementById('registerBtnNav');
+
+        if (loginBtnNav) {
+            loginBtnNav.addEventListener('click', (e) => {
+                e.preventDefault();
+                openLoginModal();
+            });
+        }
+
+        if (registerBtnNav) {
+            registerBtnNav.addEventListener('click', (e) => {
+                e.preventDefault();
+                openRegisterModal();
+            });
+        }
+    }
+}
+
+// Login function
+async function handleLogin(event) {
+    event.preventDefault();
+
+    const email = document.getElementById('loginEmail').value.trim();
+    const password = document.getElementById('loginPassword').value;
+
+    if (!email || !password) {
+        alert('Por favor completa todos los campos');
+        return;
+    }
+
+    const submitButton = loginForm.querySelector('button[type="submit"]');
+    const originalButtonText = submitButton.textContent;
+    submitButton.textContent = 'Ingresando...';
+    submitButton.disabled = true;
+
+    try {
+        const response = await fetch(`${API_URL}/auth/login`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ email, password })
+        });
+
+        const data = await response.json();
+
+        if (response.ok && data.success) {
+            localStorage.setItem('authToken', data.token);
+            localStorage.setItem('currentUser', JSON.stringify(data.user));
+            currentUser = data.user;
+
+            alert('¡Bienvenido! Has iniciado sesión correctamente.');
+            closeLoginModal();
+            loginForm.reset();
+            updateAuthUI(true);
+        } else {
+            alert(data.message || 'Error al iniciar sesión');
+        }
+    } catch (error) {
+        console.error('Login error:', error);
+        alert('Error de conexión. Verifica que el servidor esté ejecutándose.');
+    } finally {
+        submitButton.textContent = originalButtonText;
+        submitButton.disabled = false;
+    }
+}
+
+// Register function
+async function handleRegister(event) {
+    event.preventDefault();
+
+    const username = document.getElementById('registerUsername').value.trim();
+    const email = document.getElementById('registerEmail').value.trim();
+    const password = document.getElementById('registerPassword').value;
+
+    if (!username || !email || !password) {
+        alert('Por favor completa todos los campos');
+        return;
+    }
+
+    if (username.length < 3) {
+        alert('El nombre de usuario debe tener al menos 3 caracteres');
+        return;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+        alert('Por favor ingresa un email válido');
+        return;
+    }
+
+    if (password.length < 6) {
+        alert('La contraseña debe tener al menos 6 caracteres');
+        return;
+    }
+
+    const submitButton = registerForm.querySelector('button[type="submit"]');
+    const originalButtonText = submitButton.textContent;
+    submitButton.textContent = 'Registrando...';
+    submitButton.disabled = true;
+
+    try {
+        const response = await fetch(`${API_URL}/auth/register`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ username, email, password })
+        });
+
+        const data = await response.json();
+
+        if (response.ok && data.success) {
+            localStorage.setItem('authToken', data.token);
+            localStorage.setItem('currentUser', JSON.stringify(data.user));
+            currentUser = data.user;
+
+            alert('¡Cuenta creada exitosamente! Bienvenido.');
+            closeRegisterModal();
+            registerForm.reset();
+            updateAuthUI(true);
+        } else {
+            alert(data.message || 'Error al crear la cuenta');
+        }
+    } catch (error) {
+        console.error('Register error:', error);
+        alert('Error de conexión. Verifica que el servidor esté ejecutándose.');
+    } finally {
+        submitButton.textContent = originalButtonText;
+        submitButton.disabled = false;
+    }
+}
+
+// Logout function
+function handleLogout() {
+    localStorage.removeItem('authToken');
+    localStorage.removeItem('currentUser');
+    currentUser = null;
+    updateAuthUI(false);
+    alert('Has cerrado sesión correctamente.');
+}
+
+// Modal functions
+function openLoginModal() {
+    if (loginModal) {
+        loginModal.classList.add('show');
+        document.body.style.overflow = 'hidden';
+    }
+}
+
+function closeLoginModal() {
+    if (loginModal) {
+        loginModal.classList.remove('show');
+        document.body.style.overflow = 'auto';
+    }
+}
+
+function openRegisterModal() {
+    if (registerModal) {
+        registerModal.classList.add('show');
+        document.body.style.overflow = 'hidden';
+    }
+}
+
+function closeRegisterModal() {
+    if (registerModal) {
+        registerModal.classList.remove('show');
+        document.body.style.overflow = 'auto';
+    }
 }
 
 // Machine data
@@ -498,6 +745,60 @@ function initApp() {
     if (contactForm) {
         contactForm.addEventListener('submit', handleFormSubmit);
     }
+
+    // Auth form submissions
+    if (loginForm) {
+        loginForm.addEventListener('submit', handleLogin);
+    }
+
+    if (registerForm) {
+        registerForm.addEventListener('submit', handleRegister);
+    }
+
+    // Show/hide auth modals
+    if (showRegisterLink) {
+        showRegisterLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            closeLoginModal();
+            openRegisterModal();
+        });
+    }
+
+    if (showLoginLink) {
+        showLoginLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            closeRegisterModal();
+            openLoginModal();
+        });
+    }
+
+    // Close auth modals
+    closeAuthModal.forEach(btn => {
+        btn.addEventListener('click', () => {
+            closeLoginModal();
+            closeRegisterModal();
+        });
+    });
+
+    // Close auth modals when clicking outside
+    if (loginModal) {
+        loginModal.addEventListener('click', (e) => {
+            if (e.target === loginModal) {
+                closeLoginModal();
+            }
+        });
+    }
+
+    if (registerModal) {
+        registerModal.addEventListener('click', (e) => {
+            if (e.target === registerModal) {
+                closeRegisterModal();
+            }
+        });
+    }
+
+    // Check auth status on page load
+    checkAuthStatus();
 
     // Intersection Observer
     setupIntersectionObserver();

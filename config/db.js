@@ -7,31 +7,41 @@ dotenv.config();
 // In-memory storage for testing without MongoDB
 let users = [];
 let quotations = [];
+let contacts = [];
 
 class InMemoryDB {
   static async connect() {
     console.log('Using in-memory database for development');
-    return { users, quotations };
+    return { users, quotations, contacts };
   }
-  
+
   static getUsers() {
     return users;
   }
-  
+
   static getQuotations() {
     return quotations;
   }
-  
+
+  static getContacts() {
+    return contacts;
+  }
+
   static addUser(user) {
     users.push(user);
     return user;
   }
-  
+
   static addQuotation(quotation) {
     quotations.push(quotation);
     return quotation;
   }
-  
+
+  static addContact(contact) {
+    contacts.push(contact);
+    return contact;
+  }
+
   static findUser(query) {
     return users.find(u => {
       for (let key in query) {
@@ -40,14 +50,15 @@ class InMemoryDB {
       return true;
     });
   }
-  
+
   static findQuotationsByUserId(userId) {
     return quotations.filter(q => q.user === userId || q.user._id === userId);
   }
-  
+
   static clear() {
     users = [];
     quotations = [];
+    contacts = [];
   }
 }
 
