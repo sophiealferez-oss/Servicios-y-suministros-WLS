@@ -294,6 +294,7 @@ section {
     flex-direction: column;
     width: 350px;
     height: 400px;
+    flex-shrink: 0; /* Prevent shrinking */
 }
 
 .gallery-item img {
@@ -301,6 +302,7 @@ section {
     height: 250px;
     object-fit: cover;
     display: block;
+    background-color: #f0f0f0; /* Fallback color while loading */
 }
 
 .gallery-item h3 {
@@ -318,6 +320,7 @@ section {
     overflow-wrap: break-word; /* Break long words if needed */
     line-height: 1.4; /* Improve text readability */
     width: 100%; /* Ensure full width for proper centering */
+    min-height: 80px; /* Ensure consistent height for text area */
 }
 
 .gallery-item:hover {
@@ -435,6 +438,7 @@ section {
         justify-content: center;
         box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
         transition: transform 0.3s ease;
+        flex-shrink: 0; /* Prevent shrinking */
     }
 
     .gallery-item img {
@@ -443,6 +447,7 @@ section {
         width: 100%;
         display: block;
         margin: 0 auto; /* Center the image */
+        background-color: #f0f0f0; /* Fallback color while loading */
     }
 
     .gallery-item h3 {
@@ -456,6 +461,7 @@ section {
         background-color: #f5f5f5;
         color: #333;
         width: 100%; /* Ensure full width for proper centering */
+        min-height: 80px; /* Ensure consistent height for text area */
     }
 
     /* Hide navigation buttons on mobile - only show on desktop */
@@ -541,6 +547,11 @@ section {
         justify-content: center;
         box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
         transition: transform 0.3s ease;
+        flex-shrink: 0; /* Prevent shrinking */
+        /* Asegurar que cada tarjeta esté centrada en su espacio */
+        position: relative;
+        left: auto;
+        transform: none;
     }
 
     .gallery-item img {
@@ -549,6 +560,7 @@ section {
         width: 100%;
         display: block;
         margin: 0 auto; /* Center the image */
+        background-color: #f0f0f0; /* Fallback color while loading */
     }
 
     .gallery-item h3 {
@@ -562,6 +574,7 @@ section {
         background-color: #f5f5f5;
         color: #333;
         width: 100%; /* Ensure full width for proper centering */
+        min-height: 80px; /* Ensure consistent height for text area */
     }
 
     /* Hide navigation buttons on tablets - only show on desktop */
@@ -639,6 +652,11 @@ section {
         justify-content: center;
         box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
         transition: transform 0.3s ease;
+        flex-shrink: 0; /* Prevent shrinking */
+        /* Asegurar que cada tarjeta esté centrada en su espacio */
+        position: relative;
+        left: auto;
+        transform: none;
     }
 
     .gallery-item img {
@@ -647,6 +665,7 @@ section {
         width: 100%;
         display: block;
         margin: 0 auto; /* Center the image */
+        background-color: #f0f0f0; /* Fallback color while loading */
     }
 
     .gallery-item h3 {
@@ -660,6 +679,7 @@ section {
         background-color: #f5f5f5;
         color: #333;
         width: 100%; /* Ensure full width for proper centering */
+        min-height: 80px; /* Ensure consistent height for text area */
     }
 
     /* Show navigation buttons on desktop */
@@ -1035,23 +1055,25 @@ section {
     justify-content: center;
 }
 
+.modal-overlay.show {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
 .modal-content {
     position: relative;
     background-color: white;
-    margin: 0 auto;
     padding: 0;
     border-radius: 8px;
-    width: 80%;
-    max-width: 800px;
+    width: 90%;
+    max-width: 500px; /* Reducido de 800px a 500px para hacerlo más compacto */
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
     animation: modalFadeIn 0.3s ease-out;
-    /* Ensure modal is centered vertically and horizontally */
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
     /* Additional centering for better alignment */
     display: flex;
     flex-direction: column;
+    /* Eliminar transformaciones que podrían interferir con el centrado */
 }
 
 @keyframes modalFadeIn {
@@ -1085,21 +1107,23 @@ section {
 
 .modal-body img {
     width: 100%;
+    max-width: 300px; /* Limitar el ancho máximo de la imagen */
     height: auto;
     border-top-left-radius: 8px;
     border-top-right-radius: 8px;
+    margin: 0 auto; /* Centrar la imagen */
 }
 
 .modal-text {
-    padding: 25px;
+    padding: 20px;
     width: 100%;
     text-align: center; /* Ensure text is centered */
 }
 
 .modal-text h2 {
     color: #0066cc;
-    margin-bottom: 20px;
-    font-size: 1.8rem;
+    margin-bottom: 15px;
+    font-size: 1.5rem; /* Reducido de 1.8rem a 1.5rem */
 }
 
 .modal-text ul {
@@ -1108,11 +1132,11 @@ section {
 }
 
 .modal-text ul li {
-    padding: 8px 0;
-    font-size: 1.1rem;
+    padding: 6px 0;
+    font-size: 1rem; /* Reducido de 1.1rem a 1rem */
     color: #333;
     position: relative;
-    padding-left: 25px;
+    padding-left: 20px; /* Reducido de 25px a 20px */
 }
 
 .modal-text ul li:before {
@@ -1267,6 +1291,11 @@ section {
         justify-content: center;
         box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
         transition: transform 0.3s ease;
+        flex-shrink: 0; /* Prevent shrinking */
+        /* Asegurar que cada tarjeta esté centrada en su espacio */
+        position: relative;
+        left: auto;
+        transform: none;
     }
 
     .gallery-item img {
@@ -1275,6 +1304,7 @@ section {
         width: 100%;
         display: block;
         margin: 0 auto; /* Center the image */
+        background-color: #f0f0f0; /* Fallback color while loading */
     }
 
     .gallery-item h3 {
@@ -1288,6 +1318,7 @@ section {
         background-color: #f5f5f5;
         color: #333;
         width: 100%; /* Ensure full width for proper centering */
+        min-height: 80px; /* Ensure consistent height for text area */
     }
 
     /* Hide navigation buttons on tablets - only show on desktop */
@@ -1479,42 +1510,48 @@ section {
 
     .modal-body img {
         width: 100%;
+        max-width: 250px; /* Más pequeño en móviles */
         height: auto;
         border-top-right-radius: 8px;
+        margin: 0 auto; /* Centrar la imagen */
     }
 
     .modal-text {
         width: 100%;
-        padding: 20px;
+        padding: 15px;
         text-align: center; /* Ensure text remains centered on mobile */
     }
-    
+
     .modal-content {
-        width: 95%;
+        width: 90%;
         margin: 20px auto;
         max-height: 80vh;
         overflow-y: auto;
     }
 }
 
+/* Tablet and desktop modal styles - keeping content centered */
 @media (min-width: 769px) {
     .modal-body {
-        flex-direction: row;
-        align-items: flex-start; /* Align items at the start for row layout */
-        text-align: left; /* Left-align text for desktop */
+        flex-direction: column; /* Change to column layout to keep content centered */
+        align-items: center; /* Center content */
+        text-align: center; /* Center text */
     }
 
     .modal-body img {
-        width: 40%;
+        width: 100%;
+        max-width: 250px; /* Más pequeño y consistente en todos los dispositivos */
         height: auto;
-        border-top-right-radius: 0;
-        border-bottom-left-radius: 8px;
+        border-top-right-radius: 8px;
+        border-top-left-radius: 8px;
+        margin: 0 auto; /* Centrar la imagen */
     }
 
     .modal-text {
-        width: 60%;
-        padding: 30px;
-        text-align: left; /* Left-align text for desktop */
+        width: 100%;
+        max-width: 400px; /* Más pequeño para mejor legibilidad */
+        padding: 20px;
+        text-align: center; /* Center text */
     }
 }
 
@@ -1532,6 +1569,7 @@ section {
         left: 0;
         transform: none;
         margin: 40px auto; /* Add some margin from top and bottom on tablets */
-        width: 85%;
+        width: 90%;
+        max-width: 450px; /* Limitar el ancho máximo en tabletas */
     }
 }

@@ -319,7 +319,7 @@ function updateCarousel() {
             // Calculate the visible container width (the wrapper)
             const containerWidth = document.querySelector('.carousel-wrapper').offsetWidth;
             const translateXValue = -currentSlide * containerWidth;
-            
+
             // Apply the transform to move the track
             carouselTrack.style.transform = `translateX(${translateXValue}px)`;
         }
@@ -782,37 +782,6 @@ function initApp() {
                 }
             });
         }
-    }
-
-    // Auto-advance carousel every 5 seconds (with reference stored to clear later if needed)
-    // Only enable auto-advance on desktop devices, not on mobile or tablets
-    // Disable auto-rotation on devices with touch capabilities (tablets and mobile)
-    const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
-    if (carouselSlides && carouselSlides.length > 1 && window.innerWidth > 768 && !isTouchDevice) {
-        window.carouselInterval = setInterval(nextSlide, 5000);
-
-        // Pause auto-advance when user interacts with carousel
-        const carouselElements = [prevBtn, nextBtn, carouselTrack];
-        if (indicators) {
-            carouselElements.push(...indicators);
-        }
-
-        carouselElements.forEach(element => {
-            if (element) {
-                element.addEventListener('mouseenter', () => {
-                    if (window.carouselInterval) {
-                        clearInterval(window.carouselInterval);
-                    }
-                });
-
-                element.addEventListener('mouseleave', () => {
-                    const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
-                    if (carouselSlides && carouselSlides.length > 1 && window.innerWidth > 768 && !isTouchDevice) {
-                        window.carouselInterval = setInterval(nextSlide, 5000);
-                    }
-                });
-            }
-        });
     }
 
     // Ensure carousel starts at first slide
