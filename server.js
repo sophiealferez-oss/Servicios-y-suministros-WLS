@@ -1,5 +1,6 @@
 const express = require('express');
 const cors = require('cors');
+const path = require('path');
 const dotenv = require('dotenv');
 const { connectDB } = require('./config/db');
 
@@ -9,6 +10,9 @@ const app = express();
 
 app.use(cors());
 app.use(express.json());
+
+// Serve static files from the root directory
+app.use(express.static(path.join(__dirname)));
 
 connectDB()
   .then(() => console.log('Database connected'))
@@ -22,8 +26,9 @@ app.use('/api/auth', authRoutes);
 app.use('/api/quotation', quotationRoutes);
 app.use('/api/contact', contactRoutes);
 
+// Serve index.html for the root route
 app.get('/', (req, res) => {
-  res.send('Machinery Rental API is running!');
+  res.sendFile(path.join(__dirname, 'index.html'));
 });
 
 const PORT = process.env.PORT || 3000;
