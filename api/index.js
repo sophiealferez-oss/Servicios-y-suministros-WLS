@@ -8,16 +8,30 @@ let models = null;
 
 async function getDB() {
   if (models) return { db: sequelize, models };
-  
+
   if (!process.env.DATABASE_URL) {
     throw new Error('DATABASE_URL not configured');
   }
-  
+
   sequelize = new Sequelize(process.env.DATABASE_URL, {
     dialect: 'postgres',
-    logging: false
+    logging: false,
+    // Neon requiere SSL
+    dialectOptions: {
+      ssl: {
+        require: true,
+        rejectUnauthorized: false
+      }
+    },
+    // Pool optimizado para serverless
+    pool: {
+      max: 1,
+      min: 0,
+      acquire: 30000,
+      idle: 10000
+    }
   });
-  
+
   await sequelize.authenticate();
   await sequelize.sync({ alter: false });
   console.log('✅ DB connected');
