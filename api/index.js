@@ -23,53 +23,75 @@ app.use(cors({
 app.use(express.json());
 
 // Initialize database connection
-const sequelize = new Sequelize(process.env.DATABASE_URL, {
-  dialect: 'postgres',
-  logging: false,
-  pool: {
-    max: 5,
-    min: 0,
-    acquire: 30000,
-    idle: 10000
-  }
-});
-
-// Connect and sync before handling requests
+let sequelize = null;
 let dbReady = false;
 
-sequelize.authenticate()
-  .then(() => {
-    console.log('Database connection established successfully.');
-    return sequelize.sync({ alter: false });
-  })
-  .then(() => {
-    console.log('Database models synchronized.');
-    dbReady = true;
-  })
-  .catch(err => {
-    console.error('Unable to connect to the database:', err);
+function initDB() {
+  if (sequelize) return Promise.resolve();
+  
+  sequelize = new Sequelize(process.env.DATABASE_URL, {
+    dialect: 'postgres',
+    logging: false,
+    pool: {
+      max: 5,
+      min: 0,
+      acquire: 30000,
+      idle: 10000
+    }
   });
 
-// Middleware to check if DB is ready
-app.use((req, res, next) => {
-  if (!dbReady && req.path !== '/health') {
-    return res.status(503).json({
-      success: false,
-      message: 'Database is initializing, please try again in a few seconds'
+  return sequelize.authenticate()
+    .then(() => {
+      console.log('Database connection established successfully.');
+      return sequelize.sync({ alter: false });
+    })
+    .then(() => {
+      console.log('Database models synchronized.');
+      dbReady = true;
+    })
+    .catch(err => {
+      console.error('Unable to connect to the database:', err);
+      throw err;
     });
-  }
-  next();
-});
+}
 
 // Health check endpoint
-app.get('/health', (req, res) => {
-  res.json({ status: 'ok', dbReady });
+app.get('/health', async (req, res) => {
+  try {
+    await initDB();
+    res.json({ status: 'ok', dbReady });
+  } catch (err) {
+    res.status(500).json({ status: 'error', message: err.message });
+  }
 });
 
-// Routes
-app.use('/api/auth', authRoutes);
-app.use('/api/quotation', quotationRoutes);
-app.use('/api/contact', contactRoutes);
+// Routes - Initialize DB before handling requests
+app.use('/api/auth', async (req, res, next) => {
+  try {
+    await initDB();
+    next();
+  } catch (err) {
+    res.status(500).json({ success: false, message: 'Database connection error' });
+  }
+}, authRoutes);
+
+app.use('/api/quotation', async (req, res, next) => {
+  try {
+    await initDB();
+    next();
+  } catch (err) {
+    res.status(500).json({ success: false, message: 'Database connection error' });
+  }
+}, quotationRoutes);
+
+app.use('/api/contact', async (req, res, next) => {
+  try {
+    await initDB();
+    next();
+  } catch (err) {
+    res.status(500).json({ success: false, message: 'Database connection error' });
+  }
+}, contactRoutes);
 
 // Vercel serverless function export
 module.exports = app;
