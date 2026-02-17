@@ -1,5 +1,23 @@
 const { DataTypes } = require('sequelize');
-const { sequelize } = require('../config/database');
+
+// Get sequelize instance from process or create one
+let sequelize;
+
+if (typeof window === 'undefined') {
+  // Server-side (Node.js)
+  const dbModule = require('../config/database');
+  sequelize = dbModule.sequelize;
+  
+  // If sequelize is not initialized (Vercel), create one
+  if (!sequelize) {
+    const { Sequelize } = require('sequelize');
+    sequelize = new Sequelize(process.env.DATABASE_URL, {
+      dialect: 'postgres',
+      logging: false
+    });
+  }
+}
+
 const User = require('./User');
 
 const Quotation = sequelize.define('Quotation', {
