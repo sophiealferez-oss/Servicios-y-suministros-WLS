@@ -26,33 +26,32 @@ app.use(express.json());
 let sequelize = null;
 let dbReady = false;
 
-function initDB() {
-  if (sequelize) return Promise.resolve();
+async function initDB() {
+  if (dbReady) return Promise.resolve();
   
-  sequelize = new Sequelize(process.env.DATABASE_URL, {
-    dialect: 'postgres',
-    logging: false,
-    pool: {
-      max: 5,
-      min: 0,
-      acquire: 30000,
-      idle: 10000
-    }
-  });
-
-  return sequelize.authenticate()
-    .then(() => {
-      console.log('Database connection established successfully.');
-      return sequelize.sync({ alter: false });
-    })
-    .then(() => {
-      console.log('Database models synchronized.');
-      dbReady = true;
-    })
-    .catch(err => {
-      console.error('Unable to connect to the database:', err);
-      throw err;
+  if (!sequelize) {
+    sequelize = new Sequelize(process.env.DATABASE_URL, {
+      dialect: 'postgres',
+      logging: false,
+      pool: {
+        max: 5,
+        min: 0,
+        acquire: 30000,
+        idle: 10000
+      }
     });
+  }
+
+  try {
+    await sequelize.authenticate();
+    console.log('Database connection established successfully.');
+    await sequelize.sync({ alter: false });
+    console.log('Database models synchronized.');
+    dbReady = true;
+  } catch (err) {
+    console.error('Unable to connect to the database:', err);
+    throw err;
+  }
 }
 
 // Health check endpoint
@@ -65,33 +64,17 @@ app.get('/health', async (req, res) => {
   }
 });
 
-// Routes - Initialize DB before handling requests
-app.use('/api/auth', async (req, res, next) => {
+// Routes
+app.use('/api/auth', authRoutes);
+app.use('/api/quotation', quotationRoutes);
+app.use('/api/contact', contactRoutes);
+
+// Vercel serverless function handler
+module.exports = async (req, res) => {
   try {
     await initDB();
-    next();
   } catch (err) {
-    res.status(500).json({ success: false, message: 'Database connection error' });
+    console.error('DB init error:', err);
   }
-}, authRoutes);
-
-app.use('/api/quotation', async (req, res, next) => {
-  try {
-    await initDB();
-    next();
-  } catch (err) {
-    res.status(500).json({ success: false, message: 'Database connection error' });
-  }
-}, quotationRoutes);
-
-app.use('/api/contact', async (req, res, next) => {
-  try {
-    await initDB();
-    next();
-  } catch (err) {
-    res.status(500).json({ success: false, message: 'Database connection error' });
-  }
-}, contactRoutes);
-
-// Vercel serverless function export
-module.exports = app;
+  return app(req, res);
+};
