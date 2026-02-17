@@ -64,10 +64,15 @@ app.get('/health', async (req, res) => {
   }
 });
 
-// Routes
-app.use('/api/auth', authRoutes);
-app.use('/api/quotation', quotationRoutes);
-app.use('/api/contact', contactRoutes);
+// Routes - Note: paths are relative to /api/
+app.use('/auth', authRoutes);
+app.use('/quotation', quotationRoutes);
+app.use('/contact', contactRoutes);
+
+// Root endpoint
+app.get('/', (req, res) => {
+  res.json({ message: 'API is running', dbReady });
+});
 
 // Vercel serverless function handler
 module.exports = async (req, res) => {
