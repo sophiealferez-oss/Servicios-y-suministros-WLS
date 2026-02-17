@@ -30,7 +30,7 @@ async function getDB() {
       email: { type: DataTypes.STRING, allowNull: false, unique: true, lowercase: true },
       password: { type: DataTypes.STRING, allowNull: false }
     }, { timestamps: true }),
-    
+
     Contact: sequelize.define('Contact', {
       id: { type: DataTypes.UUID, defaultValue: DataTypes.UUIDV4, primaryKey: true },
       name: { type: DataTypes.STRING, allowNull: false },
@@ -38,8 +38,22 @@ async function getDB() {
       phone: { type: DataTypes.STRING },
       machine: { type: DataTypes.STRING },
       message: { type: DataTypes.TEXT }
-    }, { timestamps: true, tableName: 'contacts' })
+    }, { timestamps: true, tableName: 'contacts' }),
+
+    Quotation: sequelize.define('Quotation', {
+      id: { type: DataTypes.UUID, defaultValue: DataTypes.UUIDV4, primaryKey: true },
+      userId: { type: DataTypes.UUID, allowNull: false, field: 'user_id' },
+      equipment: { type: DataTypes.STRING, allowNull: false },
+      days: { type: DataTypes.INTEGER, allowNull: false, validate: { min: 1 } },
+      quantity: { type: DataTypes.INTEGER, allowNull: false, validate: { min: 1 } },
+      totalAmount: { type: DataTypes.DECIMAL(10, 2), allowNull: false, validate: { min: 0 } },
+      contactInfo: { type: DataTypes.JSONB, defaultValue: {} }
+    }, { timestamps: true, tableName: 'quotations' })
   };
+
+  // Define associations
+  models.Quotation.belongsTo(models.User, { foreignKey: 'userId', as: 'user' });
+  models.User.hasMany(models.Quotation, { foreignKey: 'userId', as: 'quotations' });
   
   return { db: sequelize, models };
 }
@@ -162,16 +176,84 @@ module.exports = async (req, res) => {
         try {
           const { name, email, phone, machine, message } = JSON.parse(body);
           const { models } = await getDB();
-          
+
           if (!name || !email) {
             return sendJSON(res, 400, { success: false, message: 'Name and email required' });
           }
-          
+
           const newContact = await models.Contact.create({ name, email, phone: phone || '', machine: machine || '', message: message || '' });
-          
+
           return sendJSON(res, 201, { success: true, contact: newContact });
         } catch (err) {
           console.error('Contact error:', err);
+          return sendJSON(res, 500, { success: false, message: err.message });
+        }
+      });
+      return;
+    }
+
+    // Get quotations (protected)
+    if (path === '/quotation' && req.method === 'GET') {
+      const authHeader = req.headers['authorization'];
+      const token = authHeader && authHeader.split(' ')[1];
+
+      if (!token) {
+        return sendJSON(res, 401, { success: false, message: 'Access token required' });
+      }
+
+      try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET || 'secret');
+        const { models } = await getDB();
+
+        const quotations = await models.Quotation.findAll({
+          where: { userId: decoded.userId },
+          include: [{ model: models.User, as: 'user', attributes: ['id', 'username', 'email'] }],
+          order: [['createdAt', 'DESC']]
+        });
+
+        return sendJSON(res, 200, { success: true, quotations });
+      } catch (err) {
+        console.error('Get quotations error:', err);
+        return sendJSON(res, 500, { success: false, message: err.message });
+      }
+    }
+
+    // Save quotation (protected)
+    if (path === '/quotation' && req.method === 'POST') {
+      const authHeader = req.headers['authorization'];
+      const token = authHeader && authHeader.split(' ')[1];
+
+      if (!token) {
+        return sendJSON(res, 401, { success: false, message: 'Access token required' });
+      }
+
+      let body = '';
+      req.on('data', chunk => { body += chunk; });
+      req.on('end', async () => {
+        try {
+          const decoded = jwt.verify(token, process.env.JWT_SECRET || 'secret');
+          const { models } = await getDB();
+          const { equipment, days, quantity, totalAmount, contactInfo } = JSON.parse(body);
+
+          if (!equipment || !days || !quantity || !totalAmount) {
+            return sendJSON(res, 400, { success: false, message: 'Missing required fields' });
+          }
+
+          const newQuotation = await models.Quotation.create({
+            userId: decoded.userId,
+            equipment,
+            days,
+            quantity,
+            totalAmount,
+            contactInfo: contactInfo || {}
+          });
+
+          const user = await models.User.findByPk(decoded.userId);
+          newQuotation.user = user;
+
+          return sendJSON(res, 201, { success: true, quotation: newQuotation });
+        } catch (err) {
+          console.error('Save quotation error:', err);
           return sendJSON(res, 500, { success: false, message: err.message });
         }
       });
