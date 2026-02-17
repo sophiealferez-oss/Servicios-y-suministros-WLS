@@ -6,22 +6,82 @@
       "use": "@vercel/node"
     },
     {
-      "src": "**/*.html",
+      "src": "*.html",
       "use": "@vercel/static"
     },
     {
-      "src": "**/*.js",
+      "src": "*.css",
       "use": "@vercel/static"
     },
     {
-      "src": "**/*.css",
+      "src": "*.js",
       "use": "@vercel/static"
+    },
+    {
+      "src": "imagenes_maquinaria/**",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "imaganes maquina/**",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "background/**",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "fondo/**",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "logo/**",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "api/**",
+      "use": "@vercel/node"
+    },
+    {
+      "src": "config/**",
+      "use": "@vercel/node"
+    },
+    {
+      "src": "models/**",
+      "use": "@vercel/node"
+    },
+    {
+      "src": "routes/**",
+      "use": "@vercel/node"
+    },
+    {
+      "src": "middleware/**",
+      "use": "@vercel/node"
     }
   ],
   "routes": [
     {
       "src": "/api/(.*)",
       "dest": "/api/index.js"
+    },
+    {
+      "src": "/imagenes_maquinaria/(.*)",
+      "dest": "/imagenes_maquinaria/$1"
+    },
+    {
+      "src": "/imaganes maquina/(.*)",
+      "dest": "/imaganes maquina/$1"
+    },
+    {
+      "src": "/background/(.*)",
+      "dest": "/background/$1"
+    },
+    {
+      "src": "/fondo/(.*)",
+      "dest": "/fondo/$1"
+    },
+    {
+      "src": "/logo/(.*)",
+      "dest": "/logo/$1"
     },
     {
       "src": "/(.*)",
