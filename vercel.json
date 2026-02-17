@@ -1,6 +1,5 @@
 {
   "version": 2,
-  "installCommand": "npm install",
   "builds": [
     {
       "src": "api/index.js",
@@ -11,26 +10,6 @@
     {
       "src": "/api/(.*)",
       "dest": "/api/index.js"
-    },
-    {
-      "src": "/imagenes_maquinaria/(.*)",
-      "dest": "/imagenes_maquinaria/$1"
-    },
-    {
-      "src": "/imaganes maquina/(.*)",
-      "dest": "/imaganes maquina/$1"
-    },
-    {
-      "src": "/background/(.*)",
-      "dest": "/background/$1"
-    },
-    {
-      "src": "/fondo/(.*)",
-      "dest": "/fondo/$1"
-    },
-    {
-      "src": "/logo/(.*)",
-      "dest": "/logo/$1"
     },
     {
       "src": "/(.*)",
