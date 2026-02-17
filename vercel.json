@@ -1,12 +1,7 @@
 {
-  "outputDirectory": "api",
-  "functions": {
-    "api/**/*.js": {
-      "maxDuration": 10
-    }
-  },
+  "buildCommand": "npm ci --production",
+  "installCommand": "npm install --production",
   "rewrites": [
-    { "source": "/api/(.*)", "destination": "/api/index.js" },
-    { "source": "/(.*)", "destination": "/$1" }
+    { "source": "/api/(.*)", "destination": "/api/index.js" }
   ]
 }
