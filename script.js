@@ -3,8 +3,10 @@
  * Implements hamburger menu, smooth scrolling, form validation, and machine details
  */
 
-// API Base URL
-const API_URL = 'http://localhost:3000/api';
+// API Base URL - Works both locally and on Vercel
+const API_URL = window.location.hostname === 'localhost' 
+  ? 'http://localhost:3000/api' 
+  : '/api';
 
 // Auth state
 let currentUser = null;
