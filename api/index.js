@@ -1,17 +1,13 @@
-const express = require('express');
-const cors = require('cors');
-const { Sequelize, DataTypes } = require('sequelize');
-
-// Create Express app
-const app = express();
-app.use(cors({ origin: true, credentials: true }));
-app.use(express.json());
+const { Sequelize, DataTypes, Op } = require('sequelize');
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 
 // Database connection
 let sequelize = null;
+let models = null;
 
 async function getDB() {
-  if (sequelize) return sequelize;
+  if (sequelize) return { db: sequelize, models };
   
   if (!process.env.DATABASE_URL) {
     throw new Error('DATABASE_URL not configured');
@@ -26,183 +22,177 @@ async function getDB() {
   await sequelize.sync({ alter: false });
   console.log('✅ DB connected');
   
-  return sequelize;
+  // Define models
+  models = {
+    User: sequelize.define('User', {
+      id: { type: DataTypes.UUID, defaultValue: DataTypes.UUIDV4, primaryKey: true },
+      username: { type: DataTypes.STRING, allowNull: false, unique: true },
+      email: { type: DataTypes.STRING, allowNull: false, unique: true, lowercase: true },
+      password: { type: DataTypes.STRING, allowNull: false }
+    }, { timestamps: true }),
+    
+    Contact: sequelize.define('Contact', {
+      id: { type: DataTypes.UUID, defaultValue: DataTypes.UUIDV4, primaryKey: true },
+      name: { type: DataTypes.STRING, allowNull: false },
+      email: { type: DataTypes.STRING, allowNull: false },
+      phone: { type: DataTypes.STRING },
+      machine: { type: DataTypes.STRING },
+      message: { type: DataTypes.TEXT }
+    }, { timestamps: true, tableName: 'contacts' }),
+    
+    Quotation: sequelize.define('Quotation', {
+      id: { type: DataTypes.UUID, defaultValue: DataTypes.UUIDV4, primaryKey: true },
+      userId: { type: DataTypes.UUID, allowNull: false, field: 'user_id' },
+      equipment: { type: DataTypes.STRING, allowNull: false },
+      days: { type: DataTypes.INTEGER, allowNull: false },
+      quantity: { type: DataTypes.INTEGER, allowNull: false },
+      totalAmount: { type: DataTypes.DECIMAL(10, 2), allowNull: false },
+      contactInfo: { type: DataTypes.JSONB, defaultValue: {} }
+    }, { timestamps: true, tableName: 'quotations' })
+  };
+  
+  return { db: sequelize, models };
 }
 
-// Define models inline to avoid import issues
-function defineModels(db) {
-  const User = db.define('User', {
-    id: { type: DataTypes.UUID, defaultValue: DataTypes.UUIDV4, primaryKey: true },
-    username: { type: DataTypes.STRING, allowNull: false, unique: true },
-    email: { type: DataTypes.STRING, allowNull: false, unique: true, lowercase: true },
-    password: { type: DataTypes.STRING, allowNull: false }
-  }, { timestamps: true });
-  
-  const Contact = db.define('Contact', {
-    id: { type: DataTypes.UUID, defaultValue: DataTypes.UUIDV4, primaryKey: true },
-    name: { type: DataTypes.STRING, allowNull: false },
-    email: { type: DataTypes.STRING, allowNull: false },
-    phone: { type: DataTypes.STRING },
-    machine: { type: DataTypes.STRING },
-    message: { type: DataTypes.TEXT }
-  }, { timestamps: true, tableName: 'contacts' });
-  
-  const Quotation = db.define('Quotation', {
-    id: { type: DataTypes.UUID, defaultValue: DataTypes.UUIDV4, primaryKey: true },
-    userId: { type: DataTypes.UUID, allowNull: false, field: 'user_id' },
-    equipment: { type: DataTypes.STRING, allowNull: false },
-    days: { type: DataTypes.INTEGER, allowNull: false },
-    quantity: { type: DataTypes.INTEGER, allowNull: false },
-    totalAmount: { type: DataTypes.DECIMAL(10, 2), allowNull: false },
-    contactInfo: { type: DataTypes.JSONB, defaultValue: {} }
-  }, { timestamps: true, tableName: 'quotations' });
-  
-  return { User, Contact, Quotation };
+// Helper function to send JSON response
+function sendJSON(res, statusCode, data) {
+  res.setHeader('Content-Type', 'application/json');
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  res.statusCode = statusCode;
+  res.end(JSON.stringify(data));
 }
 
-// Test endpoint
-app.get('/test', (req, res) => {
-  res.json({ 
-    message: 'API is working!',
-    hasDatabaseUrl: !!process.env.DATABASE_URL,
-    nodeEnv: process.env.NODE_ENV
-  });
-});
-
-// Health endpoint
-app.get('/health', async (req, res) => {
-  try {
-    const db = await getDB();
-    res.json({ status: 'ok', hasDatabaseUrl: !!process.env.DATABASE_URL });
-  } catch (err) {
-    res.status(500).json({ status: 'error', message: err.message, hasDatabaseUrl: !!process.env.DATABASE_URL });
-  }
-});
-
-// Auth routes
-app.post('/auth/register', async (req, res) => {
-  try {
-    const db = await getDB();
-    const { User } = defineModels(db);
-    const bcrypt = require('bcryptjs');
-    const jwt = require('jsonwebtoken');
-    const { Op } = require('sequelize');
-    
-    const { username, email, password } = req.body;
-    
-    const existingUser = await User.findOne({
-      where: { [Op.or]: [{ email }, { username }] }
-    });
-    
-    if (existingUser) {
-      return res.status(400).json({ success: false, message: 'User already exists' });
-    }
-    
-    const hashedPassword = await bcrypt.hash(password, 10);
-    const newUser = await User.create({ username, email, password: hashedPassword });
-    
-    const token = jwt.sign({ userId: newUser.id }, process.env.JWT_SECRET || 'secret', { expiresIn: '24h' });
-    
-    res.status(201).json({
-      success: true,
-      token,
-      user: { id: newUser.id, username: newUser.username, email: newUser.email }
-    });
-  } catch (err) {
-    console.error('Register error:', err);
-    res.status(500).json({ success: false, message: err.message });
-  }
-});
-
-app.post('/auth/login', async (req, res) => {
-  try {
-    const db = await getDB();
-    const { User } = defineModels(db);
-    const bcrypt = require('bcryptjs');
-    const jwt = require('jsonwebtoken');
-    
-    const { email, password } = req.body;
-    
-    const user = await User.findOne({ where: { email } });
-    if (!user) {
-      return res.status(400).json({ success: false, message: 'Invalid credentials' });
-    }
-    
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) {
-      return res.status(400).json({ success: false, message: 'Invalid credentials' });
-    }
-    
-    const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET || 'secret', { expiresIn: '24h' });
-    
-    res.json({
-      success: true,
-      token,
-      user: { id: user.id, username: user.username, email: user.email }
-    });
-  } catch (err) {
-    console.error('Login error:', err);
-    res.status(500).json({ success: false, message: err.message });
-  }
-});
-
-// Contact routes
-app.post('/contact', async (req, res) => {
-  try {
-    const db = await getDB();
-    const { Contact } = defineModels(db);
-    
-    const { name, email, phone, machine, message } = req.body;
-    
-    if (!name || !email) {
-      return res.status(400).json({ success: false, message: 'Name and email required' });
-    }
-    
-    const newContact = await Contact.create({ name, email, phone: phone || '', machine: machine || '', message: message || '' });
-    
-    res.status(201).json({ success: true, contact: newContact });
-  } catch (err) {
-    console.error('Contact error:', err);
-    res.status(500).json({ success: false, message: err.message });
-  }
-});
-
-// Quotation routes (require auth)
-app.post('/quotation', async (req, res) => {
-  try {
-    const db = await getDB();
-    const { Quotation } = defineModels(db);
-    const jwt = require('jsonwebtoken');
-    
-    const authHeader = req.headers['authorization'];
-    const token = authHeader && authHeader.split(' ')[1];
-    
-    if (!token) {
-      return res.status(401).json({ success: false, message: 'Token required' });
-    }
-    
-    const user = jwt.verify(token, process.env.JWT_SECRET || 'secret');
-    
-    const { equipment, days, quantity, totalAmount, contactInfo } = req.body;
-    
-    const newQuotation = await Quotation.create({
-      userId: user.userId,
-      equipment,
-      days,
-      quantity,
-      totalAmount,
-      contactInfo: contactInfo || {}
-    });
-    
-    res.status(201).json({ success: true, quotation: newQuotation });
-  } catch (err) {
-    console.error('Quotation error:', err);
-    res.status(500).json({ success: false, message: err.message });
-  }
-});
-
-// Vercel serverless handler
+// Main handler
 module.exports = async (req, res) => {
-  console.log('🔵 Request:', req.method, req.url);
-  return app(req, res);
+  // Handle CORS preflight
+  if (req.method === 'OPTIONS') {
+    return sendJSON(res, 200, { ok: true });
+  }
+  
+  console.log(`🔵 ${req.method} ${req.url}`);
+  
+  try {
+    const path = req.url.replace(/^\/api/, '');
+    
+    // Test endpoint
+    if (path === '/test' && req.method === 'GET') {
+      return sendJSON(res, 200, {
+        message: 'API is working!',
+        hasDatabaseUrl: !!process.env.DATABASE_URL,
+        nodeEnv: process.env.NODE_ENV
+      });
+    }
+    
+    // Health endpoint
+    if (path === '/health' && req.method === 'GET') {
+      try {
+        await getDB();
+        return sendJSON(res, 200, { status: 'ok', hasDatabaseUrl: !!process.env.DATABASE_URL });
+      } catch (err) {
+        return sendJSON(res, 500, { status: 'error', message: err.message, hasDatabaseUrl: !!process.env.DATABASE_URL });
+      }
+    }
+    
+    // Register
+    if (path === '/auth/register' && req.method === 'POST') {
+      let body = '';
+      req.on('data', chunk => { body += chunk; });
+      req.on('end', async () => {
+        try {
+          const { username, email, password } = JSON.parse(body);
+          const { db, models } = await getDB();
+          
+          const existingUser = await models.User.findOne({
+            where: { [Op.or]: [{ email }, { username }] }
+          });
+          
+          if (existingUser) {
+            return sendJSON(res, 400, { success: false, message: 'User already exists' });
+          }
+          
+          const hashedPassword = await bcrypt.hash(password, 10);
+          const newUser = await models.User.create({ username, email, password: hashedPassword });
+          
+          const token = jwt.sign({ userId: newUser.id }, process.env.JWT_SECRET || 'secret', { expiresIn: '24h' });
+          
+          return sendJSON(res, 201, {
+            success: true,
+            token,
+            user: { id: newUser.id, username: newUser.username, email: newUser.email }
+          });
+        } catch (err) {
+          console.error('Register error:', err);
+          return sendJSON(res, 500, { success: false, message: err.message });
+        }
+      });
+      return;
+    }
+    
+    // Login
+    if (path === '/auth/login' && req.method === 'POST') {
+      let body = '';
+      req.on('data', chunk => { body += chunk; });
+      req.on('end', async () => {
+        try {
+          const { email, password } = JSON.parse(body);
+          const { db, models } = await getDB();
+          
+          const user = await models.User.findOne({ where: { email } });
+          if (!user) {
+            return sendJSON(res, 400, { success: false, message: 'Invalid credentials' });
+          }
+          
+          const isMatch = await bcrypt.compare(password, user.password);
+          if (!isMatch) {
+            return sendJSON(res, 400, { success: false, message: 'Invalid credentials' });
+          }
+          
+          const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET || 'secret', { expiresIn: '24h' });
+          
+          return sendJSON(res, 200, {
+            success: true,
+            token,
+            user: { id: user.id, username: user.username, email: user.email }
+          });
+        } catch (err) {
+          console.error('Login error:', err);
+          return sendJSON(res, 500, { success: false, message: err.message });
+        }
+      });
+      return;
+    }
+    
+    // Contact
+    if (path === '/contact' && req.method === 'POST') {
+      let body = '';
+      req.on('data', chunk => { body += chunk; });
+      req.on('end', async () => {
+        try {
+          const { name, email, phone, machine, message } = JSON.parse(body);
+          const { db, models } = await getDB();
+          
+          if (!name || !email) {
+            return sendJSON(res, 400, { success: false, message: 'Name and email required' });
+          }
+          
+          const newContact = await models.Contact.create({ name, email, phone: phone || '', machine: machine || '', message: message || '' });
+          
+          return sendJSON(res, 201, { success: true, contact: newContact });
+        } catch (err) {
+          console.error('Contact error:', err);
+          return sendJSON(res, 500, { success: false, message: err.message });
+        }
+      });
+      return;
+    }
+    
+    // 404 for unknown routes
+    return sendJSON(res, 404, { error: 'Not found', path: path, method: req.method });
+    
+  } catch (err) {
+    console.error('❌ API error:', err);
+    return sendJSON(res, 500, { success: false, message: 'Internal error: ' + err.message });
+  }
 };
