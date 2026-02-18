@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://servicios-y-suministros-wls.vercel.app/sitemap.xml
