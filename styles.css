@@ -446,7 +446,7 @@ section {
         position: relative;
         max-width: 100%;
         margin: 0 auto;
-        padding: 20px 10px;
+        padding: 20px 15px;
         overflow: visible;
     }
 
@@ -465,9 +465,9 @@ section {
         -webkit-overflow-scrolling: touch;
         scrollbar-width: none;
         -ms-overflow-style: none;
-        gap: 30px;
-        padding: 20px 10px;
-        justify-content: flex-start;
+        gap: 20px;
+        padding: 20px 15px;
+        justify-content: center;
         transform: none !important;
     }
 
@@ -477,7 +477,7 @@ section {
 
     .carousel-slide {
         flex: 0 0 auto;
-        width: 300px;
+        width: 280px;
         scroll-snap-align: start;
         display: flex;
         justify-content: center;
@@ -488,7 +488,7 @@ section {
 
     .carousel-slide .gallery-item {
         width: 100%;
-        max-width: 300px;
+        max-width: 280px;
         height: 400px;
         margin: 0 auto;
         display: flex;
@@ -542,14 +542,14 @@ section {
 /* Extra small mobile devices (max-width: 480px) */
 @media (max-width: 480px) {
     .carousel-slide {
-        width: calc(100vw - 30px);
-        min-width: calc(100vw - 30px);
+        width: calc(100vw - 60px);
+        min-width: calc(100vw - 60px);
         padding: 0 15px;
     }
 
     .gallery-item {
         width: 100%;
-        max-width: 300px;
+        max-width: 260px;
         margin: 10px 0;
     }
 
