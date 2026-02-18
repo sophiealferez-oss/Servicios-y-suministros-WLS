@@ -1266,8 +1266,8 @@ section {
 .mobile-auth-buttons .btn-auth {
     padding: 10px 16px;
     border: 2px solid #FFD700;
-    background-color: transparent;
-    color: #333;
+    background-color: #FFD700;
+    color: #000;
     font-weight: 500;
     cursor: pointer;
     transition: all 0.3s ease;
@@ -1277,7 +1277,7 @@ section {
 }
 
 .mobile-auth-buttons .btn-auth:hover {
-    background-color: #FFD700;
+    background-color: #e6c200;
     color: #000;
 }
 
