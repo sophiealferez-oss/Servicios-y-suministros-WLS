@@ -29,6 +29,10 @@
     {
       "src": "fondo/**",
       "use": "@vercel/static"
+    },
+    {
+      "src": "background/**",
+      "use": "@vercel/static"
     }
   ],
   "routes": [
