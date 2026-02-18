@@ -33,7 +33,7 @@ async function getDB() {
   });
 
   await sequelize.authenticate();
-  await sequelize.sync({ alter: false });
+  await sequelize.sync({ force: false, alter: true });
   console.log('✅ DB connected');
   
   models = {
