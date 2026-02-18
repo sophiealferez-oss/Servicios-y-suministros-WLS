@@ -32,7 +32,7 @@ body {
     width: 250px;
     background-color: #fff;
     box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
-    z-index: 1000;
+    z-index: 999;
     display: flex;
     flex-direction: column;
     transition: transform 0.3s ease;
@@ -55,6 +55,19 @@ body {
     list-style: none;
     padding: 20px 0;
     flex-grow: 1;
+}
+
+/* Sidebar logo for mobile (hidden on desktop) */
+.sidebar-logo {
+    display: none;
+    padding: 20px;
+    text-align: center;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.sidebar-logo img {
+    width: 120px;
+    height: auto;
 }
 
 .nav-links li {
@@ -1105,9 +1118,23 @@ section {
         top: 20px;
     }
 
-    /* Hide logo container on mobile (auth buttons are in top-right) */
+    /* Hide fixed logo on mobile and show sidebar logo */
     .logo-container {
         display: none;
+    }
+
+    .sidebar-logo {
+        display: block;
+    }
+
+    /* Adjust nav-links margin for mobile */
+    .nav-links {
+        margin-top: 0;
+    }
+
+    /* When sidebar is open, bring it to front */
+    .sidebar-nav.active {
+        z-index: 1003;
     }
 }
 
@@ -1258,7 +1285,7 @@ section {
     position: fixed;
     top: 20px;
     right: 20px;
-    z-index: 1002;
+    z-index: 998;
     gap: 10px;
     align-items: center;
 }
