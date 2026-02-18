@@ -33,9 +33,9 @@ async function getDB() {
   });
 
   await sequelize.authenticate();
-  await sequelize.sync({ force: false, alter: true });
   console.log('✅ DB connected');
-  
+
+  // Define models FIRST - before sync
   models = {
     User: sequelize.define('User', {
       id: { type: DataTypes.UUID, defaultValue: DataTypes.UUIDV4, primaryKey: true },
@@ -64,9 +64,14 @@ async function getDB() {
     }, { timestamps: true, tableName: 'quotations' })
   };
 
+  // Define associations
   models.Quotation.belongsTo(models.User, { foreignKey: 'userId', as: 'user' });
   models.User.hasMany(models.Quotation, { foreignKey: 'userId', as: 'quotations' });
-  
+
+  // THEN sync - after models are defined
+  await sequelize.sync({ force: false, alter: true });
+  console.log('✅ Models synced');
+
   return { db: sequelize, models };
 }
 
@@ -83,12 +88,12 @@ module.exports = async (req, res) => {
   if (req.method === 'OPTIONS') {
     return sendJSON(res, 200, { ok: true });
   }
-  
+
   console.log(`🔵 ${req.method} ${req.url}`);
-  
+
   try {
     const path = req.url.replace(/^\/api/, '');
-    
+
     if (path === '/test' && req.method === 'GET') {
       return sendJSON(res, 200, {
         message: 'API is working!',
@@ -96,7 +101,7 @@ module.exports = async (req, res) => {
         nodeEnv: process.env.NODE_ENV
       });
     }
-    
+
     if (path === '/health' && req.method === 'GET') {
       try {
         await getDB();
@@ -105,7 +110,7 @@ module.exports = async (req, res) => {
         return sendJSON(res, 500, { status: 'error', message: err.message, hasDatabaseUrl: !!process.env.DATABASE_URL });
       }
     }
-    
+
     if (path === '/auth/register' && req.method === 'POST') {
       let body = '';
       req.on('data', chunk => { body += chunk; });
@@ -113,20 +118,20 @@ module.exports = async (req, res) => {
         try {
           const { username, email, password } = JSON.parse(body);
           const { models } = await getDB();
-          
+
           const existingUser = await models.User.findOne({
             where: { [Op.or]: [{ email }, { username }] }
           });
-          
+
           if (existingUser) {
             return sendJSON(res, 400, { success: false, message: 'User already exists' });
           }
-          
+
           const hashedPassword = await bcrypt.hash(password, 10);
           const newUser = await models.User.create({ username, email, password: hashedPassword });
-          
+
           const token = jwt.sign({ userId: newUser.id }, process.env.JWT_SECRET || 'secret', { expiresIn: '24h' });
-          
+
           return sendJSON(res, 201, {
             success: true,
             token,
@@ -139,7 +144,7 @@ module.exports = async (req, res) => {
       });
       return;
     }
-    
+
     if (path === '/auth/login' && req.method === 'POST') {
       let body = '';
       req.on('data', chunk => { body += chunk; });
@@ -147,19 +152,19 @@ module.exports = async (req, res) => {
         try {
           const { email, password } = JSON.parse(body);
           const { models } = await getDB();
-          
+
           const user = await models.User.findOne({ where: { email } });
           if (!user) {
             return sendJSON(res, 400, { success: false, message: 'Invalid credentials' });
           }
-          
+
           const isMatch = await bcrypt.compare(password, user.password);
           if (!isMatch) {
             return sendJSON(res, 400, { success: false, message: 'Invalid credentials' });
           }
-          
+
           const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET || 'secret', { expiresIn: '24h' });
-          
+
           return sendJSON(res, 200, {
             success: true,
             token,
@@ -172,7 +177,7 @@ module.exports = async (req, res) => {
       });
       return;
     }
-    
+
     if (path === '/contact' && req.method === 'POST') {
       let body = '';
       req.on('data', chunk => { body += chunk; });
@@ -261,9 +266,9 @@ module.exports = async (req, res) => {
       });
       return;
     }
-    
+
     return sendJSON(res, 404, { error: 'Not found', path: path, method: req.method });
-    
+
   } catch (err) {
     console.error('❌ API error:', err);
     return sendJSON(res, 500, { success: false, message: 'Internal error: ' + err.message });
