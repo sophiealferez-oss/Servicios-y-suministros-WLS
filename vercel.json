@@ -6,7 +6,28 @@
       "use": "@vercel/node"
     },
     {
-      "src": "index.html",
+      "src": "*.html",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "*.css",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "*.js",
+      "use": "@vercel/static",
+      "config": { "excludeFiles": "api/**" }
+    },
+    {
+      "src": "imagenes_maquinaria/**",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "logo/**",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "fondo/**",
       "use": "@vercel/static"
     }
   ],
