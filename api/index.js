@@ -1,3 +1,4 @@
+const pg = require('pg');
 const { Sequelize, DataTypes, Op } = require('sequelize');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
@@ -15,15 +16,14 @@ async function getDB() {
 
   sequelize = new Sequelize(process.env.DATABASE_URL, {
     dialect: 'postgres',
+    dialectModule: pg,
     logging: false,
-    // Neon requiere SSL
     dialectOptions: {
       ssl: {
         require: true,
         rejectUnauthorized: false
       }
     },
-    // Pool optimizado para serverless
     pool: {
       max: 1,
       min: 0,
@@ -36,7 +36,6 @@ async function getDB() {
   await sequelize.sync({ alter: false });
   console.log('✅ DB connected');
   
-  // Define models
   models = {
     User: sequelize.define('User', {
       id: { type: DataTypes.UUID, defaultValue: DataTypes.UUIDV4, primaryKey: true },
@@ -65,14 +64,12 @@ async function getDB() {
     }, { timestamps: true, tableName: 'quotations' })
   };
 
-  // Define associations
   models.Quotation.belongsTo(models.User, { foreignKey: 'userId', as: 'user' });
   models.User.hasMany(models.Quotation, { foreignKey: 'userId', as: 'quotations' });
   
   return { db: sequelize, models };
 }
 
-// Helper function to send JSON response
 function sendJSON(res, statusCode, data) {
   res.setHeader('Content-Type', 'application/json');
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -82,9 +79,7 @@ function sendJSON(res, statusCode, data) {
   res.end(JSON.stringify(data));
 }
 
-// Main handler
 module.exports = async (req, res) => {
-  // Handle CORS preflight
   if (req.method === 'OPTIONS') {
     return sendJSON(res, 200, { ok: true });
   }
@@ -94,7 +89,6 @@ module.exports = async (req, res) => {
   try {
     const path = req.url.replace(/^\/api/, '');
     
-    // Test endpoint
     if (path === '/test' && req.method === 'GET') {
       return sendJSON(res, 200, {
         message: 'API is working!',
@@ -103,7 +97,6 @@ module.exports = async (req, res) => {
       });
     }
     
-    // Health endpoint
     if (path === '/health' && req.method === 'GET') {
       try {
         await getDB();
@@ -113,7 +106,6 @@ module.exports = async (req, res) => {
       }
     }
     
-    // Register
     if (path === '/auth/register' && req.method === 'POST') {
       let body = '';
       req.on('data', chunk => { body += chunk; });
@@ -148,7 +140,6 @@ module.exports = async (req, res) => {
       return;
     }
     
-    // Login
     if (path === '/auth/login' && req.method === 'POST') {
       let body = '';
       req.on('data', chunk => { body += chunk; });
@@ -182,7 +173,6 @@ module.exports = async (req, res) => {
       return;
     }
     
-    // Contact
     if (path === '/contact' && req.method === 'POST') {
       let body = '';
       req.on('data', chunk => { body += chunk; });
@@ -206,7 +196,6 @@ module.exports = async (req, res) => {
       return;
     }
 
-    // Get quotations (protected)
     if (path === '/quotation' && req.method === 'GET') {
       const authHeader = req.headers['authorization'];
       const token = authHeader && authHeader.split(' ')[1];
@@ -232,7 +221,6 @@ module.exports = async (req, res) => {
       }
     }
 
-    // Save quotation (protected)
     if (path === '/quotation' && req.method === 'POST') {
       const authHeader = req.headers['authorization'];
       const token = authHeader && authHeader.split(' ')[1];
@@ -274,7 +262,6 @@ module.exports = async (req, res) => {
       return;
     }
     
-    // 404 for unknown routes
     return sendJSON(res, 404, { error: 'Not found', path: path, method: req.method });
     
   } catch (err) {
