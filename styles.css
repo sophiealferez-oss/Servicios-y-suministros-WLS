@@ -1098,6 +1098,17 @@ section {
     .sidebar-nav {
         width: 250px;
     }
+
+    /* Adjust hamburger position to avoid overlap with auth buttons */
+    .hamburger {
+        left: 20px;
+        top: 20px;
+    }
+
+    /* Hide logo container on mobile (auth buttons are in top-right) */
+    .logo-container {
+        display: none;
+    }
 }
 
 /* Specific styles for iPhone and Samsung devices */
@@ -1241,6 +1252,71 @@ section {
     font-size: 14px;
 }
 
+/* Mobile Auth Buttons (top-right corner) */
+.mobile-auth-buttons {
+    display: none;
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1002;
+    gap: 10px;
+    align-items: center;
+}
+
+.mobile-auth-buttons .btn-auth {
+    padding: 10px 16px;
+    border: 2px solid #FFD700;
+    background-color: transparent;
+    color: #333;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border-radius: 6px;
+    font-size: 14px;
+    white-space: nowrap;
+}
+
+.mobile-auth-buttons .btn-auth:hover {
+    background-color: #FFD700;
+    color: #000;
+}
+
+.mobile-auth-buttons .btn-register {
+    background-color: #FFD700;
+    color: #000;
+}
+
+.mobile-auth-buttons .btn-register:hover {
+    background-color: #e6c200;
+}
+
+.mobile-auth-buttons .btn-logout {
+    background-color: #dc3545;
+    border-color: #dc3545;
+    color: white;
+    padding: 8px 14px;
+}
+
+.mobile-auth-buttons .btn-logout:hover {
+    background-color: #c82333;
+}
+
+.mobile-auth-buttons .user-info {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+    background: rgba(255, 255, 255, 0.95);
+    padding: 8px 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.mobile-auth-buttons .user-name {
+    font-size: 13px;
+    margin: 0;
+}
+
 /* Auth Modal Styles */
 .auth-modal-content {
     background: white;
@@ -1353,6 +1429,16 @@ section {
 @media (max-width: 768px) {
     .auth-buttons {
         padding: 15px;
+    }
+
+    /* Show mobile auth buttons on top-right corner */
+    .mobile-auth-buttons {
+        display: flex;
+    }
+
+    /* Hide auth buttons inside sidebar on mobile */
+    .sidebar-nav .auth-buttons {
+        display: none;
     }
 
     .auth-modal-content {

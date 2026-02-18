@@ -36,6 +36,7 @@ const showRegisterLink = document.getElementById('showRegister');
 const showLoginLink = document.getElementById('showLogin');
 const closeAuthModal = document.querySelectorAll('.close-auth-modal');
 const authButtonsContainer = document.getElementById('authButtons');
+const mobileAuthButtonsContainer = document.getElementById('mobileAuthButtons');
 
 // Carousel Elements (will be defined in initApp after DOM loads)
 let carouselTrack, carouselSlides, prevBtn, nextBtn, indicators, galleryItems;
@@ -225,41 +226,81 @@ function checkAuthStatus() {
 
 // Update UI based on auth status
 function updateAuthUI(isLoggedIn) {
-    if (!authButtonsContainer) return;
+    // Update sidebar auth buttons (desktop)
+    if (authButtonsContainer) {
+        if (isLoggedIn && currentUser) {
+            authButtonsContainer.innerHTML = `
+                <div class="user-info">
+                    <span class="user-name">👤 ${currentUser.username}</span>
+                    <button class="btn btn-logout" id="logoutBtn">Cerrar Sesión</button>
+                </div>
+            `;
 
-    if (isLoggedIn && currentUser) {
-        authButtonsContainer.innerHTML = `
-            <div class="user-info">
-                <span class="user-name">👤 ${currentUser.username}</span>
-                <button class="btn btn-logout" id="logoutBtn">Cerrar Sesión</button>
-            </div>
-        `;
+            const logoutBtn = document.getElementById('logoutBtn');
+            if (logoutBtn) {
+                logoutBtn.addEventListener('click', handleLogout);
+            }
+        } else {
+            authButtonsContainer.innerHTML = `
+                <button class="btn btn-auth" id="loginBtnNav">Iniciar Sesión</button>
+                <button class="btn btn-auth btn-register" id="registerBtnNav">Registrarse</button>
+            `;
 
-        const logoutBtn = document.getElementById('logoutBtn');
-        if (logoutBtn) {
-            logoutBtn.addEventListener('click', handleLogout);
+            const loginBtnNav = document.getElementById('loginBtnNav');
+            const registerBtnNav = document.getElementById('registerBtnNav');
+
+            if (loginBtnNav) {
+                loginBtnNav.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    openLoginModal();
+                });
+            }
+
+            if (registerBtnNav) {
+                registerBtnNav.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    openRegisterModal();
+                });
+            }
         }
-    } else {
-        authButtonsContainer.innerHTML = `
-            <button class="btn btn-auth" id="loginBtnNav">Iniciar Sesión</button>
-            <button class="btn btn-auth btn-register" id="registerBtnNav">Registrarse</button>
-        `;
+    }
 
-        const loginBtnNav = document.getElementById('loginBtnNav');
-        const registerBtnNav = document.getElementById('registerBtnNav');
+    // Update mobile auth buttons (top-right corner)
+    if (mobileAuthButtonsContainer) {
+        if (isLoggedIn && currentUser) {
+            mobileAuthButtonsContainer.innerHTML = `
+                <div class="user-info">
+                    <span class="user-name">👤 ${currentUser.username}</span>
+                    <button class="btn btn-logout" id="logoutBtnMobile">Cerrar Sesión</button>
+                </div>
+            `;
 
-        if (loginBtnNav) {
-            loginBtnNav.addEventListener('click', (e) => {
-                e.preventDefault();
-                openLoginModal();
-            });
-        }
+            const logoutBtnMobile = document.getElementById('logoutBtnMobile');
+            if (logoutBtnMobile) {
+                logoutBtnMobile.addEventListener('click', handleLogout);
+            }
+        } else {
+            mobileAuthButtonsContainer.innerHTML = `
+                <button class="btn btn-auth" id="loginBtnMobile">Iniciar Sesión</button>
+                <button class="btn btn-auth btn-register" id="registerBtnMobile">Registrarse</button>
+            `;
 
-        if (registerBtnNav) {
-            registerBtnNav.addEventListener('click', (e) => {
-                e.preventDefault();
-                openRegisterModal();
-            });
+            const loginBtnMobile = document.getElementById('loginBtnMobile');
+            const registerBtnMobile = document.getElementById('registerBtnMobile');
+
+            if (loginBtnMobile) {
+                loginBtnMobile.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    openLoginModal();
+                });
+            }
+
+            if (registerBtnMobile) {
+                registerBtnMobile.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    openRegisterModal();
+                });
+            }
         }
     }
 }
