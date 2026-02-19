@@ -19,6 +19,10 @@
       "config": { "excludeFiles": "api/**" }
     },
     {
+      "src": "*.xml",
+      "use": "@vercel/static"
+    },
+    {
       "src": "imagenes_maquinaria/**",
       "use": "@vercel/static"
     },
