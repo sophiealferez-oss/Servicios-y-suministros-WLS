@@ -16,9 +16,9 @@ const sequelize = new Sequelize(process.env.DATABASE_URL, {
   },
   // Pool de conexiones optimizado para serverless
   pool: {
-    max: isVercel ? 1 : 5,
-    min: 0,
-    acquire: 30000,
+    max: isVercel ? 10 : 5,
+    min: isVercel ? 2 : 0,
+    acquire: 60000,
     idle: 10000
   }
 });
