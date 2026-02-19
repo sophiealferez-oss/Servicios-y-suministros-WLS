@@ -350,7 +350,36 @@ section {
 }
 
 .carousel-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: rgba(0, 102, 204, 0.8);
+    color: white;
+    border: none;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    cursor: pointer;
+    z-index: 10;
     display: none;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+}
+
+.carousel-btn:hover {
+    background-color: rgba(0, 102, 204, 1);
+    transform: translateY(-50%) scale(1.1);
+}
+
+.prev-btn {
+    left: 10px;
+}
+
+.next-btn {
+    right: 10px;
 }
 
 .carousel-indicators {
@@ -367,6 +396,7 @@ section {
         max-width: none;
         overflow: visible;
         box-shadow: none;
+        position: relative;
     }
 
     .carousel-track {
@@ -374,11 +404,16 @@ section {
         grid-template-columns: repeat(2, 1fr);
         gap: 40px;
         padding: 20px 0;
-        overflow: visible;
+        overflow-x: auto;
         scroll-snap-type: none;
         scroll-behavior: auto;
         -webkit-overflow-scrolling: auto;
         transform: none !important;
+        scrollbar-width: none;
+    }
+
+    .carousel-track::-webkit-scrollbar {
+        display: none;
     }
 
     .carousel-slide {
@@ -404,9 +439,9 @@ section {
         min-height: 80px;
     }
 
-    /* Hide buttons on desktop */
+    /* Show buttons on desktop when needed - controlled by JS */
     .carousel-btn {
-        display: none !important;
+        display: none;
     }
 
     /* Hide indicators on desktop */
@@ -423,6 +458,7 @@ section {
 
     .carousel-wrapper {
         max-width: 760px;
+        position: relative;
     }
 
     .carousel-track {
@@ -430,6 +466,11 @@ section {
         scroll-snap-type: x mandatory;
         gap: 20px;
         padding: 20px;
+        scrollbar-width: none;
+    }
+
+    .carousel-track::-webkit-scrollbar {
+        display: none;
     }
 
     .carousel-slide {
@@ -444,6 +485,7 @@ section {
         height: 400px;
     }
 
+    /* Show buttons on tablet when needed - controlled by JS */
     .carousel-btn {
         display: none;
     }
@@ -540,6 +582,7 @@ section {
         pointer-events: none;
     }
 
+    /* Show buttons on mobile - controlled by JS */
     .carousel-btn {
         display: none;
     }

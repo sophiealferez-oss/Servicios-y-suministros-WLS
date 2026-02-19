@@ -505,19 +505,18 @@ const machineData = {
 
 // Carousel functionality
 let currentSlide = 0;
+let isTabletOrDesktop = false;
+
+// Check if current view is tablet or desktop
+function checkViewMode() {
+    isTabletOrDesktop = window.innerWidth > 768;
+    return isTabletOrDesktop;
+}
 
 // Get max slide index based on screen size
 function getMaxSlideIndex() {
     if (!carouselSlides || carouselSlides.length === 0) return 0;
-    
-    const width = window.innerWidth;
-    if (width <= 768) {
-        // Mobile: 4 individual slides
-        return carouselSlides.length - 1;
-    } else {
-        // Tablet and Desktop: all slides visible
-        return carouselSlides.length - 1;
-    }
+    return carouselSlides.length - 1;
 }
 
 // Update carousel position
@@ -538,8 +537,11 @@ function updateCarousel() {
             behavior: 'auto'
         });
         updateIndicators();
+        updateButtonVisibility();
+    } else {
+        // Tablet and Desktop: update button visibility based on scroll
+        updateButtonVisibility();
     }
-    // Tablet and Desktop: no action needed (native scroll or grid layout)
 }
 
 // Update indicators based on current slide
@@ -574,9 +576,39 @@ function updateIndicators() {
         currentSlide = mostVisibleIndex;
     }
 
-    // Activate the indicator for the current slide (mobile only)
+    // Activate the indicator for the current slide
     if (indicators[currentSlide]) {
         indicators[currentSlide].classList.add('active');
+    }
+}
+
+// Update button visibility for tablet/desktop
+function updateButtonVisibility() {
+    if (!prevBtn || !nextBtn) return;
+
+    if (window.innerWidth <= 768) {
+        // Mobile: always show buttons
+        prevBtn.style.display = 'flex';
+        nextBtn.style.display = 'flex';
+    } else {
+        // Tablet and Desktop: show buttons based on scroll position
+        const scrollLeft = carouselTrack.scrollLeft;
+        const scrollWidth = carouselTrack.scrollWidth;
+        const clientWidth = carouselTrack.clientWidth;
+
+        // Show prev button if not at the beginning
+        if (scrollLeft > 0) {
+            prevBtn.style.display = 'flex';
+        } else {
+            prevBtn.style.display = 'none';
+        }
+
+        // Show next button if there's more content to scroll
+        if (scrollLeft < scrollWidth - clientWidth - 10) {
+            nextBtn.style.display = 'flex';
+        } else {
+            nextBtn.style.display = 'none';
+        }
     }
 }
 
@@ -590,8 +622,16 @@ function goToSlide(slideIndex) {
             currentSlide = slideIndex;
             updateCarousel();
         }
+    } else {
+        // Tablet and Desktop: scroll to slide
+        currentSlide = slideIndex;
+        const slideWidth = carouselSlides[0].offsetWidth + 20;
+        carouselTrack.scrollTo({
+            left: slideIndex * slideWidth,
+            behavior: 'smooth'
+        });
+        updateButtonVisibility();
     }
-    // Tablet and Desktop: no indicators, no action needed
 }
 
 // Next slide
@@ -604,7 +644,7 @@ function nextSlide() {
         const slideWidth = carouselSlides[0].offsetWidth + 20;
         const nextScroll = currentScroll + slideWidth;
         const maxScroll = carouselTrack.scrollWidth - carouselTrack.clientWidth;
-        
+
         if (nextScroll <= maxScroll) {
             carouselTrack.scrollTo({
                 left: nextScroll,
@@ -617,8 +657,27 @@ function nextSlide() {
                 behavior: 'auto'
             });
         }
+    } else {
+        // Tablet and Desktop: scroll to next set of visible machines
+        const currentScroll = carouselTrack.scrollLeft;
+        const slideWidth = carouselSlides[0].offsetWidth + 20;
+        const visibleSlides = Math.floor(carouselTrack.clientWidth / slideWidth);
+        const nextScroll = currentScroll + (visibleSlides * slideWidth);
+        const maxScroll = carouselTrack.scrollWidth - carouselTrack.clientWidth;
+
+        if (nextScroll <= maxScroll) {
+            carouselTrack.scrollTo({
+                left: nextScroll,
+                behavior: 'smooth'
+            });
+        } else {
+            // Scroll to end
+            carouselTrack.scrollTo({
+                left: maxScroll,
+                behavior: 'smooth'
+            });
+        }
     }
-    // Tablet and Desktop: no buttons, no action needed
 }
 
 // Previous slide
@@ -630,7 +689,7 @@ function prevSlide() {
         const currentScroll = carouselTrack.scrollLeft;
         const slideWidth = carouselSlides[0].offsetWidth + 20;
         const prevScroll = currentScroll - slideWidth;
-        
+
         if (prevScroll >= 0) {
             carouselTrack.scrollTo({
                 left: prevScroll,
@@ -644,8 +703,26 @@ function prevSlide() {
                 behavior: 'auto'
             });
         }
+    } else {
+        // Tablet and Desktop: scroll to previous set of visible machines
+        const currentScroll = carouselTrack.scrollLeft;
+        const slideWidth = carouselSlides[0].offsetWidth + 20;
+        const visibleSlides = Math.floor(carouselTrack.clientWidth / slideWidth);
+        const prevScroll = currentScroll - (visibleSlides * slideWidth);
+
+        if (prevScroll >= 0) {
+            carouselTrack.scrollTo({
+                left: prevScroll,
+                behavior: 'smooth'
+            });
+        } else {
+            // Scroll to start
+            carouselTrack.scrollTo({
+                left: 0,
+                behavior: 'smooth'
+            });
+        }
     }
-    // Tablet and Desktop: no buttons, no action needed
 }
 
 // Show machine details modal
@@ -688,6 +765,7 @@ function initApp() {
     // Reset carousel to start from beginning on load
     if (carouselTrack) {
         carouselTrack.scrollLeft = 0;
+        currentSlide = 0;
     }
 
     // Handle resize events
@@ -701,7 +779,13 @@ function initApp() {
             indicatorContainer.style.display = 'flex';
         }
 
+        checkViewMode();
         updateCarousel();
+        
+        // Update button visibility after resize
+        setTimeout(() => {
+            updateButtonVisibility();
+        }, 100);
     });
 
     // Hamburger menu
@@ -907,10 +991,12 @@ function initApp() {
             });
         });
 
-        // Scroll event for indicators update on mobile
+        // Scroll event for indicators update
         carouselTrack.addEventListener('scroll', () => {
             if (window.innerWidth <= 768) {
                 updateIndicators();
+            } else {
+                updateButtonVisibility();
             }
         });
     }
@@ -940,5 +1026,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
     setTimeout(() => {
         updateCarousel();
+        updateButtonVisibility();
     }, 100);
 });
