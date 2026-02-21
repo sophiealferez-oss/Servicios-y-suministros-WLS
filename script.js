@@ -550,27 +550,16 @@ function updateIndicators() {
     if (window.innerWidth <= 768) {
         // Mobile: determine active indicator based on scroll position
         const scrollLeft = carouselTrack.scrollLeft;
-        const wrapperWidth = carouselTrack.offsetWidth;
-
-        let mostVisibleIndex = 0;
-        let maxVisibility = 0;
-
-        carouselSlides.forEach((slide, index) => {
-            const slideLeft = slide.offsetLeft;
-            const slideRight = slideLeft + slide.offsetWidth;
-
-            const visibleLeft = Math.max(slideLeft, scrollLeft);
-            const visibleRight = Math.min(slideRight, scrollLeft + wrapperWidth);
-            const visibleWidth = Math.max(0, visibleRight - visibleLeft);
-            const visibilityRatio = visibleWidth / slide.offsetWidth;
-
-            if (visibilityRatio > maxVisibility) {
-                maxVisibility = visibilityRatio;
-                mostVisibleIndex = index;
-            }
-        });
-
-        currentSlide = mostVisibleIndex;
+        const slideWidth = carouselTrack.clientWidth;
+        
+        // Calculate which slide is currently visible
+        const currentIndex = Math.round(scrollLeft / slideWidth);
+        
+        // Activate the indicator for the current slide
+        if (indicators[currentIndex]) {
+            indicators[currentIndex].classList.add('active');
+            currentSlide = currentIndex;
+        }
     }
 
     // Activate the indicator for the current slide
