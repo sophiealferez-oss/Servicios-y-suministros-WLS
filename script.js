@@ -584,11 +584,16 @@ function updateButtonVisibility() {
     if (!prevBtn || !nextBtn) return;
 
     if (window.innerWidth <= 768) {
-        // Mobile: always show next button, hide prev button at start
+        // Mobile: hide prev button at start, show only when scrolled
         const isAtStart = carouselTrack.scrollLeft < 10;
         
-        // Show prev button only if scrolled away from start
-        prevBtn.style.display = isAtStart ? 'none' : 'flex';
+        // Show prev button ONLY if scrolled away from start
+        if (isAtStart) {
+            prevBtn.style.display = 'none';
+        } else {
+            prevBtn.style.display = 'flex';
+        }
+        
         // Always show next button on mobile
         nextBtn.style.display = 'flex';
     } else {
@@ -1006,6 +1011,11 @@ function initApp() {
     // Initialize carousel position
     currentSlide = 0;
     updateCarousel();
+    
+    // Force hide prev button at start
+    if (prevBtn && window.innerWidth <= 768) {
+        prevBtn.style.display = 'none';
+    }
 }
 
 // Initialize app when DOM is loaded
