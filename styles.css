@@ -511,7 +511,6 @@ section {
         box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
         position: relative;
         width: 100%;
-        max-width: 280px;
         margin: 0 auto;
     }
 
@@ -534,9 +533,9 @@ section {
     }
 
     .carousel-slide {
-        flex: 0 0 280px;
-        width: 280px;
-        min-width: 280px;
+        flex: 0 0 100%;
+        width: 100%;
+        min-width: 100%;
         scroll-snap-align: start;
         display: flex;
         justify-content: center;
@@ -601,18 +600,14 @@ section {
 
 /* Extra small mobile devices (max-width: 480px) */
 @media (max-width: 480px) {
-    .carousel-wrapper {
-        max-width: 260px;
-    }
-    
     .carousel-slide {
-        flex: 0 0 260px;
-        width: 260px;
-        min-width: 260px;
+        flex: 0 0 100%;
+        width: 100%;
+        min-width: 100%;
         padding: 0;
     }
 
-    .gallery-item {
+    .carousel-slide .gallery-item {
         width: 260px;
         height: 380px;
         margin: 0;
