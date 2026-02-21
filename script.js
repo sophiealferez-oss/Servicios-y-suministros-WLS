@@ -530,12 +530,9 @@ function updateCarousel() {
     if (currentSlide > maxPosition) currentSlide = maxPosition;
 
     if (window.innerWidth <= 768) {
-        // Mobile: use native scroll
-        const slideWidth = carouselSlides[currentSlide].offsetWidth + 20;
-        carouselTrack.scrollTo({
-            left: currentSlide * slideWidth,
-            behavior: 'auto'
-        });
+        // Mobile: use native scroll - always reset to start (Retroexcavadora)
+        carouselTrack.scrollLeft = 0;
+        currentSlide = 0;
         updateIndicators();
         updateButtonVisibility();
     } else {
@@ -587,8 +584,12 @@ function updateButtonVisibility() {
     if (!prevBtn || !nextBtn) return;
 
     if (window.innerWidth <= 768) {
-        // Mobile: always show buttons
-        prevBtn.style.display = 'flex';
+        // Mobile: always show next button, hide prev button at start
+        const isAtStart = carouselTrack.scrollLeft < 10;
+        
+        // Show prev button only if scrolled away from start
+        prevBtn.style.display = isAtStart ? 'none' : 'flex';
+        // Always show next button on mobile
         nextBtn.style.display = 'flex';
     } else {
         // Tablet and Desktop: show buttons based on scroll position
@@ -995,6 +996,7 @@ function initApp() {
         carouselTrack.addEventListener('scroll', () => {
             if (window.innerWidth <= 768) {
                 updateIndicators();
+                updateButtonVisibility();
             } else {
                 updateButtonVisibility();
             }
