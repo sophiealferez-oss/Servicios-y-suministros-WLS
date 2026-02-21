@@ -506,7 +506,7 @@ section {
     }
 
     .carousel-wrapper {
-        overflow: hidden;
+        overflow: visible;
         border-radius: 8px;
         box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
         position: relative;
@@ -517,7 +517,7 @@ section {
     .carousel-track {
         display: flex;
         overflow-x: auto;
-        scroll-snap-type: x mandatory;
+        scroll-snap-type: none;
         scroll-behavior: auto;
         -webkit-overflow-scrolling: touch;
         scrollbar-width: none;
@@ -536,7 +536,7 @@ section {
         flex: 0 0 100%;
         width: 100%;
         min-width: 100%;
-        scroll-snap-align: start;
+        scroll-snap-align: none;
         display: flex;
         justify-content: center;
         align-items: center;

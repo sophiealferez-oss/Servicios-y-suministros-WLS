@@ -513,12 +513,6 @@ function checkViewMode() {
     return isTabletOrDesktop;
 }
 
-// Get max slide index based on screen size
-function getMaxSlideIndex() {
-    if (!carouselSlides || carouselSlides.length === 0) return 0;
-    return carouselSlides.length - 1;
-}
-
 // Update carousel position
 function updateCarousel() {
     if (!carouselTrack || carouselSlides.length === 0) return;
@@ -539,6 +533,12 @@ function updateCarousel() {
         // Tablet and Desktop: update button visibility based on scroll
         updateButtonVisibility();
     }
+}
+
+// Get max slide index based on screen size
+function getMaxSlideIndex() {
+    if (!carouselSlides || carouselSlides.length === 0) return 0;
+    return carouselSlides.length - 1;
 }
 
 // Update indicators based on current slide
@@ -645,13 +645,13 @@ function nextSlide() {
     if (!carouselSlides || carouselSlides.length === 0) return;
 
     if (window.innerWidth <= 768) {
-        // Mobile: use native scroll to next slide
+        // Mobile: scroll to next slide (full width)
         const currentScroll = carouselTrack.scrollLeft;
-        const slideWidth = carouselSlides[0].offsetWidth + 20;
+        const slideWidth = carouselTrack.clientWidth;
         const nextScroll = currentScroll + slideWidth;
         const maxScroll = carouselTrack.scrollWidth - carouselTrack.clientWidth;
 
-        if (nextScroll <= maxScroll) {
+        if (nextScroll <= maxScroll + 10) {
             carouselTrack.scrollTo({
                 left: nextScroll,
                 behavior: 'auto'
@@ -691,9 +691,9 @@ function prevSlide() {
     if (!carouselSlides || carouselSlides.length === 0) return;
 
     if (window.innerWidth <= 768) {
-        // Mobile: use native scroll to previous slide
+        // Mobile: scroll to previous slide (full width)
         const currentScroll = carouselTrack.scrollLeft;
-        const slideWidth = carouselSlides[0].offsetWidth + 20;
+        const slideWidth = carouselTrack.clientWidth;
         const prevScroll = currentScroll - slideWidth;
 
         if (prevScroll >= 0) {
